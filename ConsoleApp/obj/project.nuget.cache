@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "qynkV06l150=",
+  "dgSpecHash": "mnTby7ty2uI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\Dell\\Desktop\\LNUbooks\\ConsoleApp\\ConsoleApp.csproj",
+  "projectFilePath": "C:\\Users\\Dell\\Desktop\\тімс  модуль1\\LNUBookShare\\ConsoleApp\\ConsoleApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Dell\\.nuget\\packages\\microsoft.extensions.configuration\\9.0.10\\microsoft.extensions.configuration.9.0.10.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\9.0.10\\microsoft.extensions.configuration.abstractions.9.0.10.nupkg.sha512",

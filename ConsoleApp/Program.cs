@@ -13,10 +13,12 @@
         // "hashedpassword",
         // 1
         // );
-
-        DatabaseOperations.PrintUsers();
-
-        // DatabaseOperations.GenerateNewUsers(20);
-
+        // DatabaseOperations.GenerateFaculties();
+        // DatabaseOperations.GenerateCategories();
+        DatabaseOperations.GenerateImages();
+        // DatabaseOperations.GenerateNewUsers(30);
+        // DatabaseOperations.GenerateBooks();
+        // DatabaseOperations.GenerateFavorites();
+        // DatabaseOperations.GenerateEmailConfirmations();
     }
 }
