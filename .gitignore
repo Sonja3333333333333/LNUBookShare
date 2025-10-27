@@ -1,0 +1,6 @@
+# Папки "сміття" від Visual Studio
+[Bb]in/
+[Oo]bj/
+.vs/
+
+[Dd]ebug/
