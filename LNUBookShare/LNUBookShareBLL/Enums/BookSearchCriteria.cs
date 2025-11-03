@@ -1,11 +1,16 @@
-﻿namespace LNUBookShareBLL.Enums
+﻿using System.ComponentModel;
+
+namespace LNUBookShareBLL.Enums
 {
-    // "Dropdown критеріїв пошуку"
     public enum BookSearchCriteria
     {
+        [Description("Назва")]
         Title,
+        [Description("Автор")]
         Author,
-        Category,
-        ISBN
+        [Description("ISBN")]
+        ISBN,
+        [Description("Категорія")]
+        Category
     }
 }

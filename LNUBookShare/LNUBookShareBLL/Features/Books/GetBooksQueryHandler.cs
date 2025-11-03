@@ -1,8 +1,11 @@
 ﻿using MediatR;
 using LNUBookShareBLL.Dtos;
 using LNUBookShareBLL.Enums;
+using LNUBookShareDAL;
 using Microsoft.EntityFrameworkCore;
-
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using LNUBookShareDAL.Models;
 
 namespace LNUBookShareBLL.Features.Books
@@ -18,16 +21,13 @@ namespace LNUBookShareBLL.Features.Books
 
         public async Task<PaginatedResultDto<BookCardDto>> Handle(GetBooksQuery request, CancellationToken cancellationToken)
         {
-            // 1. Починаємо будувати запит (ще не виконуємо)
             var query = _dbContext.Books
-                .Include(b => b.Owner)    // Потрібен для імені власника
-                .Include(b => b.Cover)    // Для обкладинки
-                .Include(b => b.Category) // Для пошуку/сортування
+                .Include(b => b.Owner)
+                .Include(b => b.Cover)
+                .Include(b => b.Category)
                 .AsQueryable();
 
-            // 2. Застосовуємо ФІЛЬТРАЦІЮ (WHERE)
-
-            // Фільтр статусу ("Усе", "Тільки доступні", "Тільки видані")
+            // 2. ФІЛЬТРАЦІЯ
             switch (request.FilterBy)
             {
                 case BookFilterStatus.Available:
@@ -38,7 +38,6 @@ namespace LNUBookShareBLL.Features.Books
                     break;
             }
 
-            // Пошуковий запит (якщо він є)
             if (!string.IsNullOrWhiteSpace(request.SearchTerm))
             {
                 var term = request.SearchTerm.ToLower();
@@ -54,41 +53,33 @@ namespace LNUBookShareBLL.Features.Books
                         query = query.Where(b => b.Isbn != null && b.Isbn.ToLower().Contains(term));
                         break;
                     case BookSearchCriteria.Category:
-                        query = query.Where(b => b.Category.Name.ToLower().Contains(term));
+                        query = query.Where(b => b.Category != null && b.Category.Name.ToLower().Contains(term));
                         break;
                 }
             }
 
-            // 3. Отримуємо ЗАГАЛЬНУ КІЛЬКІСТЬ (до пагінації!)
             var totalCount = await query.CountAsync(cancellationToken);
 
-            // 4. Застосовуємо СОРТУВАННЯ (ORDER BY)
+            // 4. СОРТУВАННЯ
             switch (request.SortBy)
             {
                 case BookSortCriteria.Author:
                     query = query.OrderBy(b => b.Author);
                     break;
-                case BookSortCriteria.Category:
-                    query = query.OrderBy(b => b.Category.Name);
-                    break;
-                case BookSortCriteria.Language:
-                    query = query.OrderBy(b => b.Language);
-                    break;
                 case BookSortCriteria.Year:
                     query = query.OrderBy(b => b.Year);
                     break;
                 default:
-                    query = query.OrderBy(b => b.Title); // За замовчуванням
+                    query = query.OrderBy(b => b.Title);
                     break;
             }
 
-            // 5. Застосовуємо ПАГІНАЦІЮ (SKIP / TAKE)
+            // 5. ПАГІНАЦІЯ
             var paginatedQuery = query
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize);
 
-            // 6. Проекція (SELECT) - Виконуємо запит до БД
-            // Перетворюємо Book (DAL) -> BookCardDto (BLL)
+            // 6. ПРОЕКЦІЯ (SELECT)
             var books = await paginatedQuery
                 .Select(book => new BookCardDto
                 {
@@ -96,16 +87,14 @@ namespace LNUBookShareBLL.Features.Books
                     Title = book.Title,
                     Author = book.Author,
                     Year = book.Year,
-                    CoverPath = book.Cover != null ? book.Cover.ImagePath : null,
-                    OwnerFullName = book.Owner.FirstName + " " + book.Owner.LastName,
-
-                    // Суб-запит: перевіряємо, чи є запис у таблиці Favorites
+                    CoverPath = (book.Cover != null) ? book.Cover.ImagePath : null,
+                    OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "Власник невідомий",
                     IsFavoritedByCurrentUser = _dbContext.Favorites.Any(f =>
                         f.BookId == book.BookId && f.UserId == request.CurrentUserId)
                 })
                 .ToListAsync(cancellationToken);
 
-            // 7. Повертаємо фінальний DTO
+            // 7. РЕЗУЛЬТАТ
             return new PaginatedResultDto<BookCardDto>
             {
                 Items = books,

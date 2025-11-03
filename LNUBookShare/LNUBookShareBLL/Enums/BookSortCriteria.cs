@@ -1,11 +1,14 @@
-﻿namespace LNUBookShareBLL.Enums
+﻿using System.ComponentModel;
+
+namespace LNUBookShareBLL.Enums
 {
-    // "Сортування"
     public enum BookSortCriteria
     {
+        [Description("Назва")]
+        Title,
+        [Description("Автор")]
         Author,
-        Category,
-        Language,
+        [Description("Рік")]
         Year
     }
 }
