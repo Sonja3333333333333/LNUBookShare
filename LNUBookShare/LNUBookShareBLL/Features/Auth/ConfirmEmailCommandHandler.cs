@@ -1,0 +1,58 @@
+﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+using LNUBookShareDAL.Models;
+
+namespace LNUBookShareBLL.Features.Auth
+{
+   
+    public class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, Unit>
+    {
+        private readonly LNUBookShareDbContext _dbContext;
+
+        public ConfirmEmailCommandHandler(LNUBookShareDbContext dbContext)
+        {
+            _dbContext = dbContext;
+        }
+
+        public async Task<Unit> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
+        {
+    
+            var tokenEntity = await _dbContext.Emailconfirmations
+                .Include(t => t.User)
+                .FirstOrDefaultAsync(t => t.ConfirmationToken == request.ConfirmationToken, cancellationToken);
+
+            if (tokenEntity == null)
+            {
+                throw new Exception("Недійсний токен підтвердження.");
+            }
+
+            if (tokenEntity.ExpiresAt < DateTime.UtcNow)
+            {
+                _dbContext.Emailconfirmations.Remove(tokenEntity);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                throw new Exception("Термін дії токена вийшов. Будь ласка, надішліть запит на підтвердження повторно.");
+            }
+
+            if (tokenEntity.User == null)
+            {
+                throw new Exception("Акаунт, пов'язаний з цим токеном, не знайдено.");
+            }
+
+            if (tokenEntity.User.IsEmailConfirmed)
+            {
+                _dbContext.Emailconfirmations.Remove(tokenEntity);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+                return Unit.Value; 
+            }
+
+            tokenEntity.User.IsEmailConfirmed = true;
+
+            _dbContext.Emailconfirmations.Remove(tokenEntity);
+
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Unit.Value;
+        }
+    }
+}
