@@ -3,5 +3,6 @@
     public interface INavigationService
     {
         void ShowProfile();
+        void ShowFavorites();
     }
 }

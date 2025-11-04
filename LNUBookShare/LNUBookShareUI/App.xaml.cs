@@ -42,6 +42,12 @@ namespace LNUBookShareUI
             services.AddTransient<ProfileViewModel>();
             services.AddTransient<ProfileView>();
 
+            services.AddTransient<BookDetailsView>();
+            services.AddTransient<BookDetailsViewModel>();
+
+            services.AddTransient<FavoritesView>();
+            services.AddTransient<FavoritesViewModel>();
+
             services.AddSingleton<INavigationService, NavigationService>();
         }
 

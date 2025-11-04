@@ -30,5 +30,15 @@ namespace LNUBookShareUI.Common
             profileView.Show();
 
         }
+        public void ShowFavorites()
+        {
+            var favoritesView = _serviceProvider.GetService<FavoritesView>();
+
+            var favoritesViewModel = _serviceProvider.GetService<FavoritesViewModel>();
+
+            favoritesView.DataContext = favoritesViewModel;
+
+            favoritesView.Show();
+        }
     }
 }

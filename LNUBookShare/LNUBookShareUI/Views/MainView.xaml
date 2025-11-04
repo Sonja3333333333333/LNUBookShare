@@ -53,7 +53,7 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Уподобанні" Style="{StaticResource LinkButton}" />
+            <Button Content="Уподобані" Style="{StaticResource LinkButton}" Command="{Binding OpenFavoritesCommand}" />
             <Button Content="Профіль" Style="{StaticResource LinkButton}" Margin="10,0,0,0" Command="{Binding OpenProfileCommand}" />
         </StackPanel>
 
