@@ -36,6 +36,11 @@ namespace LNUBookShareUI
             services.AddTransient<MainViewModel>();
             // (Сюди додаси LoginViewModel, RegisterViewModel...)
 
+            services.AddTransient<LoginViewModel>();
+            services.AddTransient<LoginView>();
+            services.AddTransient<RegisterViewModel>();
+            services.AddTransient<RegisterView>();
+
             // 4. Views
             services.AddTransient<MainView>();
         }
