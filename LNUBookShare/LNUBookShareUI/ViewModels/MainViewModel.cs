@@ -11,6 +11,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Windows;
+using System.Windows.Navigation;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -18,6 +19,7 @@ namespace LNUBookShareUI.ViewModels
     {
         // --- Поля ---
         private readonly IMediator _mediator;
+        private readonly INavigationService _navigationService;
         private readonly int _currentUserId = 1; // "Захардкодили" ID користувача!
         private bool _isSearchPerformed = false; // "Прапорець" пошуку
 
@@ -103,10 +105,15 @@ namespace LNUBookShareUI.ViewModels
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
 
+        public ICommand OpenProfileCommand { get; }
+
+
+
         // --- Конструктор ---
-        public MainViewModel(IMediator mediator)
+        public MainViewModel(IMediator mediator, INavigationService navigationService)
         {
             _mediator = mediator;
+            _navigationService = navigationService;
 
             SortOptions = new Dictionary<BookSortCriteria, string>
             {
@@ -139,9 +146,18 @@ namespace LNUBookShareUI.ViewModels
             // Пагінація
             NextPageCommand = new RelayCommand(async () => await GoToNextPageAsync(), CanGoToNextPage);
             PreviousPageCommand = new RelayCommand(async () => await GoToPreviousPageAsync(), CanGoToPreviousPage);
+
+            OpenProfileCommand = new RelayCommand(OpenProfile);
+
         }
 
         // --- Логіка ---
+        private void OpenProfile()
+        {
+            // Просто викликаємо метод із сервісу
+            _navigationService.ShowProfile();
+        }
+
         private void SetFilter(BookFilterStatus status)
         {
             SelectedStatusFilter = status;
