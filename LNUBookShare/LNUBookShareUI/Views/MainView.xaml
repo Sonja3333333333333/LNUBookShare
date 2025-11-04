@@ -66,7 +66,9 @@
 
             <ComboBox Grid.Column="0" 
                       ItemsSource="{Binding SearchOptions}" 
-                      SelectedItem="{Binding SelectedSearchCriteria}"
+                      SelectedValue="{Binding SelectedSearchCriteria}"
+                      DisplayMemberPath="Value"
+                      SelectedValuePath="Key"
                       VerticalAlignment="Center"
                       MinWidth="120"/>
 
@@ -108,7 +110,9 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="20,0,0,0">
                 <Label Content="Сортувати:" VerticalAlignment="Center"/>
                 <ComboBox ItemsSource="{Binding SortOptions}" 
-                          SelectedItem="{Binding SelectedSort}"
+                          SelectedValue="{Binding SelectedSort}"
+                          DisplayMemberPath="Value"
+                          SelectedValuePath="Key"
                           VerticalAlignment="Center"
                           MinWidth="100"/>
             </StackPanel>
