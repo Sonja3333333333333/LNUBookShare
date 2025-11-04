@@ -1,5 +1,4 @@
-﻿using LNUBookShareDAL;
-using LNUBookShareBLL.Features.Books;
+﻿using LNUBookShareBLL.Features.Books;
 using LNUBookShareUI.ViewModels;
 using LNUBookShareUI.Views;
 using MediatR;
@@ -8,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using LNUBookShareDAL.Models;
 using System;
+using LNUBookShareUI.Common;
 
 namespace LNUBookShareUI
 {
@@ -37,10 +37,12 @@ namespace LNUBookShareUI
 
             // 3. ViewModels
             services.AddTransient<MainViewModel>();
-            // (Сюди додаси LoginViewModel, RegisterViewModel...)
-
-            // 4. Views
             services.AddTransient<MainView>();
+
+            services.AddTransient<ProfileViewModel>();
+            services.AddTransient<ProfileView>();
+
+            services.AddSingleton<INavigationService, NavigationService>();
         }
 
         protected override void OnStartup(StartupEventArgs e)
@@ -49,9 +51,14 @@ namespace LNUBookShareUI
 
             var mainView = _serviceProvider.GetService<MainView>();
             var mainViewModel = _serviceProvider.GetService<MainViewModel>();
-
             mainView.DataContext = mainViewModel;
             mainView.Show();
+
+
+            //var profileView = _serviceProvider.GetService<ProfileView>();
+            //var profileViewModel = _serviceProvider.GetService<ProfileViewModel>();
+            //profileView.DataContext = profileViewModel;
+            //profileView.Show();
         }
     }
 }

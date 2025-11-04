@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace LNUBookShareBLL.DTOs
+﻿namespace LNUBookShareBLL.DTOs
 {
     /// <summary>
     /// Універсальний DTO для результатів з пагінацією.

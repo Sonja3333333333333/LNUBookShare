@@ -1,11 +1,7 @@
 ﻿using MediatR;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
-using LNUBookShareDAL;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using LNUBookShareDAL.Models;
 
 namespace LNUBookShareBLL.Features.Books
