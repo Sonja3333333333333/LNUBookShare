@@ -194,16 +194,25 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ToggleFavoriteAsync(int bookId)
         {
-            var command = new ToggleFavoriteCommand
+            try
             {
-                BookId = bookId,
-                UserId = _currentUserId
-            };
+                var command = new ToggleFavoriteCommand
+                {
+                    BookId = bookId,
+                    UserId = _currentUserId
+                };
 
-            // Перезавантажуємо список, щоб оновити сердечко
-            // (Це простіше, ніж робити BookCardDto повноцінною ViewModel)
-            await _mediator.Send(command);
-            await LoadBooksAsync();
+                await _mediator.Send(command);
+                await LoadBooksAsync();
+            }
+            catch (Exception ex)
+            {
+                // Формуємо деталізоване повідомлення
+                string errorMessage = $"Помилка: {ex.Message}\n\n" +
+                                      $"Деталі (InnerException): {ex.InnerException?.Message}";
+
+                MessageBox.Show(errorMessage, "Помилка (ToggleFavorite)");
+            }
         }
 
         // --- Логіка Пагінації ---

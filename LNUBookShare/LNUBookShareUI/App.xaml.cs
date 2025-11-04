@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
 using LNUBookShareDAL.Models;
+using System;
 
 namespace LNUBookShareUI
 {
@@ -16,6 +17,8 @@ namespace LNUBookShareUI
 
         public App()
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             var services = new ServiceCollection();
             ConfigureServices(services);
             _serviceProvider = services.BuildServiceProvider();
