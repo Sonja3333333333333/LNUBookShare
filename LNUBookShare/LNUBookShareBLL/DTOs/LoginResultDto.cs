@@ -1,4 +1,4 @@
-﻿namespace LNUBookShareBLL.Dtos
+﻿namespace LNUBookShareBLL.DTOs
 {
     /// <summary>
     /// Об'єкт, що повертається у UI при успішному вході в систему.

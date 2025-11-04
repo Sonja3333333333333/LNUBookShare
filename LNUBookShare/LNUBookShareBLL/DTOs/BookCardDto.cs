@@ -1,4 +1,4 @@
-﻿namespace LNUBookShareBLL.Dtos
+﻿namespace LNUBookShareBLL.DTOs
 {
     /// <summary>
     /// DTO для відображення картки книги у каталозі. Список книг
