@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using LNUBookShareBLL.Dtos;
+using LNUBookShareBLL.DTOs;
 
 namespace LNUBookShareBLL.Features.Auth
 {

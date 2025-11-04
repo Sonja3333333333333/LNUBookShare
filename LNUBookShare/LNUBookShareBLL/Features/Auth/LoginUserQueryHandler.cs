@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using LNUBookShareBLL.Dtos;
+using LNUBookShareBLL.DTOs;
 using Microsoft.EntityFrameworkCore; // Для .Include() та .FirstOrDefaultAsync()
 using static BCrypt.Net.BCrypt; // Для методу Verify()
 

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using LNUBookShareBLL.Dtos;
+using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Favorites;

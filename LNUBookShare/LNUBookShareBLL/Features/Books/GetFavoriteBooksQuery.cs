@@ -2,15 +2,16 @@
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 
-namespace LNUBookShareBLL.Features.Books
+namespace LNUBookShareBLL.Features.Favorites
 {
-    public class GetBooksQuery : IRequest<PaginatedResultDto<BookCardDto>>
+    public class GetFavoriteBooksQuery : IRequest<PaginatedResultDto<FavoriteBookCardDto>>
     {
         public int CurrentUserId { get; set; }
-        public string? SearchTerm { get; set; }
-        public BookSearchCriteria SearchBy { get; set; } = BookSearchCriteria.Title;
+
+        // Параметри з вимог до Вікна 5
         public BookFilterStatus FilterBy { get; set; } = BookFilterStatus.All;
         public BookSortCriteria SortBy { get; set; } = BookSortCriteria.Title;
+
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
     }
