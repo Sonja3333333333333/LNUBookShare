@@ -11,6 +11,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Windows;
+using System.Windows.Navigation;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -18,6 +19,7 @@ namespace LNUBookShareUI.ViewModels
     {
         // --- Поля ---
         private readonly IMediator _mediator;
+        private readonly INavigationService _navigationService;
         private readonly int _currentUserId = 1; // "Захардкодили" ID користувача!
         private bool _isSearchPerformed = false; // "Прапорець" пошуку
 
@@ -47,7 +49,7 @@ namespace LNUBookShareUI.ViewModels
         }
 
         // --- Критерії Пошуку ---
-        public List<BookSearchCriteria> SearchOptions { get; }
+        public Dictionary<BookSearchCriteria, string> SearchOptions { get; }
         private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
         public BookSearchCriteria SelectedSearchCriteria
         {
@@ -63,7 +65,7 @@ namespace LNUBookShareUI.ViewModels
         }
 
         // --- Критерії Сортування ---
-        public List<BookSortCriteria> SortOptions { get; }
+        public Dictionary<BookSortCriteria, string> SortOptions { get; }
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
         {
@@ -103,14 +105,34 @@ namespace LNUBookShareUI.ViewModels
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
 
+        public ICommand OpenProfileCommand { get; }
+
+
+
         // --- Конструктор ---
-        public MainViewModel(IMediator mediator)
+        public MainViewModel(IMediator mediator, INavigationService navigationService)
         {
             _mediator = mediator;
+            _navigationService = navigationService;
 
-            // Заповнюємо ComboBox-и
-            SortOptions = Enum.GetValues(typeof(BookSortCriteria)).Cast<BookSortCriteria>().ToList();
-            SearchOptions = Enum.GetValues(typeof(BookSearchCriteria)).Cast<BookSearchCriteria>().ToList();
+            SortOptions = new Dictionary<BookSortCriteria, string>
+            {
+                { BookSortCriteria.Title, "Назва" },
+                { BookSortCriteria.Author, "Автор" },
+                { BookSortCriteria.Year, "Рік" },
+                { BookSortCriteria.Category, "Категорія"}
+            };
+
+            SearchOptions = new Dictionary<BookSearchCriteria, string>
+            {
+                { BookSearchCriteria.Title, "Назва" },
+                { BookSearchCriteria.Author, "Автор" },
+                { BookSearchCriteria.ISBN, "ISBN" },
+                { BookSearchCriteria.Category, "Категорія"}
+
+            };
+
+           
 
             // Зв'язуємо команди
             LoadBooksCommand = new RelayCommand(async () => await SearchAsync());
@@ -124,9 +146,18 @@ namespace LNUBookShareUI.ViewModels
             // Пагінація
             NextPageCommand = new RelayCommand(async () => await GoToNextPageAsync(), CanGoToNextPage);
             PreviousPageCommand = new RelayCommand(async () => await GoToPreviousPageAsync(), CanGoToPreviousPage);
+
+            OpenProfileCommand = new RelayCommand(OpenProfile);
+
         }
 
         // --- Логіка ---
+        private void OpenProfile()
+        {
+            // Просто викликаємо метод із сервісу
+            _navigationService.ShowProfile();
+        }
+
         private void SetFilter(BookFilterStatus status)
         {
             SelectedStatusFilter = status;
@@ -179,16 +210,25 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ToggleFavoriteAsync(int bookId)
         {
-            var command = new ToggleFavoriteCommand
+            try
             {
-                BookId = bookId,
-                UserId = _currentUserId
-            };
+                var command = new ToggleFavoriteCommand
+                {
+                    BookId = bookId,
+                    UserId = _currentUserId
+                };
 
-            // Перезавантажуємо список, щоб оновити сердечко
-            // (Це простіше, ніж робити BookCardDto повноцінною ViewModel)
-            await _mediator.Send(command);
-            await LoadBooksAsync();
+                await _mediator.Send(command);
+                await LoadBooksAsync();
+            }
+            catch (Exception ex)
+            {
+                // Формуємо деталізоване повідомлення
+                string errorMessage = $"Помилка: {ex.Message}\n\n" +
+                                      $"Деталі (InnerException): {ex.InnerException?.Message}";
+
+                MessageBox.Show(errorMessage, "Помилка (ToggleFavorite)");
+            }
         }
 
         // --- Логіка Пагінації ---

@@ -54,7 +54,7 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right">
             <Button Content="Уподобанні" Style="{StaticResource LinkButton}" />
-            <Button Content="Профіль" Style="{StaticResource LinkButton}" Margin="10,0,0,0" />
+            <Button Content="Профіль" Style="{StaticResource LinkButton}" Margin="10,0,0,0" Command="{Binding OpenProfileCommand}" />
         </StackPanel>
 
         <Grid Grid.Row="1" Margin="0,10,0,0">
@@ -66,7 +66,9 @@
 
             <ComboBox Grid.Column="0" 
                       ItemsSource="{Binding SearchOptions}" 
-                      SelectedItem="{Binding SelectedSearchCriteria}"
+                      SelectedValue="{Binding SelectedSearchCriteria}"
+                      DisplayMemberPath="Value"
+                      SelectedValuePath="Key"
                       VerticalAlignment="Center"
                       MinWidth="120"/>
 
@@ -108,7 +110,9 @@
             <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="20,0,0,0">
                 <Label Content="Сортувати:" VerticalAlignment="Center"/>
                 <ComboBox ItemsSource="{Binding SortOptions}" 
-                          SelectedItem="{Binding SelectedSort}"
+                          SelectedValue="{Binding SelectedSort}"
+                          DisplayMemberPath="Value"
+                          SelectedValuePath="Key"
                           VerticalAlignment="Center"
                           MinWidth="100"/>
             </StackPanel>
@@ -187,7 +191,19 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <Rectangle Grid.Column="0" Width="80" Height="100" Fill="Gainsboro" Margin="0,0,15,0" VerticalAlignment="Center"/>
+                            <!-- 1. Цей Border слугує і фоном-заглушкою, і контейнером -->
+                            <Border Grid.Column="0"
+                                Width="80" Height="100"
+                                Margin="0,0,15,0" VerticalAlignment="Center"
+                                Background="Gainsboro" 
+                                ClipToBounds="True">
+                                                        <!-- 2. Це обріже зображення по краях Border -->
+
+                                                        <!-- 3. Прив'язуємо Image до 'CoverPath' з DTO -->
+                                <Image Source="{Binding CoverPath}"
+                                   Stretch="UniformToFill" />
+                                                        <!-- 4. "UniformToFill" гарно заповнює простір -->
+                            </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
