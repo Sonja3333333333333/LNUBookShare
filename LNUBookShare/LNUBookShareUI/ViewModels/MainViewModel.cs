@@ -47,7 +47,7 @@ namespace LNUBookShareUI.ViewModels
         }
 
         // --- Критерії Пошуку ---
-        public List<BookSearchCriteria> SearchOptions { get; }
+        public Dictionary<BookSearchCriteria, string> SearchOptions { get; }
         private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
         public BookSearchCriteria SelectedSearchCriteria
         {
@@ -63,7 +63,7 @@ namespace LNUBookShareUI.ViewModels
         }
 
         // --- Критерії Сортування ---
-        public List<BookSortCriteria> SortOptions { get; }
+        public Dictionary<BookSortCriteria, string> SortOptions { get; }
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
         {
@@ -108,9 +108,24 @@ namespace LNUBookShareUI.ViewModels
         {
             _mediator = mediator;
 
-            // Заповнюємо ComboBox-и
-            SortOptions = Enum.GetValues(typeof(BookSortCriteria)).Cast<BookSortCriteria>().ToList();
-            SearchOptions = Enum.GetValues(typeof(BookSearchCriteria)).Cast<BookSearchCriteria>().ToList();
+            SortOptions = new Dictionary<BookSortCriteria, string>
+            {
+                { BookSortCriteria.Title, "Назва" },
+                { BookSortCriteria.Author, "Автор" },
+                { BookSortCriteria.Year, "Рік" },
+                { BookSortCriteria.Category, "Категорія"}
+            };
+
+            SearchOptions = new Dictionary<BookSearchCriteria, string>
+            {
+                { BookSearchCriteria.Title, "Назва" },
+                { BookSearchCriteria.Author, "Автор" },
+                { BookSearchCriteria.ISBN, "ISBN" },
+                { BookSearchCriteria.Category, "Категорія"}
+
+            };
+
+           
 
             // Зв'язуємо команди
             LoadBooksCommand = new RelayCommand(async () => await SearchAsync());
