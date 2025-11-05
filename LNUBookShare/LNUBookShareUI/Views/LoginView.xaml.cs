@@ -15,15 +15,13 @@ using System.Windows.Shapes;
 namespace LNUBookShareUI.Views
 {
     /// <summary>
-    /// Interaction logic for MainView.xaml
+    /// Interaction logic for LoginView.xaml
     /// </summary>
-    public partial class MainView : Window
+    public partial class LoginView : Window
     {
-        public MainView()
+        public LoginView()
         {
             InitializeComponent();
         }
-
-        
     }
 }
