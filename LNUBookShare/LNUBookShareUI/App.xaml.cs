@@ -27,7 +27,20 @@ namespace LNUBookShareUI
         private void ConfigureServices(IServiceCollection services)
         {
 
-            string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
+            // ----- ОСЬ ТУТ ЗМІНА -----
+            // Старий рядок (локальний) закоментовано
+            // string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
+
+            // Новий рядок (хмарний Neon)
+            // Додано "Trust Server Certificate=true" для сумісності з Npgsql v7
+            string connectionString = "Host=ep-wispy-hat-adm0eu4d-pooler.c-2.us-east-1.aws.neon.tech;" +
+                                      "Database=neondb;" +
+                                      "Username=neondb_owner;" +
+                                      "Password=npg_GqkRolz4rhy6;" +
+                                      "SSL Mode=Require;" +
+                                      "Trust Server Certificate=true"; // <--- ДОДАНО ЦЕЙ РЯДОК
+            // ----- КІНЕЦЬ ЗМІНИ -----
+
             services.AddDbContext<LNUBookShareDbContext>(options =>
                 options.UseNpgsql(connectionString)
             );
