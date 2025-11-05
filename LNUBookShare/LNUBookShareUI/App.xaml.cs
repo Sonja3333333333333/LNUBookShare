@@ -37,19 +37,13 @@ namespace LNUBookShareUI
 
             // 3. ViewModels
             services.AddTransient<MainViewModel>();
-
-            // (Сюди додаси LoginViewModel, RegisterViewModel...)
-
             services.AddTransient<LoginViewModel>();
-            services.AddTransient<LoginView>();
-            services.AddTransient<RegisterViewModel>();
-            services.AddTransient<RegisterView>();
-
-            // 4. Views
-
-            services.AddTransient<MainView>();
-
             services.AddTransient<ProfileViewModel>();
+            services.AddTransient<RegisterViewModel>();
+
+            services.AddTransient<LoginView>();
+            services.AddTransient<RegisterView>();
+            services.AddTransient<MainView>();
             services.AddTransient<ProfileView>();
 
             services.AddSingleton<INavigationService, NavigationService>();
@@ -59,12 +53,18 @@ namespace LNUBookShareUI
         {
             base.OnStartup(e);
 
-            var mainView = _serviceProvider.GetService<MainView>();
-            var mainViewModel = _serviceProvider.GetService<MainViewModel>();
-            mainView.DataContext = mainViewModel;
-            mainView.Show();
+            //Щоб показати головне вікно розкоментуй мене
+            //var mainView = _serviceProvider.GetService<MainView>();
+            //var mainViewModel = _serviceProvider.GetService<MainViewModel>();
+            //mainView.DataContext = mainViewModel;
+            //mainView.Show();
 
+            //Щоб показати автентифікацію розкоментуй мене
+            var loginView = _serviceProvider.GetService<LoginView>();
+            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
+            loginView.Show();
 
+            //Щоб показати вікно Профіль розкоментуй мене
             //var profileView = _serviceProvider.GetService<ProfileView>();
             //var profileViewModel = _serviceProvider.GetService<ProfileViewModel>();
             //profileView.DataContext = profileViewModel;

@@ -3,11 +3,9 @@ using LNUBookShareBLL.Features.Auth;
 using LNUBookShareUI.Common;
 using MediatR;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls; // 👈 1. ДОДАНО ДЛЯ PASSWORD BOX
 using System.Windows.Input;
 
 namespace LNUBookShareUI.ViewModels
@@ -15,75 +13,100 @@ namespace LNUBookShareUI.ViewModels
     public class LoginViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
+        private readonly INavigationService _navigationService;
 
+        // --- Властивості ---
         private string _email;
-        private string _password;
-
         public string Email
         {
             get => _email;
-            set
-            {
-                _email = value;
-                OnPropertyChanged();
-            }
+            set => SetProperty(ref _email, value);
         }
 
-        public string Password
+        // ❌ ВЛАСТИВІСТЬ 'Password' ВИДАЛЕНО
+
+        private string _errorMessage;
+        public string ErrorMessage
         {
-            get => _password;
-            set
-            {
-                _password = value;
-                OnPropertyChanged();
-            }
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
         }
 
+        // --- Команди ---
         public ICommand LoginCommand { get; }
+        public ICommand GoToRegisterCommand { get; }
 
-        public LoginViewModel(IMediator mediator)
+        // --- Конструктор ---
+        public LoginViewModel(IMediator mediator, INavigationService navigationService)
         {
             _mediator = mediator;
-            LoginCommand = new RelayCommand(async () => await LoginAsync());
+            _navigationService = navigationService;
+
+            // 2. ЗМІНЕНО: Команди тепер приймають 'object'
+            LoginCommand = new RelayCommand<object>(async (param) => await LoginAsync(param));
+            GoToRegisterCommand = new RelayCommand<object>(GoToRegister);
         }
 
-        private async Task LoginAsync()
+        // --- Метод Входу ---
+        private async Task LoginAsync(object parameter)
         {
+            // 3. "Розпаковуємо" PasswordBox
+            if (parameter is not PasswordBox passwordBox)
+            {
+                ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
+                return;
+            }
+
+            // 4. Отримуємо пароль звідси
+            string password = passwordBox.Password;
+
             try
             {
-                // створюємо запит
+                // BLL тепер отримає справжній пароль
                 var query = new LoginUserQuery
                 {
                     Email = this.Email,
-                    Password = this.Password
+                    Password = password
                 };
 
-                // надсилаємо запит через MediatR
-                var result = await _mediator.Send(query);
+                LoginResultDto result = await _mediator.Send(query);
 
-                // якщо вхід успішний
-                if (result is LoginResultDto loginResult)
+                if (result != null)
                 {
-                    MessageBox.Show(
-                        $"Вітаємо, {loginResult.FirstName} {loginResult.LastName}!\nФакультет: {loginResult.FacultyName}",
-                        "Вхід успішний",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information
-                    );
+                    // Успіх!
+                    ErrorMessage = ""; // Очищуємо помилки
+                    _navigationService.ShowMainView();
 
-                    CloseLoginWindow();
+                    var window = GetWindowFromParameter(parameter);
+                    window?.Close();
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Помилка входу", MessageBoxButton.OK, MessageBoxImage.Error);
+                // BLL кинув помилку (напр. "Невірний email або пароль")
+                ErrorMessage = ex.Message;
             }
         }
 
-        private void CloseLoginWindow()
+        // --- Метод переходу на Реєстрацію ---
+        private void GoToRegister(object parameter)
         {
-            // закриває активне вікно
-            Application.Current.Windows[0]?.Close();
+            _navigationService.ShowRegister();
+
+            // Закриваємо поточне вікно (LoginView)
+            if (parameter is Window w)
+            {
+                w.Close();
+            }
+        }
+
+        private Window GetWindowFromParameter(object parameter)
+        {
+            if (parameter is FrameworkElement element)
+            {
+                return Window.GetWindow(element);
+            }
+            return null;
         }
     }
 }

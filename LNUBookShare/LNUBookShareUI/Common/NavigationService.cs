@@ -30,5 +30,27 @@ namespace LNUBookShareUI.Common
             profileView.Show();
 
         }
+
+        public void ShowMainView()
+        {
+            var mainView = _serviceProvider.GetService<MainView>();
+            mainView.DataContext = _serviceProvider.GetService<MainViewModel>();
+            mainView.Show();
+        }
+
+        public void ShowLogin()
+        {
+            var loginView = _serviceProvider.GetService<LoginView>();
+            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
+            loginView.Show();
+        }
+
+        public void ShowRegister()
+        {
+            var registerView = _serviceProvider.GetService<RegisterView>();
+            registerView.DataContext = _serviceProvider.GetService<RegisterViewModel>();
+            registerView.Show();
+        }
+
     }
 }
