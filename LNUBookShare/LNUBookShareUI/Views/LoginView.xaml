@@ -3,102 +3,68 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:LNUBookShareUI.Views"
+        xmlns:vm="clr-namespace:LNUBookShareUI.ViewModels"
         mc:Ignorable="d"
         
-
-
-    
-        Title="LnuBookShare"
-        Height="450" Width="800"
+        d:DataContext="{d:DesignInstance Type=vm:LoginViewModel}"
+        
+        Title="Вхід"
+        Height="450" Width="400"
         WindowStartupLocation="CenterScreen"
         Background="White">
 
-        <Grid>
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <!-- Заголовок -->
-                <TextBlock Text="LnuBookShare - платформа обміну підручниками."
-                       FontSize="18"
+    <Grid>
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+
+            <!-- Заголовок -->
+            <TextBlock Text="LNUBookShare"
+                       FontSize="20"
                        FontWeight="Bold"
                        TextAlignment="Center"
-                       Margin="0,0,0,10"/>
-
-                <TextBlock Text="Доступ мають лише користувачі з акаунтом @lnu.edu.ua."
+                       Margin="0,0,0,5"/>
+            <TextBlock Text="програма обміну підручниками"
                        FontSize="12"
+                       Foreground="Gray"
                        TextAlignment="Center"
                        Margin="0,0,0,20"/>
 
-                <!-- Панель логіну -->
-                <Border BorderBrush="Gray" BorderThickness="1" Padding="20" CornerRadius="5">
-                    <StackPanel Width="250" HorizontalAlignment="Center">
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="20" CornerRadius="5">
+                <StackPanel>
 
-                        <!-- Поле Email -->
-                        <Label Content="Email" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
-                        <TextBox x:Name="EmailTextBox"
-                             Height="30"
+                    <!-- Email -->
+                    <Label Content="Email (університетська пошта)" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
+                    <TextBox Height="30"
                              Margin="0,0,0,10"
-                             VerticalContentAlignment="Center" Text=""/>
+                             VerticalContentAlignment="Center"
+                             Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <!-- Поле Password з кнопкою "око" -->
-                        <Label Content="Password" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
-                        <Grid>
-                            <PasswordBox x:Name="PasswordBox"
-                                     Height="30"
-                                     VerticalContentAlignment="Center"
-                                     Width="250"
-                                     Padding="5,0,35,0" Password=""/>
-                            <TextBox x:Name="VisiblePasswordBox"
+                    <!-- Password -->
+                    <Label Content="Password" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
+                    <PasswordBox x:Name="UserPasswordBox"
                                  Height="30"
-                                 Width="250"
-                                 VerticalContentAlignment="Center"
-                                 Padding="5,0,35,0"
-                                 Visibility="Collapsed"/>
+                                 Margin="0,0,0,10"
+                                 VerticalContentAlignment="Center"/>
 
-                            <!-- Кнопка-іконка "показати пароль" -->
-                            <Button x:Name="ShowPasswordButton"
-                                Width="25"
-                                Height="25"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Margin="0,0,5,0"
-                                Click="ShowPasswordButton_Click">
-                                <TextBlock Text="👁" FontSize="14"/>
-                            </Button>
-                        </Grid>
+                    <!-- Повідомлення про помилку -->
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <Button Content="Увійти"
+                            Command="{Binding LoginCommand}"
+                            CommandParameter="{Binding ElementName=LoginPasswordBox}"
+                            Height="35" FontWeight="Bold" IsDefault="True"/>
 
-                        <!-- Кнопка Увійти -->
-                        <Button Content="Увійти"
-                            Margin="0,15,0,10"
-                            Height="30"
-                            Background="#FFDDDDDD"
-                            Foreground="Black"
-                            BorderBrush="Gray"
-                            BorderThickness="1"
-                            FontWeight="Bold"
-                            Click="LoginButton_Click"/>
-
-                        <!-- Повідомлення про помилку -->
-                        <TextBlock x:Name="ErrorMessage"
-                               Text="Невірний email або пароль"
-                               Foreground="Red"
-                               FontSize="12"
-                               TextAlignment="Center"
-                               Visibility="Collapsed"
-                               Margin="0,0,0,10"/>
-
-                        <!-- Посилання реєстрації -->
-                        <TextBlock TextAlignment="Center">                        
-                        <Hyperlink NavigateUri="#" Foreground="Blue">
+                    <!-- Посилання на реєстрацію -->
+                    <TextBlock TextAlignment="Center" Margin="0,15,0,0">
+                        <Hyperlink Foreground="Blue"
+                                   TextDecorations="None"
+           
+                                   Command="{Binding GoToRegisterCommand}"
+                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
                             Ще немає акаунта? Зареєструватися
                         </Hyperlink>
-                        </TextBlock>
+                    </TextBlock>
 
-                    </StackPanel>
-                </Border>
-            </StackPanel>
-        </Grid>
-    
-
-
-
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </Grid>
 </Window>

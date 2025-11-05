@@ -1,63 +1,60 @@
-﻿using LNUBookShareBLL.DTOs;
+﻿
+using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Features.Auth;
 using LNUBookShareBLL.Features.Faculties;
 using LNUBookShareUI.Common;
-using LNUBookShareUI.Views;
 using MediatR;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls; // 👈 Потрібно для PasswordBox
 using System.Windows.Input;
-
 
 namespace LNUBookShareUI.ViewModels
 {
     public class RegisterViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
+        private readonly INavigationService _navigationService; // 👈 1. ДОДАНО СЕРВІС
 
-        // --- Властивості  ---
+        // --- Властивості ---
         private string _firstName;
         private string _lastName;
         private string _email;
-        private string _password;
         private FacultyDto _selectedFaculty;
+        private string _errorMessage; // Для показу помилок
 
         public string FirstName
         {
             get => _firstName;
-            set { _firstName = value; OnPropertyChanged(); }
+            set => SetProperty(ref _firstName, value);
         }
 
         public string LastName
         {
             get => _lastName;
-            set { _lastName = value; OnPropertyChanged(); }
+            set => SetProperty(ref _lastName, value);
         }
 
         public string Email
         {
             get => _email;
-            set { _email = value; OnPropertyChanged(); }
-        }
-
-        public string Password
-        {
-            get => _password;
-            set { _password = value; OnPropertyChanged(); }
+            set => SetProperty(ref _email, value);
         }
 
         public FacultyDto SelectedFaculty
         {
             get => _selectedFaculty;
-            set { _selectedFaculty = value; OnPropertyChanged(); }
+            set => SetProperty(ref _selectedFaculty, value);
         }
 
-        // --- Колекція факультетів для ComboBox ---
+        public string ErrorMessage
+        {
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
+        }
+
         public ObservableCollection<FacultyDto> Faculties { get; } = new();
 
         // --- Команди ---
@@ -65,55 +62,64 @@ namespace LNUBookShareUI.ViewModels
         public ICommand GoToLoginCommand { get; }
 
         // --- Конструктор ---
-        public RegisterViewModel(IMediator mediator)
+        // 👇 2. СЕРВІС ДОДАНО У КОНСТРУКТОР
+        public RegisterViewModel(IMediator mediator, INavigationService navigationService)
         {
             _mediator = mediator;
+            _navigationService = navigationService; // 👈 ЗБЕРЕЖЕНО
 
-            RegisterCommand = new RelayCommand(async () => await RegisterAsync());
-            GoToLoginCommand = new RelayCommand(GoToLogin);
+            // 👇 3. ОНОВЛЕНО КОМАНДИ
+            RegisterCommand = new RelayCommand<object>(async (param) => await RegisterAsync(param));
+            GoToLoginCommand = new RelayCommand<object>(GoToLogin); // 👈 Тепер приймає 'object'
 
-            _ = LoadFacultiesAsync(); // одразу завантажуємо факультети
+            _ = LoadFacultiesAsync();
         }
 
         // --- Метод реєстрації ---
-        private async Task RegisterAsync()
+        // 👇 4. ОНОВЛЕНО МЕТОД (приймає PasswordBox)
+        private async Task RegisterAsync(object parameter)
         {
+            if (parameter is not PasswordBox passwordBox)
+            {
+                ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
+                return;
+            }
+            string password = passwordBox.Password;
+
             try
             {
-                // Перевірка полів (можна зробити більш строгі)
                 if (string.IsNullOrWhiteSpace(FirstName) ||
                     string.IsNullOrWhiteSpace(LastName) ||
                     string.IsNullOrWhiteSpace(Email) ||
-                    string.IsNullOrWhiteSpace(Password) ||
+                    string.IsNullOrWhiteSpace(password) ||
                     SelectedFaculty == null)
                 {
-                    MessageBox.Show("Будь ласка, заповніть усі поля.", "Помилка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    ErrorMessage = "Будь ласка, заповніть усі поля.";
                     return;
                 }
 
-                // Створюємо команду
                 var command = new RegisterUserCommand
                 {
                     FirstName = this.FirstName,
                     LastName = this.LastName,
                     Email = this.Email,
-                    Password = this.Password,
+                    Password = password, // 👈 Використовуємо безпечний пароль
                     FacultyId = this.SelectedFaculty.FacultyId
                 };
 
-                // Відправляємо через MediatR
                 await _mediator.Send(command);
 
-                // Якщо успішно — повідомлення і перехід до логіну
+                ErrorMessage = ""; // Очистити помилки
+
                 MessageBox.Show("Перевірте пошту для підтвердження реєстрації.", "Реєстрація успішна",
                                 MessageBoxButton.OK, MessageBoxImage.Information);
 
-                GoToLogin();
+                // 👇 5. ОНОВЛЕНО (Викликаємо той самий метод, що й кнопка)
+                GoToLogin(passwordBox);
             }
             catch (Exception ex)
             {
-                // Якщо помилка, показуємо повідомлення користувачу
-                MessageBox.Show(ex.Message, "Помилка реєстрації", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorMessage = ex.Message;
             }
         }
 
@@ -124,26 +130,38 @@ namespace LNUBookShareUI.ViewModels
             {
                 var faculties = await _mediator.Send(new GetAllFacultiesQuery());
 
-                Faculties.Clear();
-                foreach (var f in faculties)
-                    Faculties.Add(f);
+                App.Current.Dispatcher.Invoke(() =>
+                {
+                    Faculties.Clear();
+                    foreach (var f in faculties)
+                        Faculties.Add(f);
+                });
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Не вдалося завантажити список факультетів.\n" + ex.Message, "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                ErrorMessage = "Не вдалося завантажити список факультетів: " + ex.Message;
             }
         }
 
         // --- Перехід назад до LoginView ---
-        private void GoToLogin()
+        // 👇 6. ОНОВЛЕНО МЕТОД (знаходить вікно і закриває)
+        private void GoToLogin(object parameter)
         {
-            // Закриваємо поточне вікно
-            Application.Current.Windows[0]?.Close();
+            // Використовуємо наш сервіс навігації!
+            _navigationService.ShowLogin();
 
-            // Відкриваємо нове вікно входу
-            var loginView = new LoginView();
-            loginView.Show();
+            // Закриваємо поточне вікно (RegisterView)
+            Window windowToClose = null;
+            if (parameter is Window w)
+            {
+                windowToClose = w;
+            }
+            else if (parameter is FrameworkElement element)
+            {
+                windowToClose = Window.GetWindow(element);
+            }
+
+            windowToClose?.Close();
         }
-
     }
 }

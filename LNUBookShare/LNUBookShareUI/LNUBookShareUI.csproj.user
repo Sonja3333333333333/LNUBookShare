@@ -6,6 +6,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
   </ItemGroup>
+
+  <!-- Блок <Compile> (для C# файлів) -->
   <ItemGroup>
     <Compile Update="Views\LoginView.xaml.cs">
       <SubType>Code</SubType>
@@ -14,14 +16,27 @@
       <SubType>Code</SubType>
     </Compile>
 
+    <!-- Ось твої відсутні/зламані теги -->
     <Compile Update="Views\RegisterView.xaml.cs">
-
-    <Compile Update="Views\ProfileView.xaml.cs">
-
       <SubType>Code</SubType>
     </Compile>
+    <Compile Update="Views\ProfileView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+
   </ItemGroup>
+
+  <!-- Блок <Page> (для XAML файлів) -->
   <ItemGroup>
+    <!-- 👇 ДОДАНО ВІДСУТНІ ФАЙЛИ -->
+    <Page Update="Views\LoginView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\RegisterView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <!-- 👆 КІНЕЦЬ ДОДАНИХ ФАЙЛІВ -->
+
     <Page Update="Views\MainView.xaml">
       <SubType>Designer</SubType>
     </Page>
