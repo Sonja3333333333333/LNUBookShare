@@ -27,8 +27,7 @@ namespace LNUBookShareUI
         private void ConfigureServices(IServiceCollection services)
         {
 
-            // ----- ОСЬ ТУТ ЗМІНА -----
-            // Старий рядок (локальний) закоментовано
+           
             // string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
 
             // Новий рядок (хмарний Neon)
@@ -38,8 +37,8 @@ namespace LNUBookShareUI
                                       "Username=neondb_owner;" +
                                       "Password=npg_GqkRolz4rhy6;" +
                                       "SSL Mode=Require;" +
-                                      "Trust Server Certificate=true"; // <--- ДОДАНО ЦЕЙ РЯДОК
-            // ----- КІНЕЦЬ ЗМІНИ -----
+                                      "Trust Server Certificate=true"; 
+          
 
             services.AddDbContext<LNUBookShareDbContext>(options =>
                 options.UseNpgsql(connectionString)
@@ -67,15 +66,15 @@ namespace LNUBookShareUI
             base.OnStartup(e);
 
             //Щоб показати головне вікно розкоментуй мене
-            //var mainView = _serviceProvider.GetService<MainView>();
-            //var mainViewModel = _serviceProvider.GetService<MainViewModel>();
-            //mainView.DataContext = mainViewModel;
-            //mainView.Show();
+            var mainView = _serviceProvider.GetService<MainView>();
+            var mainViewModel = _serviceProvider.GetService<MainViewModel>();
+            mainView.DataContext = mainViewModel;
+            mainView.Show();
 
             //Щоб показати автентифікацію розкоментуй мене
-            var loginView = _serviceProvider.GetService<LoginView>();
-            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
-            loginView.Show();
+            //var loginView = _serviceProvider.GetService<LoginView>();
+            //loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
+            //loginView.Show();
 
             //Щоб показати вікно Профіль розкоментуй мене
             //var profileView = _serviceProvider.GetService<ProfileView>();
