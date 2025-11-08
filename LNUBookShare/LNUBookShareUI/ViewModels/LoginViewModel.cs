@@ -42,7 +42,6 @@ namespace LNUBookShareUI.ViewModels
             _mediator = mediator;
             _navigationService = navigationService;
 
-            // 2. ЗМІНЕНО: Команди тепер приймають 'object'
             LoginCommand = new RelayCommand<object>(async (param) => await LoginAsync(param));
             GoToRegisterCommand = new RelayCommand<object>(GoToRegister);
         }
@@ -83,7 +82,6 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
-                // BLL кинув помилку (напр. "Невірний email або пароль")
                 ErrorMessage = ex.Message;
             }
         }

@@ -68,20 +68,13 @@
 
                     <!-- Password -->
                     <Label Content="Password" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
-                    <!-- 
-                        ВИДАЛЕНО: Grid, VisiblePasswordBox, Button, PasswordChanged
-                        ДОДАНО: x:Name (потрібен, щоб передати його в Command)
-                    -->
+                  
                     <PasswordBox x:Name="UserPasswordBox"
                                  Height="30"
                                  Margin="0,0,0,10"
                                  VerticalContentAlignment="Center"/>
 
-                    <!-- Кнопка реєстрації -->
-                    <!-- 
-                        ВИДАЛЕНО: x:Name, Click
-                        ДОДАНО: Command, CommandParameter
-                    -->
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,0,0,10"/>
                     <Button Content="Надіслати підтвердження"
                             Margin="0,0,0,10" Height="35" 
                             FontWeight="Bold" IsDefault="True"
