@@ -1,8 +1,6 @@
 ﻿using MediatR;
-using LNUBookShareDAL; // Тобі потрібен доступ до DAL
-using LNUBookShareDAL.Models; // Тобі потрібні моделі (User, Faculty...)
-using Microsoft.EntityFrameworkCore; // Для .AnyAsync() і .SaveChangesAsync()
-using BCrypt.Net; //хешування паролів
+using LNUBookShareDAL.Models; 
+using Microsoft.EntityFrameworkCore;
 using static BCrypt.Net.BCrypt;
 using System.Text.RegularExpressions;
 
