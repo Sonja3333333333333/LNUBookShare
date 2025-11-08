@@ -49,7 +49,7 @@
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,0,0,10"/>
                     <Button Content="Увійти"
                             Command="{Binding LoginCommand}"
-                            CommandParameter="{Binding ElementName=LoginPasswordBox}"
+                            CommandParameter="{Binding ElementName=UserPasswordBox}"
                             Height="35" FontWeight="Bold" IsDefault="True"/>
 
                     <!-- Посилання на реєстрацію -->
