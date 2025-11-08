@@ -104,8 +104,8 @@ namespace LNUBookShareUI.ViewModels
         public ICommand SetFilterIssuedCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
-
         public ICommand OpenProfileCommand { get; }
+        public ICommand OpenFavoritesCommand { get; }
 
 
 
@@ -148,6 +148,7 @@ namespace LNUBookShareUI.ViewModels
             PreviousPageCommand = new RelayCommand(async () => await GoToPreviousPageAsync(), CanGoToPreviousPage);
 
             OpenProfileCommand = new RelayCommand(OpenProfile);
+            OpenFavoritesCommand = new RelayCommand(OpenFavorites);
 
         }
 
@@ -156,6 +157,11 @@ namespace LNUBookShareUI.ViewModels
         {
             // Просто викликаємо метод із сервісу
             _navigationService.ShowProfile();
+        }
+        private void OpenFavorites()
+        {
+            // Робимо те саме, що й для профілю
+            _navigationService.ShowFavorites();
         }
 
         private void SetFilter(BookFilterStatus status)

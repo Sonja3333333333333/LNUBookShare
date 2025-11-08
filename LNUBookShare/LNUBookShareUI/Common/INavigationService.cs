@@ -3,6 +3,7 @@
     public interface INavigationService
     {
         void ShowProfile();
+        void ShowFavorites();
 
         void ShowMainView();
         void ShowLogin();
