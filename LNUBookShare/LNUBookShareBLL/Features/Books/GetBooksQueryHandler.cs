@@ -85,6 +85,7 @@ namespace LNUBookShareBLL.Features.Books
                     Year = book.Year,
                     CoverPath = (book.Cover != null) ? book.Cover.ImagePath : null,
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "Власник невідомий",
+                    OwnerId = (book.Owner != null) ? book.Owner.UserId : 0,    //додано OwnerId
                     IsFavoritedByCurrentUser = _dbContext.Favorites.Any(f =>
                         f.BookId == book.BookId && f.UserId == request.CurrentUserId)
                 })
