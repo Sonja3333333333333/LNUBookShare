@@ -61,6 +61,14 @@ namespace LNUBookShareUI.Common
             registerView.DataContext = _serviceProvider.GetService<RegisterViewModel>();
             registerView.Show();
         }
+        public async void ShowEditProfile()
+        {
+            var editProfileView = _serviceProvider.GetService<EditProfileView>();
+            var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+            await editProfileViewModel.LoadDataAsync();
+            editProfileView.DataContext = editProfileViewModel;
+            editProfileView.ShowDialog();
+        }
 
     }
 }

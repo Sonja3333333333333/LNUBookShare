@@ -1,7 +1,11 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareBLL.DTOs;
+﻿using LNUBookShareBLL.DTOs;
+using LNUBookShareDAL; 
 using LNUBookShareDAL.Models;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LNUBookShareBLL.Features.Profile
 {
@@ -17,14 +21,10 @@ namespace LNUBookShareBLL.Features.Profile
         public async Task<ProfileEditDto> Handle(GetProfileForEditQuery request, CancellationToken cancellationToken)
         {
             var user = await _dbContext.Users
-                .AsNoTracking() // Нам не потрібно відстежувати цей об'єкт, тільки читати
+                .AsNoTracking()
+                .Include(u => u.Avatar) 
+                .Include(u => u.Faculty) 
                 .Where(u => u.UserId == request.UserId)
-                .Select(u => new ProfileEditDto
-                {
-                    FirstName = u.FirstName,
-                    LastName = u.LastName,
-                    FacultyId = u.FacultyId
-                })
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user == null)
@@ -32,7 +32,15 @@ namespace LNUBookShareBLL.Features.Profile
                 throw new Exception("Користувача не знайдено.");
             }
 
-            return user;
+            var profileDto = new ProfileEditDto
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                FacultyId = user.FacultyId,
+                ProfileImageUrl = user.Avatar?.ImagePath
+            };
+
+            return profileDto;
         }
     }
 }
