@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Profile;
 using LNUBookShareUI.Common;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,13 +13,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data; // Потрібен для ICollectionView
 using System.Windows.Input;
-using LNUBookShareBLL.DTOs;
+using System.Windows.Navigation;
 
 namespace LNUBookShareUI.ViewModels
 {
     public class ProfileViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
+        private readonly INavigationService _navigationService;
         private readonly int _currentUserId = 1; // "Захардкодили" ID
 
         // --- Властивості для Інфо про Юзера ---
@@ -72,12 +74,12 @@ namespace LNUBookShareUI.ViewModels
         public ICommand SetFilterIssuedCommand { get; }
 
         public ICommand GoBackCommand { get; }
-
+        public ICommand OpenEditBookCommand { get; }
         // --- Конструктор ---
-        public ProfileViewModel(IMediator mediator)
+        public ProfileViewModel(IMediator mediator, INavigationService navigationService)
         {
             _mediator = mediator;
-
+            _navigationService = navigationService;
             // Ініціалізуємо "розумний" список
             OwnedBooksView = CollectionViewSource.GetDefaultView(_allOwnedBooks);
             OwnedBooksView.Filter = FilterBooks; // Прив'язуємо фільтр
@@ -99,7 +101,7 @@ namespace LNUBookShareUI.ViewModels
             SetFilterIssuedCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Issued);
 
             GoBackCommand = new RelayCommand<object>(GoBack);
-
+            OpenEditBookCommand = new RelayCommand<int>(OpenEditBook);
             // Завантажуємо дані при відкритті
             _ = LoadProfileAsync();
         }
@@ -216,6 +218,10 @@ namespace LNUBookShareUI.ViewModels
                     OwnedBooksView.SortDescriptions.Add(new SortDescription("Year", ListSortDirection.Ascending));
                     break;
             }
+        }
+        private void OpenEditBook(int bookId)
+        {
+            _navigationService.ShowEditBook(bookId);
         }
     }
 }

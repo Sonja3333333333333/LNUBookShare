@@ -8,5 +8,6 @@
         void ShowMainView();
         void ShowLogin();
         void ShowRegister();
+        void ShowEditBook(int bookId);
     }
 }

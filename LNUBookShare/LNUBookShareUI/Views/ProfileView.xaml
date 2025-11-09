@@ -127,8 +127,9 @@
 
                             <!-- Кнопки "Редагувати" та "Видалити" -->
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <Button Content="✏️" FontSize="16" Width="35" Height="35" ToolTip="Редагувати книгу"/>
-                                <!-- (TODO: Додати команду редагування) -->
+                                <Button Content="✏️" FontSize="16" Width="35" Height="35" ToolTip="Редагувати книгу"
+                                    Command="{Binding DataContext.OpenEditBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                    CommandParameter="{Binding BookId}"/>
 
                                 <Button Content="🗑️" FontSize="16" Width="35" Height="35" ToolTip="Видалити книгу"
                                         Command="{Binding DataContext.DeleteBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
