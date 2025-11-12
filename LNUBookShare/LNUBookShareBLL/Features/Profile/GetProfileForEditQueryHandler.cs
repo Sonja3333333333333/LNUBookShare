@@ -3,9 +3,7 @@ using LNUBookShareDAL;
 using LNUBookShareDAL.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace LNUBookShareBLL.Features.Profile
 {
@@ -32,12 +30,29 @@ namespace LNUBookShareBLL.Features.Profile
                 throw new Exception("Користувача не знайдено.");
             }
 
+            string finalImagePath = null;
+            if (user.Avatar != null && !string.IsNullOrEmpty(user.Avatar.ImagePath))
+            {
+                string dbPath = user.Avatar.ImagePath;
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+                if (dbPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                    dbPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                {
+                    finalImagePath = dbPath; // Це URL
+                }
+                else
+                {
+                    finalImagePath = Path.Combine(baseDir, dbPath); // Це файл
+                }
+            }
+
             var profileDto = new ProfileEditDto
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 FacultyId = user.FacultyId,
-                ProfileImageUrl = user.Avatar?.ImagePath
+                ProfileImageUrl = finalImagePath
             };
 
             return profileDto;

@@ -86,7 +86,8 @@
                 <!-- Кнопка "Редагувати" -->
                 <Button Grid.Column="2" Content="✏️" FontSize="20" VerticalAlignment="Top"
                         Width="40" Height="40" ToolTip="Редагувати профіль"
-                        Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"/>
+                        Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"
+                        Command="{Binding OpenEditProfileCommand}"/>
             </Grid>
         </Border>
 

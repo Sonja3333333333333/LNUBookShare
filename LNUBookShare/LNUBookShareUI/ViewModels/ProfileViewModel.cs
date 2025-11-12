@@ -90,7 +90,6 @@ namespace LNUBookShareUI.ViewModels
         public ICommand GoBackCommand { get; }
         public ICommand OpenEditProfileCommand { get; }
 
-
         public ICommand OpenBookDetailsCommand { get; }
 
         // --- Конструктор ---
@@ -124,16 +123,25 @@ namespace LNUBookShareUI.ViewModels
 
             OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
 
+            OpenEditProfileCommand = new RelayCommand(async () => await OpenEditProfile());
+
             // Завантажуємо дані при відкритті
             _ = LoadProfileAsync();
-
-            _navigationService = navigationService;
-            OpenEditProfileCommand = new RelayCommand(OpenEditProfile);
+           
         }
 
-        private void OpenEditProfile()
+        private async Task OpenEditProfile()
         {
-            _navigationService.ShowEditProfile();
+            try
+            {
+                
+                await _navigationService.ShowEditProfile();
+                await LoadProfileAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}");
+            }
         }
 
 

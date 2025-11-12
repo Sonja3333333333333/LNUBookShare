@@ -42,7 +42,29 @@ namespace LNUBookShareBLL.Features.Profile
             user.FirstName = request.Dto.FirstName;
             user.LastName = request.Dto.LastName;
             user.FacultyId = request.Dto.FacultyId;
-            user.UpdatedAt = DateTime.UtcNow; // Не забуваємо оновити дату
+            user.UpdatedAt = DateTime.UtcNow;
+
+            if (!string.IsNullOrEmpty(request.Dto.ProfileImageUrl))
+            {
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string relativePath = Path.GetRelativePath(baseDir, request.Dto.ProfileImageUrl);
+
+                // 2. Нормалізуємо шлях, як він збережений в БД
+                // (UploadImageCommandHandler зберіг його з '\')
+                relativePath = relativePath.Replace(Path.DirectorySeparatorChar, '\\');
+
+                var image = await _dbContext.Images
+                    .FirstOrDefaultAsync(a => a.ImagePath == relativePath, cancellationToken);
+
+                if (image != null)
+                {
+                    user.AvatarId = image.ImageId;
+                }
+                else
+                {
+                    Console.WriteLine($"Увага: не вдалося знайти Image за шляхом {relativePath}");
+                }
+            }
 
             await _dbContext.SaveChangesAsync(cancellationToken);
 

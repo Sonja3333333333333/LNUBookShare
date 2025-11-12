@@ -3,6 +3,7 @@ using LNUBookShareUI.Views;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection; 
 using System;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace LNUBookShareUI.Common
@@ -104,12 +105,15 @@ namespace LNUBookShareUI.Common
             registerView.DataContext = _serviceProvider.GetService<RegisterViewModel>();
             registerView.Show();
         }
-        public async void ShowEditProfile()
+        public async Task ShowEditProfile()
         {
             var editProfileView = _serviceProvider.GetService<EditProfileView>();
             var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+
             await editProfileViewModel.LoadDataAsync();
+
             editProfileView.DataContext = editProfileViewModel;
+
             editProfileView.ShowDialog();
         }
 
