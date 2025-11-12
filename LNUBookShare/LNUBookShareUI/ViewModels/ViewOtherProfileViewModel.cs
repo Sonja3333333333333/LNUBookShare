@@ -1,8 +1,10 @@
-﻿using MediatR;
+﻿using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Profile;
+using LNUBookShareDAL.Models;
 using LNUBookShareUI.Common;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,16 +12,16 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data; // Потрібен для ICollectionView
+using System.Windows.Data; 
 using System.Windows.Input;
-using LNUBookShareBLL.DTOs;
+
 
 namespace LNUBookShareUI.ViewModels
 {
-    public class ProfileViewModel : ViewModelBase
+    public class ViewOtherProfileViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private readonly int _currentUserId = 1; // "Захардкодили" ID
+        private readonly int _currentUserId ; 
 
         // --- Властивості для Інфо про Юзера ---
         private ProfileDto _profile;
@@ -28,8 +30,8 @@ namespace LNUBookShareUI.ViewModels
             get => _profile;
             set => SetProperty(ref _profile, value);
         }
-
-        
+        // ---- Властивість для видимості кнопок ----
+        public bool IsMyProfile => false;
 
         // --- Властивості для Списку Книг ---
         // Повний (нефільтрований) список книг
@@ -76,9 +78,10 @@ namespace LNUBookShareUI.ViewModels
         public ICommand GoBackCommand { get; }
 
         // --- Конструктор ---
-        public ProfileViewModel(IMediator mediator)
+        public ViewOtherProfileViewModel(IMediator mediator,int  userId)
         {
             _mediator = mediator;
+            _currentUserId = userId;
 
             // Ініціалізуємо "розумний" список
             OwnedBooksView = CollectionViewSource.GetDefaultView(_allOwnedBooks);
@@ -132,7 +135,7 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка завантаження профілю: {ex.Message}");
+                MessageBox.Show($"Помилка завантаження профілю: {ex.Message}\n\n{ex.StackTrace}");
             }
         }
 

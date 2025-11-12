@@ -105,6 +105,7 @@ namespace LNUBookShareUI.ViewModels
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
         public ICommand OpenProfileCommand { get; }
+        public ICommand ViewOwnerProfileCommand { get; }
         public ICommand OpenFavoritesCommand { get; }
 
 
@@ -150,6 +151,7 @@ namespace LNUBookShareUI.ViewModels
             OpenProfileCommand = new RelayCommand(OpenProfile);
             OpenFavoritesCommand = new RelayCommand(OpenFavorites);
 
+            ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
         }
 
         // --- Логіка ---
@@ -157,6 +159,11 @@ namespace LNUBookShareUI.ViewModels
         {
             // Просто викликаємо метод із сервісу
             _navigationService.ShowProfile();
+        }
+        private void ViewOwnerProfile(int ownerId)
+        {
+
+            _navigationService.ShowViewProfile(ownerId);
         }
         private void OpenFavorites()
         {

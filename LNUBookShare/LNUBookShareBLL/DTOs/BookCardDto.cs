@@ -11,7 +11,7 @@
         public int? Year { get; set; }
         public string OwnerFullName { get; set; }
         public string? CoverPath { get; set; }
-
+        public int OwnerId { get; set; } // додано
         /// <summary>
         /// Чи вподобав цю книгу поточний користувач (для іконки сердечка).
         /// </summary>

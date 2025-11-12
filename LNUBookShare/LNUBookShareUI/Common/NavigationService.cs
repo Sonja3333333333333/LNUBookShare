@@ -1,5 +1,6 @@
 ﻿using LNUBookShareUI.ViewModels;
 using LNUBookShareUI.Views;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection; 
 using System;
 
@@ -29,6 +30,16 @@ namespace LNUBookShareUI.Common
             // 4. Показуємо вікно
             profileView.Show();
 
+        }
+        public void ShowViewProfile(int id)
+        {
+            var profileView = _serviceProvider.GetService<ProfileView>();
+                      
+
+            var viewOtherProfileViewModel = new ViewOtherProfileViewModel(_serviceProvider.GetService<IMediator>(), id);
+
+            profileView.DataContext = viewOtherProfileViewModel;
+            profileView.Show();
         }
         public void ShowFavorites()
         {

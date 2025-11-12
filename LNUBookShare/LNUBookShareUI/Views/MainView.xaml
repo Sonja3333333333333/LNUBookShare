@@ -209,7 +209,19 @@
                                 <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
                                 <TextBlock Text="{Binding Author}" FontStyle="Italic" Margin="0,0,0,5"/>
                                 <TextBlock Text="{Binding Year, StringFormat='Рік: {0}'}"/>
-                                <TextBlock Text="{Binding OwnerFullName, StringFormat='Власник: {0}'}"/>
+                                <!--<TextBlock Text="{Binding OwnerFullName  , StringFormat='Власник: {0}'}"/>-->
+                                <Button 
+                                    Content="{Binding OwnerFullName, StringFormat='Власник: {0}'}"
+                                    Command="{Binding DataContext.ViewOwnerProfileCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                    CommandParameter="{Binding OwnerId}"
+                                    Style="{StaticResource LinkButton}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    HorizontalAlignment="Left"
+                                    Padding="0"
+                                    Cursor="Hand"
+                                />                            
+
                             </StackPanel>
 
                             <Button Grid.Column="2" 
