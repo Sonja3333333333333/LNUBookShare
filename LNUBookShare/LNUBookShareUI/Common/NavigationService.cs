@@ -1,7 +1,10 @@
 ﻿using LNUBookShareUI.ViewModels;
 using LNUBookShareUI.Views;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection; 
 using System;
+using System.Threading.Tasks;
+using System.Windows;
 
 namespace LNUBookShareUI.Common
 {
@@ -13,6 +16,33 @@ namespace LNUBookShareUI.Common
         public NavigationService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+        }
+
+        public async void ShowBookDetails(int bookId)
+        {
+            try
+            {
+
+                var view = _serviceProvider.GetService<BookDetailsView>();
+
+                var viewModel = new BookDetailsViewModel(
+                    _serviceProvider.GetService<IMediator>(),
+                    this
+                );
+
+                // 3. З'єднуємо їх
+                view.DataContext = viewModel;
+
+                // 4. Асинхронно завантажуємо дані
+                await viewModel.LoadBookDetailsAsync(bookId);
+
+                // 5. Показуємо вікно
+                view.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не вдалося відкрити деталі книги: {ex.Message}");
+            }
         }
 
         public void ShowProfile()
@@ -29,6 +59,20 @@ namespace LNUBookShareUI.Common
             // 4. Показуємо вікно
             profileView.Show();
 
+        }
+        public void ShowViewProfile(int id)
+        {
+            var profileView = _serviceProvider.GetService<ProfileView>();
+
+
+            var viewOtherProfileViewModel = new ViewOtherProfileViewModel(
+                _serviceProvider.GetService<IMediator>(),
+                this,
+                id
+            );
+
+            profileView.DataContext = viewOtherProfileViewModel;
+            profileView.Show();
         }
         public void ShowFavorites()
         {
@@ -68,6 +112,17 @@ namespace LNUBookShareUI.Common
             var editBookViewModel = _serviceProvider.GetService<EditBookViewModel>();
 
             editBookViewModel.BookId = bookId;
+        public async Task ShowEditProfile()
+        {
+            var editProfileView = _serviceProvider.GetService<EditProfileView>();
+            var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+
+            await editProfileViewModel.LoadDataAsync();
+
+            editProfileView.DataContext = editProfileViewModel;
+
+            editProfileView.ShowDialog();
+        }
 
             editBookView.DataContext = editBookViewModel;
 

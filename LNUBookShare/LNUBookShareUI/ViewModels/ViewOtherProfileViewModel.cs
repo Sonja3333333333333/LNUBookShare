@@ -2,7 +2,9 @@
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Profile;
+using LNUBookShareDAL.Models;
 using LNUBookShareUI.Common;
+using LNUBookShareUI.Views;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -11,18 +13,17 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Data; // Потрібен для ICollectionView
+using System.Windows.Data; 
 using System.Windows.Input;
 using System.Windows.Navigation;
-using LNUBookShareBLL.DTOs;
-using LNUBookShareUI.Views;
+
 
 namespace LNUBookShareUI.ViewModels
 {
-    public class ProfileViewModel : ViewModelBase
+    public class ViewOtherProfileViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private readonly int _currentUserId = 1; 
+        private readonly int _currentUserId ;
         private readonly INavigationService _navigationService;
 
         // --- Властивості для Інфо про Юзера ---
@@ -32,17 +33,8 @@ namespace LNUBookShareUI.ViewModels
             get => _profile;
             set => SetProperty(ref _profile, value);
         }
-
-        private bool _isMyProfile;
-        public bool IsMyProfile
-        {
-            get => _isMyProfile;
-            set
-            {
-                _isMyProfile = value;
-                OnPropertyChanged(nameof(IsMyProfile)); 
-            }
-        }
+        // ---- Властивість для видимості кнопок ----
+        public bool IsMyProfile => false;
 
         // --- Властивості для Списку Книг ---
         // Повний (нефільтрований) список книг
@@ -78,7 +70,6 @@ namespace LNUBookShareUI.ViewModels
                 }
             }
         }
-        
 
         // --- Команди ---
         public ICommand LoadDataCommand { get; }
@@ -88,16 +79,14 @@ namespace LNUBookShareUI.ViewModels
         public ICommand SetFilterIssuedCommand { get; }
 
         public ICommand GoBackCommand { get; }
-        public ICommand OpenEditBookCommand { get; }
-        public ICommand OpenEditProfileCommand { get; }
 
         public ICommand OpenBookDetailsCommand { get; }
 
         // --- Конструктор ---
-        public ProfileViewModel(IMediator mediator, INavigationService navigationService)
+        public ViewOtherProfileViewModel(IMediator mediator, INavigationService navigationService, int  userId)
         {
             _mediator = mediator;
-            this.IsMyProfile = true;
+            _currentUserId = userId;
             _navigationService = navigationService;
 
             // Ініціалізуємо "розумний" список
@@ -121,31 +110,11 @@ namespace LNUBookShareUI.ViewModels
             SetFilterIssuedCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Issued);
 
             GoBackCommand = new RelayCommand<object>(GoBack);
-            OpenEditBookCommand = new RelayCommand<int>(OpenEditBook);
 
             OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
 
-            OpenEditProfileCommand = new RelayCommand(async () => await OpenEditProfile());
-
-            // Завантажуємо дані при відкритті
             _ = LoadProfileAsync();
-           
         }
-
-        private async Task OpenEditProfile()
-        {
-            try
-            {
-                
-                await _navigationService.ShowEditProfile();
-                await LoadProfileAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}");
-            }
-        }
-
 
         // --- Методи ---
         private void OpenBookDetails(int bookId)
@@ -155,7 +124,6 @@ namespace LNUBookShareUI.ViewModels
                 _navigationService.ShowBookDetails(bookId);
             }
         }
-
         private async Task LoadProfileAsync()
         {
             try
@@ -181,7 +149,7 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка завантаження профілю: {ex.Message}");
+                MessageBox.Show($"Помилка завантаження профілю: {ex.Message}\n\n{ex.StackTrace}");
             }
         }
 
@@ -242,7 +210,7 @@ namespace LNUBookShareUI.ViewModels
 
         private void GoBack(object window)
         {
-            
+            // 'window' - це параметр, який ми передаємо з XAML
             if (window is Window w)
             {
                 w.Close();
@@ -267,10 +235,6 @@ namespace LNUBookShareUI.ViewModels
                     OwnedBooksView.SortDescriptions.Add(new SortDescription("Year", ListSortDirection.Ascending));
                     break;
             }
-        }
-        private void OpenEditBook(int bookId)
-        {
-            _navigationService.ShowEditBook(bookId);
         }
     }
 }

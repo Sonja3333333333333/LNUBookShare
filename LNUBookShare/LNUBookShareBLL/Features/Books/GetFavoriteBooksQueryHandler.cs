@@ -73,6 +73,7 @@ namespace LNUBookShareBLL.Features.Favorites
                     CoverPath = (book.Cover != null) ? book.Cover.ImagePath : null,
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "N/A",
                     //OwnerEmail = (book.Owner != null) ? book.Owner.Email : "N/A"
+                    OwnerId = book.OwnerId
                 })
                 .ToListAsync(cancellationToken);
 

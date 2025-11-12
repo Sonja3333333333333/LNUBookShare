@@ -8,6 +8,7 @@ using System.Windows;
 using LNUBookShareDAL.Models;
 using System;
 using LNUBookShareUI.Common;
+using LNUBookShareBLL.Features.Files;
 
 namespace LNUBookShareUI
 {
@@ -46,6 +47,7 @@ namespace LNUBookShareUI
 
             // 2. BLL
             services.AddMediatR(typeof(GetBooksQuery).Assembly);
+            services.AddMediatR(typeof(UploadImageCommand).Assembly);
 
             // 3. ViewModels
             services.AddTransient<MainViewModel>();
@@ -66,13 +68,28 @@ namespace LNUBookShareUI
 
             services.AddTransient<EditBookView>();
             services.AddTransient<EditBookViewModel>();
+            services.AddTransient<EditProfileView>();
+            services.AddTransient<EditProfileViewModel>();
 
             services.AddSingleton<INavigationService, NavigationService>();
+
+            services.AddTransient<Func<int, ViewOtherProfileViewModel>>(provider => userId =>
+                new ViewOtherProfileViewModel(
+                    provider.GetService<IMediator>(),
+                    provider.GetService<INavigationService>(), // <-- ДОДАНО СЕРВІС НАВІГАЦІЇ
+                    userId
+                ));
         }
 
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+
+            //var editProfileView = _serviceProvider.GetService<EditProfileView>();
+            //var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+            //editProfileView.DataContext = editProfileViewModel;
+            //editProfileView.Show();
 
             //Щоб показати головне вікно розкоментуй мене
             var mainView = _serviceProvider.GetService<MainView>();

@@ -28,32 +28,55 @@ namespace LNUBookShareBLL.Features.Profile
                 throw new System.Exception("Користувача не знайдено.");
             }
 
-            // 2. Окремо завантажуємо список книг, що належать цьому користувачу
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            string finalAvatarPath = null;
+            if (user.Avatar != null && !string.IsNullOrEmpty(user.Avatar.ImagePath))
+            {
+                string dbPath = user.Avatar.ImagePath;
+                // Перевіряємо, чи це URL
+                if (dbPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                    dbPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                {
+                    finalAvatarPath = dbPath; // Це URL, використовуємо як є
+                }
+                else
+                {
+                    finalAvatarPath = Path.Combine(baseDir, dbPath); // Це файл, робимо абсолютним
+                }
+            }
+
             var ownedBooks = await _dbContext.Books
-                .Include(b => b.Cover) // Підтягуємо обкладинки
+                .Include(b => b.Cover)
                 .Where(b => b.OwnerId == request.UserId)
                 .AsNoTracking()
-                .Select(b => new OwnedBookDto // Перетворюємо на DTO
+                .Select(b => new OwnedBookDto
                 {
                     BookId = b.BookId,
                     Title = b.Title,
                     Author = b.Author,
                     Year = b.Year,
-                    Status = b.Status, // "available" або "issued"
-                    CoverPath = b.Cover != null ? b.Cover.ImagePath : null
+                    Status = b.Status,
+                    // Застосовуємо ту саму логіку до обкладинок:
+                    CoverPath = (b.Cover == null || string.IsNullOrEmpty(b.Cover.ImagePath))
+                        ? null // Немає шляху
+                        : (b.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || b.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                            ? b.Cover.ImagePath // Це URL
+                            : Path.Combine(baseDir, b.Cover.ImagePath) // Це файл
                 })
                 .ToListAsync(cancellationToken);
 
-            // 3. Збираємо все у фінальний DTO
             var profileDto = new ProfileDto
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
                 FacultyName = user.Faculty?.Name ?? "Не вказано",
-                AvatarPath = user.Avatar?.ImagePath,
+                AvatarPath = finalAvatarPath, 
                 OwnedBooks = ownedBooks
             };
+
+            
 
             return profileDto;
         }
