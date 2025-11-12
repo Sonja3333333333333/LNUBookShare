@@ -4,6 +4,7 @@ using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Profile;
 using LNUBookShareDAL.Models;
 using LNUBookShareUI.Common;
+using LNUBookShareUI.Views;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data; 
 using System.Windows.Input;
+using System.Windows.Navigation;
 
 
 namespace LNUBookShareUI.ViewModels
@@ -21,7 +23,8 @@ namespace LNUBookShareUI.ViewModels
     public class ViewOtherProfileViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private readonly int _currentUserId ; 
+        private readonly int _currentUserId ;
+        private readonly INavigationService _navigationService;
 
         // --- Властивості для Інфо про Юзера ---
         private ProfileDto _profile;
@@ -77,11 +80,14 @@ namespace LNUBookShareUI.ViewModels
 
         public ICommand GoBackCommand { get; }
 
+        public ICommand OpenBookDetailsCommand { get; }
+
         // --- Конструктор ---
-        public ViewOtherProfileViewModel(IMediator mediator,int  userId)
+        public ViewOtherProfileViewModel(IMediator mediator, INavigationService navigationService, int  userId)
         {
             _mediator = mediator;
             _currentUserId = userId;
+            _navigationService = navigationService;
 
             // Ініціалізуємо "розумний" список
             OwnedBooksView = CollectionViewSource.GetDefaultView(_allOwnedBooks);
@@ -105,11 +111,19 @@ namespace LNUBookShareUI.ViewModels
 
             GoBackCommand = new RelayCommand<object>(GoBack);
 
-            // Завантажуємо дані при відкритті
+            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+
             _ = LoadProfileAsync();
         }
 
         // --- Методи ---
+        private void OpenBookDetails(int bookId)
+        {
+            if (bookId > 0)
+            {
+                _navigationService.ShowBookDetails(bookId);
+            }
+        }
         private async Task LoadProfileAsync()
         {
             try

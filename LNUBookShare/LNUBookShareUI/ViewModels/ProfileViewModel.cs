@@ -13,13 +13,15 @@ using System.Windows;
 using System.Windows.Data; // Потрібен для ICollectionView
 using System.Windows.Input;
 using LNUBookShareBLL.DTOs;
+using LNUBookShareUI.Views;
 
 namespace LNUBookShareUI.ViewModels
 {
     public class ProfileViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private readonly int _currentUserId = 1; // "Захардкодили" ID
+        private readonly int _currentUserId = 1; 
+        private readonly INavigationService _navigationService;
 
         // --- Властивості для Інфо про Юзера ---
         private ProfileDto _profile;
@@ -29,7 +31,16 @@ namespace LNUBookShareUI.ViewModels
             set => SetProperty(ref _profile, value);
         }
 
-        
+        private bool _isMyProfile;
+        public bool IsMyProfile
+        {
+            get => _isMyProfile;
+            set
+            {
+                _isMyProfile = value;
+                OnPropertyChanged(nameof(IsMyProfile)); 
+            }
+        }
 
         // --- Властивості для Списку Книг ---
         // Повний (нефільтрований) список книг
@@ -75,10 +86,14 @@ namespace LNUBookShareUI.ViewModels
 
         public ICommand GoBackCommand { get; }
 
+        public ICommand OpenBookDetailsCommand { get; }
+
         // --- Конструктор ---
-        public ProfileViewModel(IMediator mediator)
+        public ProfileViewModel(IMediator mediator, INavigationService navigationService)
         {
             _mediator = mediator;
+            this.IsMyProfile = true;
+            _navigationService = navigationService;
 
             // Ініціалізуємо "розумний" список
             OwnedBooksView = CollectionViewSource.GetDefaultView(_allOwnedBooks);
@@ -102,11 +117,21 @@ namespace LNUBookShareUI.ViewModels
 
             GoBackCommand = new RelayCommand<object>(GoBack);
 
+            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+
             // Завантажуємо дані при відкритті
             _ = LoadProfileAsync();
         }
 
         // --- Методи ---
+        private void OpenBookDetails(int bookId)
+        {
+            if (bookId > 0)
+            {
+                _navigationService.ShowBookDetails(bookId);
+            }
+        }
+
         private async Task LoadProfileAsync()
         {
             try
@@ -193,7 +218,7 @@ namespace LNUBookShareUI.ViewModels
 
         private void GoBack(object window)
         {
-            // 'window' - це параметр, який ми передаємо з XAML
+            
             if (window is Window w)
             {
                 w.Close();

@@ -3,6 +3,7 @@ using LNUBookShareUI.Views;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection; 
 using System;
+using System.Windows;
 
 namespace LNUBookShareUI.Common
 {
@@ -14,6 +15,32 @@ namespace LNUBookShareUI.Common
         public NavigationService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+        }
+
+        public async void ShowBookDetails(int bookId)
+        {
+            try
+            {
+
+                var view = _serviceProvider.GetService<BookDetailsView>();
+
+                var viewModel = new BookDetailsViewModel(
+                    _serviceProvider.GetService<IMediator>()
+                );
+
+                // 3. З'єднуємо їх
+                view.DataContext = viewModel;
+
+                // 4. Асинхронно завантажуємо дані
+                await viewModel.LoadBookDetailsAsync(bookId);
+
+                // 5. Показуємо вікно
+                view.Show();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Не вдалося відкрити деталі книги: {ex.Message}");
+            }
         }
 
         public void ShowProfile()
@@ -34,9 +61,13 @@ namespace LNUBookShareUI.Common
         public void ShowViewProfile(int id)
         {
             var profileView = _serviceProvider.GetService<ProfileView>();
-                      
 
-            var viewOtherProfileViewModel = new ViewOtherProfileViewModel(_serviceProvider.GetService<IMediator>(), id);
+
+            var viewOtherProfileViewModel = new ViewOtherProfileViewModel(
+                _serviceProvider.GetService<IMediator>(),
+                this,
+                id
+            );
 
             profileView.DataContext = viewOtherProfileViewModel;
             profileView.Show();

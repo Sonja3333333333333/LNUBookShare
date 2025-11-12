@@ -11,6 +11,34 @@
     <!-- видимість кнопок -->
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <Style x:Key="LinkButton" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock>
+                    <Hyperlink TextDecorations="None" Foreground="#0078D7">
+                        <Run Text="{TemplateBinding Content}"/>
+                    </Hyperlink>
+                        </TextBlock>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="#0078D7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <TextBlock TextDecorations="Underline" Foreground="#005A9E">
+                            <Run Text="{TemplateBinding Content}"/>
+                                </TextBlock>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
 
@@ -69,7 +97,18 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <TextBlock Grid.Column="0" Text="Мої книги" FontSize="18" FontWeight="Bold" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="0" FontSize="18" FontWeight="Bold" VerticalAlignment="Center">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="Книги користувача"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMyProfile}" Value="True">
+                                <Setter Property="Text" Value="Мої книги"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
                 <!-- Сортування -->
@@ -91,62 +130,77 @@
             </StackPanel>
         </Grid>
 
-        <!-- 3. Список "Мої книги" -->
-        <ListView Grid.Row="3" ItemsSource="{Binding OwnedBooksView}" HorizontalContentAlignment="Stretch">
-            <!-- (Тут можна вставити ті ж стилі, що й у MainView, щоб прибрати рамку) -->
+
+        <ListView Grid.Row="3" 
+          ItemsSource="{Binding OwnedBooksView}" 
+          HorizontalContentAlignment="Stretch"
+          BorderThickness="0">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <ContentPresenter />
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Background" Value="Transparent"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Border BorderBrush="LightGray" BorderThickness="1" Padding="10" Margin="0,0,0,8" Height="100">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
-                                <!-- Картинка -->
                                 <ColumnDefinition Width="*"/>
-                                <!-- Інфо -->
                                 <ColumnDefinition Width="Auto"/>
-                                <!-- Кнопки -->
                             </Grid.ColumnDefinitions>
 
-                            <!-- Картинка -->
                             <Border Grid.Column="0" Width="60" Height="80" Background="Gainsboro" ClipToBounds="True">
                                 <Image Source="{Binding CoverPath}" Stretch="UniformToFill" />
                             </Border>
 
-                            <!-- Інфо (як у wireframe) -->
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
-                                <TextBlock FontSize="14" FontWeight="Bold">
-                                    <Run Text="Назва: "/>
-                                    <Run Text="{Binding Title}"/>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="Назва: " FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
+                                    <Button 
+                                    Content="{Binding Title}"
+                                    FontSize="14" FontWeight="Bold" 
+                                    VerticalAlignment="Center"
+                                    Margin="5,0,0,0"
+                                    Style="{StaticResource LinkButton}" Padding="0"
+                                    Command="{Binding DataContext.OpenBookDetailsCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                    CommandParameter="{Binding BookId}"
+                                />
+                                </StackPanel>
+                                <TextBlock>
+                                <Run Text="Автор: "/>
+                                <Run Text="{Binding Author}"/>
                                 </TextBlock>
                                 <TextBlock>
-                                    <Run Text="Автор: "/>
-                                    <Run Text="{Binding Author}"/>
+                                <Run Text="Рік: "/>
+                                <Run Text="{Binding Year}"/>
                                 </TextBlock>
                                 <TextBlock>
-                                    <Run Text="Рік: "/>
-                                    <Run Text="{Binding Year}"/>
-                                </TextBlock>
-                                <TextBlock>
-                                    <Run Text="Статус: "/>
-                                    <Run Text="{Binding Status}"/>
+                                <Run Text="Статус: "/>
+                                <Run Text="{Binding Status}"/>
                                 </TextBlock>
                             </StackPanel>
 
-                            <!-- Кнопки "Редагувати" та "Видалити" -->
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <Button Content="✏️" FontSize="16" Width="35" Height="35" ToolTip="Редагувати книгу"
-                                        Visibility="{Binding DataContext.IsMyProfile, 
-                                         RelativeSource={RelativeSource AncestorType=Window}, 
-                                         Converter={StaticResource BoolToVis}}"/> <!-- приховано кнопку редагувати книгу-->      
-                                <!-- (TODO: Додати команду редагування) -->
-
+                                    Visibility="{Binding DataContext.IsMyProfile, 
+                                                RelativeSource={RelativeSource AncestorType=Window}, 
+                                                Converter={StaticResource BoolToVis}}"/>
                                 <Button Content="🗑️" FontSize="16" Width="35" Height="35" ToolTip="Видалити книгу"
-                                        Command="{Binding DataContext.DeleteBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                        CommandParameter="{Binding BookId}"
-                                        Margin="0,5,0,0"
-                                        Visibility="{Binding DataContext.IsMyProfile, 
-                                         RelativeSource={RelativeSource AncestorType=Window}, 
-                                         Converter={StaticResource BoolToVis}}"/> <!-- приховано кнопку видалити книгу-->
+                                    Command="{Binding DataContext.DeleteBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                    CommandParameter="{Binding BookId}"
+                                    Margin="0,5,0,0"
+                                    Visibility="{Binding DataContext.IsMyProfile, 
+                                                RelativeSource={RelativeSource AncestorType=Window}, 
+                                                Converter={StaticResource BoolToVis}}"/>
                             </StackPanel>
                         </Grid>
                     </Border>

@@ -67,9 +67,11 @@ namespace LNUBookShareUI
             services.AddSingleton<INavigationService, NavigationService>();
 
             services.AddTransient<Func<int, ViewOtherProfileViewModel>>(provider => userId =>
-            new ViewOtherProfileViewModel(
-                provider.GetService<IMediator>(), // передаєм IMediator
-                userId));
+                new ViewOtherProfileViewModel(
+                    provider.GetService<IMediator>(),
+                    provider.GetService<INavigationService>(), // <-- ДОДАНО СЕРВІС НАВІГАЦІЇ
+                    userId
+                ));
         }
 
         protected override void OnStartup(StartupEventArgs e)
