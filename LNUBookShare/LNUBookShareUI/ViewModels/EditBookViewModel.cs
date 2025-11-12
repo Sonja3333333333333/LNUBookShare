@@ -124,6 +124,19 @@ namespace LNUBookShareUI.ViewModels
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(Title) ||
+                    string.IsNullOrWhiteSpace(Author) ||
+                    SelectedCategory == null)
+                {
+                    // Використовуємо MessageBox, оскільки це UI
+                    MessageBox.Show("Поля 'Назва', 'Автор' та 'Категорія' є обов'язковими.",
+                                    "Помилка валідації",
+                                    MessageBoxButton.OK,
+                                    MessageBoxImage.Error);
+                    return; 
+                }
+
+
                 var dto = new BookEditDto
                 {
                     Title = this.Title,
