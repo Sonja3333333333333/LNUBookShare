@@ -8,6 +8,41 @@
         d:DataContext="{d:DesignInstance Type=vm:BookDetailsViewModel}"
         Title="{Binding Book.Title, FallbackValue='Деталі книги'}" 
         Height="650" Width="850">
+
+    <Window.Resources>
+
+        <Style x:Key="LinkButton" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock>
+                        <Hyperlink TextDecorations="None" Foreground="#0078D7">
+                            <Run Text="{TemplateBinding Content}"/>
+                        </Hyperlink>
+                        </TextBlock>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="#0078D7"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="Button">
+                                <TextBlock TextDecorations="Underline" Foreground="#005A9E">
+                                <Run Text="{TemplateBinding Content}"/>
+                                </TextBlock>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </Window.Resources>
+
+
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -71,9 +106,15 @@
                     <Separator Margin="0,15,0,15"/>
 
                     <TextBlock Text="Власник" FontSize="16" FontWeight="Bold"/>
-                    <TextBlock FontSize="14" Margin="0,5,0,0">
-                        <Run Text="{Binding Book.OwnerFullName}"/>
-                    </TextBlock>
+                    <Button 
+                        Content="{Binding Book.OwnerFullName}"
+                        FontSize="14" 
+                        Style="{StaticResource LinkButton}"
+                        HorizontalAlignment="Left"
+                        Padding="0"
+                        Margin="0,5,0,0"
+                        Command="{Binding ViewOwnerProfileCommand}"
+                    />
                     <TextBlock FontSize="14" Margin="0,5,0,0">
                         <Run Text="{Binding Book.OwnerEmail}"/>
                     </TextBlock>

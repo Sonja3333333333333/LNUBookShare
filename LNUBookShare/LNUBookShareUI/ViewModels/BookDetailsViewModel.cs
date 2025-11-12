@@ -1,22 +1,22 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input; // <-- Додано
+using System.Windows.Input; 
 using MediatR;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Favorites;
-using LNUBookShareUI.Common; // <-- Додано
+using LNUBookShareUI.Common; 
 
 namespace LNUBookShareUI.ViewModels
 {
-    // 1. Базовий клас змінено на ViewModelBase
-    // 2. 'partial' видалено, оскільки генератори коду більше не потрібні
+    
     public class BookDetailsViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
 
-        // 3. [ObservableProperty] замінено на стандартну властивість з SetProperty
+        private readonly INavigationService _navigationService;
+
         private BookDetailsDto _book = new();
         public BookDetailsDto Book
         {
@@ -24,17 +24,29 @@ namespace LNUBookShareUI.ViewModels
             set => SetProperty(ref _book, value);
         }
 
-        // 4. Додано властивості ICommand
+        
         public ICommand GoBackCommand { get; }
         public ICommand ToggleFavoriteCommand { get; }
 
-        public BookDetailsViewModel(IMediator mediator)
+        public ICommand ViewOwnerProfileCommand { get; }
+
+        public BookDetailsViewModel(IMediator mediator, INavigationService navigationService)
         {
             _mediator = mediator;
+            _navigationService = navigationService;
 
-            // 5. Команди ініціалізовано в конструкторі
             GoBackCommand = new RelayCommand<object>(GoBack);
             ToggleFavoriteCommand = new RelayCommand(async () => await ToggleFavorite());
+            ViewOwnerProfileCommand = new RelayCommand(ViewOwnerProfile);
+        }
+
+        private void ViewOwnerProfile()
+        {
+            
+            if (Book != null && Book.OwnerId > 0)
+            {
+                _navigationService.ShowViewProfile(Book.OwnerId);
+            }
         }
 
         public async Task LoadBookDetailsAsync(int bookId)
