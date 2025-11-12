@@ -9,5 +9,7 @@
         void ShowMainView();
         void ShowLogin();
         void ShowRegister();
+
+        void ShowBookDetails(int bookId);
     }
 }

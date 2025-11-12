@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System;
 using System.Windows;
 using System.Windows.Navigation;
+using LNUBookShareUI.Views;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -108,6 +109,7 @@ namespace LNUBookShareUI.ViewModels
         public ICommand ViewOwnerProfileCommand { get; }
         public ICommand OpenFavoritesCommand { get; }
 
+        public ICommand OpenBookDetailsCommand { get; }
 
 
         // --- Конструктор ---
@@ -152,6 +154,8 @@ namespace LNUBookShareUI.ViewModels
             OpenFavoritesCommand = new RelayCommand(OpenFavorites);
 
             ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
+
+            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
         }
 
         // --- Логіка ---
@@ -180,6 +184,14 @@ namespace LNUBookShareUI.ViewModels
         {
             CurrentPage = 1; // Скидаємо сторінку при кожному новому пошуку
             await LoadBooksAsync();
+        }
+
+        private void OpenBookDetails(int bookId)
+        {
+            if (bookId > 0)
+            {
+                _navigationService.ShowBookDetails(bookId);
+            }
         }
 
         private async Task LoadBooksAsync()
