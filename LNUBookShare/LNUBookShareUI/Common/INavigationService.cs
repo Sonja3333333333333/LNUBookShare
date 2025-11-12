@@ -1,4 +1,5 @@
-﻿namespace LNUBookShareUI.Common
+﻿using System.Threading.Tasks;
+namespace LNUBookShareUI.Common
 {
     public interface INavigationService
     {
@@ -8,7 +9,7 @@
         void ShowMainView();
         void ShowLogin();
         void ShowRegister();
-        void ShowEditProfile();
+        Task ShowEditProfile();
 
         void ShowBookDetails(int bookId);
     }
