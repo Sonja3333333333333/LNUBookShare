@@ -1,8 +1,9 @@
-﻿using MediatR;
+﻿using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Profile;
 using LNUBookShareUI.Common;
+using MediatR;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -12,6 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data; // Потрібен для ICollectionView
 using System.Windows.Input;
+using System.Windows.Navigation;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareUI.Views;
 
@@ -76,6 +78,7 @@ namespace LNUBookShareUI.ViewModels
                 }
             }
         }
+        private readonly INavigationService _navigationService;
 
         // --- Команди ---
         public ICommand LoadDataCommand { get; }
@@ -85,6 +88,8 @@ namespace LNUBookShareUI.ViewModels
         public ICommand SetFilterIssuedCommand { get; }
 
         public ICommand GoBackCommand { get; }
+        public ICommand OpenEditProfileCommand { get; }
+
 
         public ICommand OpenBookDetailsCommand { get; }
 
@@ -121,7 +126,16 @@ namespace LNUBookShareUI.ViewModels
 
             // Завантажуємо дані при відкритті
             _ = LoadProfileAsync();
+
+            _navigationService = navigationService;
+            OpenEditProfileCommand = new RelayCommand(OpenEditProfile);
         }
+
+        private void OpenEditProfile()
+        {
+            _navigationService.ShowEditProfile();
+        }
+
 
         // --- Методи ---
         private void OpenBookDetails(int bookId)

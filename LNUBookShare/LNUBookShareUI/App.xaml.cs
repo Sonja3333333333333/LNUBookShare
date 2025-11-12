@@ -64,6 +64,9 @@ namespace LNUBookShareUI
             services.AddTransient<FavoritesView>();
             services.AddTransient<FavoritesViewModel>();
 
+            services.AddTransient<EditProfileView>();
+            services.AddTransient<EditProfileViewModel>();
+
             services.AddSingleton<INavigationService, NavigationService>();
 
             services.AddTransient<Func<int, ViewOtherProfileViewModel>>(provider => userId =>
@@ -77,7 +80,10 @@ namespace LNUBookShareUI
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
+            //var editProfileView = _serviceProvider.GetService<EditProfileView>();
+            //var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+            //editProfileView.DataContext = editProfileViewModel;
+            //editProfileView.Show();
             //Щоб показати головне вікно розкоментуй мене
             var mainView = _serviceProvider.GetService<MainView>();
             var mainViewModel = _serviceProvider.GetService<MainViewModel>();
