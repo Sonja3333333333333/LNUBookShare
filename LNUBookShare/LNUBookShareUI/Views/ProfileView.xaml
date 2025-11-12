@@ -163,30 +163,33 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
+
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Назва: " FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
                                     <Button 
-                                    Content="{Binding Title}"
-                                    FontSize="14" FontWeight="Bold" 
-                                    VerticalAlignment="Center"
-                                    Margin="5,0,0,0"
-                                    Style="{StaticResource LinkButton}" Padding="0"
-                                    Command="{Binding DataContext.OpenBookDetailsCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                    CommandParameter="{Binding BookId}"
-                                />
+                                        Content="{Binding Title}"
+                                        FontSize="14" FontWeight="Bold" 
+                                        VerticalAlignment="Center"
+                                        Margin="5,0,0,0"
+                                        Style="{StaticResource LinkButton}" Padding="0"
+                                        Command="{Binding DataContext.OpenBookDetailsCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                        CommandParameter="{Binding BookId}"
+                                    />
                                 </StackPanel>
-                                <TextBlock>
-                                <Run Text="Автор: "/>
-                                <Run Text="{Binding Author}"/>
+
+                                <TextBlock FontStyle="Italic" Margin="0,5,0,5">
+                                    <Run Text="Автор: "/>
+                                    <Run Text="{Binding Author}"/>
                                 </TextBlock>
-                                <TextBlock>
-                                <Run Text="Рік: "/>
-                                <Run Text="{Binding Year}"/>
+
+                                <TextBlock Margin="0,5,0,0">
+                                    <Run Text="Статус: " FontWeight="Bold"/>
+                                    <Run Text="{Binding Status}"/>
+                                    <Run Text="  |  "/>
+                                    <Run Text="Рік: " FontWeight="Bold"/>
+                                    <Run Text="{Binding Year}"/>
                                 </TextBlock>
-                                <TextBlock>
-                                <Run Text="Статус: "/>
-                                <Run Text="{Binding Status}"/>
-                                </TextBlock>
+
                             </StackPanel>
 
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
