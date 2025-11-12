@@ -78,7 +78,7 @@ namespace LNUBookShareUI.ViewModels
                 }
             }
         }
-        private readonly INavigationService _navigationService;
+        
 
         // --- Команди ---
         public ICommand LoadDataCommand { get; }

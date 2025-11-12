@@ -80,15 +80,15 @@ namespace LNUBookShareUI
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-            //var editProfileView = _serviceProvider.GetService<EditProfileView>();
-            //var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
-            //editProfileView.DataContext = editProfileViewModel;
-            //editProfileView.Show();
+            var editProfileView = _serviceProvider.GetService<EditProfileView>();
+            var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+            editProfileView.DataContext = editProfileViewModel;
+            editProfileView.Show();
             //Щоб показати головне вікно розкоментуй мене
-            var mainView = _serviceProvider.GetService<MainView>();
-            var mainViewModel = _serviceProvider.GetService<MainViewModel>();
-            mainView.DataContext = mainViewModel;
-            mainView.Show();
+            //var mainView = _serviceProvider.GetService<MainView>();
+            //var mainViewModel = _serviceProvider.GetService<MainViewModel>();
+            //mainView.DataContext = mainViewModel;
+            //mainView.Show();
 
             //Щоб показати автентифікацію розкоментуй мене
             //var loginView = _serviceProvider.GetService<LoginView>();
