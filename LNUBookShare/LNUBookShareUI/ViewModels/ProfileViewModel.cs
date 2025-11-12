@@ -88,6 +88,7 @@ namespace LNUBookShareUI.ViewModels
         public ICommand SetFilterIssuedCommand { get; }
 
         public ICommand GoBackCommand { get; }
+        public ICommand OpenEditBookCommand { get; }
         public ICommand OpenEditProfileCommand { get; }
 
         public ICommand OpenBookDetailsCommand { get; }
@@ -120,6 +121,7 @@ namespace LNUBookShareUI.ViewModels
             SetFilterIssuedCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Issued);
 
             GoBackCommand = new RelayCommand<object>(GoBack);
+            OpenEditBookCommand = new RelayCommand<int>(OpenEditBook);
 
             OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
 
@@ -265,6 +267,10 @@ namespace LNUBookShareUI.ViewModels
                     OwnedBooksView.SortDescriptions.Add(new SortDescription("Year", ListSortDirection.Ascending));
                     break;
             }
+        }
+        private void OpenEditBook(int bookId)
+        {
+            _navigationService.ShowEditBook(bookId);
         }
     }
 }
