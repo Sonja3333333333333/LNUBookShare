@@ -189,11 +189,26 @@
 
                             <!-- Інфо -->
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="Bold" Margin="0,0,0,5"/>
+                                <Button 
+                                    Content="{Binding Title}" 
+                                    FontSize="16" FontWeight="Bold" 
+                                    Margin="0,0,0,5"
+                                    Style="{StaticResource LinkButton}"
+                                    HorizontalAlignment="Left"
+                                    Padding="0" 
+                                    Command="{Binding DataContext.OpenBookDetailsCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                    CommandParameter="{Binding BookId}"
+                                    />
                                 <TextBlock Text="{Binding Author}" FontStyle="Italic" Margin="0,0,0,5"/>
                                 <!-- Поля, специфічні для "Вподобаних" -->
-                                <TextBlock Text="{Binding OwnerFullName, StringFormat='Власник: {0}'}"/>
-
+                                <Button 
+                                    Content="{Binding OwnerFullName, StringFormat='Власник: {0}'}"
+                                    Command="{Binding DataContext.ViewOwnerProfileCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                    CommandParameter="{Binding OwnerId}"
+                                    Style="{StaticResource LinkButton}"
+                                    HorizontalAlignment="Left"
+                                    Padding="0"
+                                    />
                                 <TextBlock>
                                     <Run Text="Статус: "/>
                                     <Run Text="{Binding Status}"/>
