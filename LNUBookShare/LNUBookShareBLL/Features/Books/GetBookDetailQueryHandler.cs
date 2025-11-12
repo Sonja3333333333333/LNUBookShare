@@ -33,6 +33,7 @@ namespace LNUBookShareBLL.Features.Books
                     Publisher = b.Publisher,
                     Language = b.Language,
                     Status = b.Status,
+                    OwnerId = b.OwnerId,
                     CoverPath = (b.Cover != null) ? b.Cover.ImagePath : null,
 
                     // Перевірки на null для зв'язаних даних
