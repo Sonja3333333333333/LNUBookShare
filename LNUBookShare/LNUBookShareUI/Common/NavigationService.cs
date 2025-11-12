@@ -18,6 +18,33 @@ namespace LNUBookShareUI.Common
             _serviceProvider = serviceProvider;
         }
 
+        public async Task ShowEditBookAsync(int bookId)
+        {
+            var view = _serviceProvider.GetService<EditBookView>();
+            var viewModel = _serviceProvider.GetService<EditBookViewModel>();
+
+            view.DataContext = viewModel;
+
+            // Завантажуємо категорії ТА дані книги
+            await viewModel.LoadDataAsync(bookId);
+
+            view.ShowDialog();
+        }
+
+        public async Task ShowAddBookAsync()
+        {
+            var view = _serviceProvider.GetService<AddBookView>();
+            var viewModel = _serviceProvider.GetService<AddBookViewModel>();
+
+            view.DataContext = viewModel;
+
+            // Завантажуємо категорії ДО показу вікна
+            await viewModel.LoadDataAsync();
+
+            // Показуємо як діалог
+            view.ShowDialog();
+        }
+
         public async void ShowBookDetails(int bookId)
         {
             try

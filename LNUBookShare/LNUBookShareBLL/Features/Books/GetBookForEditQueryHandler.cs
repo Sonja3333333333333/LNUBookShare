@@ -16,8 +16,11 @@ namespace LNUBookShareBLL.Features.Books
 
         public async Task<BookEditDto> Handle(GetBookForEditQuery request, CancellationToken cancellationToken)
         {
-            var bookDto = await _dbContext.Books
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            var bookData = await _dbContext.Books
                 .AsNoTracking()
+                .Include(b => b.Cover) // <-- ВАЖЛИВО: Завантажуємо обкладинку
                 .Where(b => b.BookId == request.BookId)
                 .Select(b => new
                 {
@@ -30,24 +33,30 @@ namespace LNUBookShareBLL.Features.Books
                         Publisher = b.Publisher,
                         Language = b.Language,
                         CategoryId = b.CategoryId,
-                        Status = b.Status
+                        Status = b.Status,
+
+                        // --- ОНОВЛЕНА ЛОГІКА ДЛЯ ФОТО ---
+                        CoverImagePath = (b.Cover == null || string.IsNullOrEmpty(b.Cover.ImagePath))
+                            ? null // Немає шляху
+                            : (b.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || b.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                                ? b.Cover.ImagePath // Це URL
+                                : Path.Combine(baseDir, b.Cover.ImagePath) // Це файл
                     },
-                    OwnerId = b.OwnerId // Потрібно для перевірки
+                    OwnerId = b.OwnerId
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (bookDto == null)
+            if (bookData == null)
             {
                 throw new Exception("Книгу не знайдено.");
             }
 
-            // ВАЖЛИВА ПЕРЕВІРКА: Редагувати книгу може тільки її власник
-            if (bookDto.OwnerId != request.CurrentUserId)
+            if (bookData.OwnerId != request.CurrentUserId)
             {
                 throw new Exception("Ви не можете редагувати чужу книгу.");
             }
 
-            return bookDto.BookData;
+            return bookData.BookData;
         }
     }
 }

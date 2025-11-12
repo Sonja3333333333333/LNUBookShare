@@ -13,7 +13,6 @@
         public string? Language { get; set; }
         public int CategoryId { get; set; }
 
-        // TODO: Додати CoverId або логіку завантаження файлу
-        // public int? CoverId { get; set; } 
+        public string? CoverImagePath { get; set; }
     }
 }

@@ -11,6 +11,10 @@ namespace LNUBookShareUI.Common
         void ShowRegister();
         Task ShowEditProfile();
 
+        Task ShowEditBookAsync(int bookId);
+
         void ShowBookDetails(int bookId);
+
+        Task ShowAddBookAsync();
     }
 }

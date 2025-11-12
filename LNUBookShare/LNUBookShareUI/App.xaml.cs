@@ -69,6 +69,12 @@ namespace LNUBookShareUI
             services.AddTransient<EditProfileView>();
             services.AddTransient<EditProfileViewModel>();
 
+            services.AddTransient<AddBookView>();
+            services.AddTransient<AddBookViewModel>();
+
+            services.AddTransient<EditBookView>();
+            services.AddTransient<EditBookViewModel>();
+
             services.AddSingleton<INavigationService, NavigationService>();
 
             services.AddTransient<Func<int, ViewOtherProfileViewModel>>(provider => userId =>

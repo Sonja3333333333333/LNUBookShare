@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using LNUBookShareDAL.Models;
+using Microsoft.EntityFrameworkCore; 
 
 
 namespace LNUBookShareBLL.Features.Books
@@ -21,7 +22,32 @@ namespace LNUBookShareBLL.Features.Books
                 throw new Exception("Назва, Автор та Категорія є обов'язковими.");
             }
 
-            // Створюємо нову сутність Книги
+            int? coverId = null;
+            if (!string.IsNullOrEmpty(request.Dto.CoverImagePath))
+            {
+                // 1. Конвертуємо абсолютний шлях (C:\...) назад у відносний
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string relativePath = Path.GetRelativePath(baseDir, request.Dto.CoverImagePath);
+
+                // 2. ЗАМІНЮЄМО / НА \ (нормалізація)
+                // Це гарантує, що "uploads/images/file.png" стане "uploads\images\file.png"
+                relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+
+                // 3. Шукаємо в БД
+                var image = await _dbContext.Images
+                    .FirstOrDefaultAsync(i => i.ImagePath == relativePath, cancellationToken);
+
+                if (image != null)
+                {
+                    coverId = image.ImageId;
+                }
+                else
+                {
+                    // Це означає, що ми все одно не знайшли зображення
+                    Console.WriteLine($"Увага: не вдалося знайти Image для книги за шляхом {relativePath}");
+                }
+            }
+
             var newBook = new Book
             {
                 OwnerId = request.OwnerUserId,
@@ -32,13 +58,10 @@ namespace LNUBookShareBLL.Features.Books
                 Publisher = request.Dto.Publisher,
                 Language = request.Dto.Language,
                 CategoryId = request.Dto.CategoryId,
-
-                // Згідно з вимогами, книга при додаванні завжди "доступна"
                 Status = "available",
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
 
-                // TODO: Додати логіку для CoverId
-                // CoverId = request.Dto.CoverId 
+                CoverId = coverId // <-- Прив'язуємо ID обкладинки
             };
 
             await _dbContext.Books.AddAsync(newBook, cancellationToken);

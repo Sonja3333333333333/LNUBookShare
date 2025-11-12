@@ -197,7 +197,10 @@
                                 <Button Content="✏️" FontSize="16" Width="35" Height="35" ToolTip="Редагувати книгу"
                                     Visibility="{Binding DataContext.IsMyProfile, 
                                                 RelativeSource={RelativeSource AncestorType=Window}, 
-                                                Converter={StaticResource BoolToVis}}"/>
+                                                Converter={StaticResource BoolToVis}}"
+                                                Command="{Binding DataContext.OpenEditBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                CommandParameter="{Binding BookId}"
+                                 />
                                 <Button Content="🗑️" FontSize="16" Width="35" Height="35" ToolTip="Видалити книгу"
                                     Command="{Binding DataContext.DeleteBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                     CommandParameter="{Binding BookId}"
@@ -216,7 +219,9 @@
         <Button Grid.Row="4" Content="+" FontSize="24" FontWeight="Bold"
                 Width="50" Height="50" HorizontalAlignment="Center" Margin="0,10,0,0"
                 ToolTip="Додати нову книгу"
-                Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"/> <!-- приховано + -->
+                Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"
+                Command="{Binding OpenAddBookCommand}"
+        /> <!-- приховано + -->
         <!-- (TODO: Додати команду навігації) -->
     </Grid>
 </Window>

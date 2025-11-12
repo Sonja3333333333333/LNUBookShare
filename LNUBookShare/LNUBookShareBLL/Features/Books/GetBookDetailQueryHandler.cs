@@ -16,13 +16,13 @@ namespace LNUBookShareBLL.Features.Books
 
         public async Task<BookDetailsDto> Handle(GetBookDetailsQuery request, CancellationToken cancellationToken)
         {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
             var book = await _dbContext.Books
-                // Підтягуємо всі зв'язані дані, які нам потрібні
                 .Include(b => b.Owner)
                 .Include(b => b.Category)
                 .Include(b => b.Cover)
                 .Where(b => b.BookId == request.BookId)
-                // Проектуємо (Select) у наш DTO
                 .Select(b => new BookDetailsDto
                 {
                     BookId = b.BookId,
@@ -34,20 +34,22 @@ namespace LNUBookShareBLL.Features.Books
                     Language = b.Language,
                     Status = b.Status,
                     OwnerId = b.OwnerId,
-                    CoverPath = (b.Cover != null) ? b.Cover.ImagePath : null,
 
-                    // Перевірки на null для зв'язаних даних
+                    // --- ОНОВЛЕНА ЛОГІКА ДЛЯ ОБКЛАДИНКИ ---
+                    CoverPath = (b.Cover == null || string.IsNullOrEmpty(b.Cover.ImagePath))
+                        ? null
+                        : (b.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || b.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                            ? b.Cover.ImagePath
+                            : Path.Combine(baseDir, b.Cover.ImagePath),
+
                     CategoryName = (b.Category != null) ? b.Category.Name : "N/A",
                     OwnerFullName = (b.Owner != null) ? (b.Owner.FirstName + " " + b.Owner.LastName) : "N/A",
                     OwnerEmail = (b.Owner != null) ? b.Owner.Email : "N/A",
-
-                    // Логіка "сердечка"
                     IsFavoritedByCurrentUser = _dbContext.Favorites.Any(f =>
                         f.BookId == b.BookId && f.UserId == request.CurrentUserId)
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            // Перевірка, чи книга взагалі існує
             if (book == null)
             {
                 throw new Exception($"Книгу з ID {request.BookId} не знайдено.");

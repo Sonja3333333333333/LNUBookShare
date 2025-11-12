@@ -61,7 +61,10 @@ namespace LNUBookShareBLL.Features.Favorites
                 .Skip((request.PageNumber - 1) * request.PageSize)
                 .Take(request.PageSize);
 
-            // 6. Проекція (SELECT) - Виконуємо запит до БД
+
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            // 6. Проекція (SELECT)
             var books = await paginatedQuery
                 .Select(book => new FavoriteBookCardDto
                 {
@@ -70,13 +73,18 @@ namespace LNUBookShareBLL.Features.Favorites
                     Author = book.Author,
                     Year = book.Year,
                     Status = book.Status,
-                    CoverPath = (book.Cover != null) ? book.Cover.ImagePath : null,
+
+                    // --- ОНОВЛЕНА ЛОГІКА ДЛЯ ОБКЛАДИНКИ ---
+                    CoverPath = (book.Cover == null || string.IsNullOrEmpty(book.Cover.ImagePath))
+                        ? null
+                        : (book.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || book.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+                            ? book.Cover.ImagePath
+                            : Path.Combine(baseDir, book.Cover.ImagePath),
+
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "N/A",
-                    //OwnerEmail = (book.Owner != null) ? book.Owner.Email : "N/A"
                     OwnerId = book.OwnerId
                 })
                 .ToListAsync(cancellationToken);
-
             // 7. Повертаємо фінальний DTO
             return new PaginatedResultDto<FavoriteBookCardDto>
             {

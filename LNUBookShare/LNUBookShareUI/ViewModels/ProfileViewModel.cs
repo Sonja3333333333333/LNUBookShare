@@ -92,6 +92,10 @@ namespace LNUBookShareUI.ViewModels
 
         public ICommand OpenBookDetailsCommand { get; }
 
+        public ICommand OpenAddBookCommand { get; }
+
+        public ICommand OpenEditBookCommand { get; }
+
         // --- Конструктор ---
         public ProfileViewModel(IMediator mediator, INavigationService navigationService)
         {
@@ -125,9 +129,40 @@ namespace LNUBookShareUI.ViewModels
 
             OpenEditProfileCommand = new RelayCommand(async () => await OpenEditProfile());
 
+            OpenAddBookCommand = new RelayCommand(async () => await OpenAddBook());
+
+            OpenEditBookCommand = new RelayCommand<int>(async (id) => await OpenEditBook(id));
+
             // Завантажуємо дані при відкритті
             _ = LoadProfileAsync();
            
+        }
+
+        private async Task OpenEditBook(int bookId)
+        {
+            if (bookId == 0) return;
+
+            try
+            {
+                await _navigationService.ShowEditBookAsync(bookId);
+                // Оновлюємо список книг у профілі після закриття
+                await LoadProfileAsync();
+            }
+            catch (Exception ex)
+            {
+                // Якщо користувач не власник, BLL видасть помилку
+                MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}", "Помилка");
+            }
+        }
+
+
+        private async Task OpenAddBook()
+        {
+            
+            await _navigationService.ShowAddBookAsync();
+
+          
+            await LoadProfileAsync();
         }
 
         private async Task OpenEditProfile()

@@ -13,5 +13,7 @@
         public string? Language { get; set; }
         public int CategoryId { get; set; }
         public string Status { get; set; } // "available" або "issued"
+
+        public string? CoverImagePath { get; set; }
     }
 }
