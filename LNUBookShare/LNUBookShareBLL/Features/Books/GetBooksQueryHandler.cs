@@ -83,6 +83,7 @@ namespace LNUBookShareBLL.Features.Books
                     Title = book.Title,
                     Author = book.Author,
                     Year = book.Year,
+                    Status = book.Status,
                     CoverPath = (book.Cover != null) ? book.Cover.ImagePath : null,
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "Власник невідомий",
                     OwnerId = (book.Owner != null) ? book.Owner.UserId : 0,    //додано OwnerId

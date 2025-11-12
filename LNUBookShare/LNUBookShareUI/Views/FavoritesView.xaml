@@ -188,7 +188,8 @@
                             </Border>
 
                             <!-- Інфо -->
-                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
+
                                 <Button 
                                     Content="{Binding Title}" 
                                     FontSize="16" FontWeight="Bold" 
@@ -198,9 +199,10 @@
                                     Padding="0" 
                                     Command="{Binding DataContext.OpenBookDetailsCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
                                     CommandParameter="{Binding BookId}"
-                                    />
+                                />
+
                                 <TextBlock Text="{Binding Author}" FontStyle="Italic" Margin="0,0,0,5"/>
-                                <!-- Поля, специфічні для "Вподобаних" -->
+
                                 <Button 
                                     Content="{Binding OwnerFullName, StringFormat='Власник: {0}'}"
                                     Command="{Binding DataContext.ViewOwnerProfileCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
@@ -208,11 +210,16 @@
                                     Style="{StaticResource LinkButton}"
                                     HorizontalAlignment="Left"
                                     Padding="0"
-                                    />
-                                <TextBlock>
-                                    <Run Text="Статус: "/>
+                                />
+
+                                <TextBlock Margin="0,5,0,0">
+                                    <Run Text="Статус: " FontWeight="Bold"/>
                                     <Run Text="{Binding Status}"/>
+                                    <Run Text="  |  "/>
+                                    <Run Text="Рік: " FontWeight="Bold"/>
+                                    <Run Text="{Binding Year}"/>
                                 </TextBlock>
+
                             </StackPanel>
 
                             <!-- Кнопка "Видалити" (сердечко) -->
