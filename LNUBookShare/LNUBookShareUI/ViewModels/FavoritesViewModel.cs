@@ -83,6 +83,8 @@ namespace LNUBookShareUI.ViewModels
         public ICommand SetFilterIssuedCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
+        public ICommand OpenBookDetailsCommand { get; }
+        public ICommand ViewOwnerProfileCommand { get; }
 
 
 
@@ -115,11 +117,29 @@ namespace LNUBookShareUI.ViewModels
             NextPageCommand = new RelayCommand(async () => await GoToNextPageAsync(), CanGoToNextPage);
             PreviousPageCommand = new RelayCommand(async () => await GoToPreviousPageAsync(), CanGoToPreviousPage);
 
+            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+            ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
+
             // Завантажуємо дані при відкритті вікна
             _ = LoadFavoritesAsync();
         }
 
         // --- Методи ---
+        private void OpenBookDetails(int bookId)
+        {
+            if (bookId > 0)
+            {
+                _navigationService.ShowBookDetails(bookId);
+            }
+        }
+
+        private void ViewOwnerProfile(int ownerId)
+        {
+            if (ownerId > 0)
+            {
+                _navigationService.ShowViewProfile(ownerId);
+            }
+        }
 
         private async Task LoadFavoritesAsync()
         {
