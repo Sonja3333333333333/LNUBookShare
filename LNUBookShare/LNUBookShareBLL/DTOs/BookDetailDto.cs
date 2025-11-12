@@ -20,6 +20,8 @@
         public string OwnerFullName { get; set; }
         public string OwnerEmail { get; set; }
 
+        public int OwnerId { get; set; }
+
         // --- Для UI ---
         public bool IsFavoritedByCurrentUser { get; set; }
     }
