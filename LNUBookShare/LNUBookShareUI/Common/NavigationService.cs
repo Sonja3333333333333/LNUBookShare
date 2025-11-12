@@ -105,13 +105,6 @@ namespace LNUBookShareUI.Common
             registerView.DataContext = _serviceProvider.GetService<RegisterViewModel>();
             registerView.Show();
         }
-        public void ShowEditBook(int bookId)
-        {
-            var editBookView = _serviceProvider.GetService<EditBookView>();
-
-            var editBookViewModel = _serviceProvider.GetService<EditBookViewModel>();
-
-            editBookViewModel.BookId = bookId;
         public async Task ShowEditProfile()
         {
             var editProfileView = _serviceProvider.GetService<EditProfileView>();
@@ -124,11 +117,5 @@ namespace LNUBookShareUI.Common
             editProfileView.ShowDialog();
         }
 
-            editBookView.DataContext = editBookViewModel;
-
-            editBookView.Show();
-
-            _ = editBookViewModel.LoadBookDataAsync();
-        }
     }
 }
