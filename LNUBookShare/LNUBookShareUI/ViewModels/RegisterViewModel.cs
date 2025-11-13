@@ -144,7 +144,9 @@ namespace LNUBookShareUI.ViewModels
                 {
                     this.Faculties.Clear();
                     foreach (var f in faculties)
+                    {
                         this.Faculties.Add(f);
+                    }
                 });
             }
             catch (Exception ex)

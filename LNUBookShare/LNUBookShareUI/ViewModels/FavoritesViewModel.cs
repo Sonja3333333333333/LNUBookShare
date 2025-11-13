@@ -158,7 +158,10 @@ namespace LNUBookShareUI.ViewModels
 
                 // Розраховуємо сторінки
                 this._totalPages = (int)Math.Ceiling((double)result.TotalCount / this._pageSize);
-                if (this._totalPages == 0) this._totalPages = 1;
+                if (this._totalPages == 0)
+                {
+                    this._totalPages = 1;
+                }
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
@@ -212,7 +215,9 @@ namespace LNUBookShareUI.ViewModels
                                          MessageBoxImage.Warning);
 
             if (result != MessageBoxResult.Yes)
+            {
                 return;
+            }
 
             try
             {

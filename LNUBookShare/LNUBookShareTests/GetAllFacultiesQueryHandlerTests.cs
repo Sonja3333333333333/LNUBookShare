@@ -19,11 +19,11 @@ namespace LNUBookShare.Tests
         // Конструктор: готує нову БД для кожного тесту
         public GetAllFacultiesQueryHandlerTests()
         {
-            _options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
+            this._options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
                 .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
                 .Options;
 
-            _dbContext = new LNUBookShareDbContext(_options);
+            this._dbContext = new LNUBookShareDbContext(this._options);
         }
 
         [Fact] // Атрибут xUnit, що позначає цей метод як тест
@@ -32,16 +32,16 @@ namespace LNUBookShare.Tests
             // --- 1. ARRANGE (Підготовка) ---
 
             // Додаємо 3 тестові факультети
-            await _dbContext.Faculties.AddRangeAsync(new List<Faculty>
+            await this._dbContext.Faculties.AddRangeAsync(new List<Faculty>
             {
                 new Faculty { Name = "Факультет журналістики" },
                 new Faculty { Name = "Факультет міжнародних відносин" },
                 new Faculty { Name = "Економічний факультет" }
             });
-            await _dbContext.SaveChangesAsync();
+            await this._dbContext.SaveChangesAsync();
 
             // Створюємо обробник
-            var handler = new GetAllFacultiesQueryHandler(_dbContext);
+            var handler = new GetAllFacultiesQueryHandler(this._dbContext);
             var query = new GetAllFacultiesQuery();
 
             // --- 2. ACT (Виконання) ---
@@ -56,7 +56,7 @@ namespace LNUBookShare.Tests
         public async Task Handle_Should_ReturnEmptyList_WhenNoFacultiesExist()
         {
             // --- 1. ARRANGE (Підготовка) ---
-            var handler = new GetAllFacultiesQueryHandler(_dbContext);
+            var handler = new GetAllFacultiesQueryHandler(this._dbContext);
             var query = new GetAllFacultiesQuery();
 
             // --- 2. ACT (Виконання) ---
