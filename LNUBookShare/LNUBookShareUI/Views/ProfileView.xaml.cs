@@ -21,7 +21,7 @@ namespace LNUBookShareUI.Views
     {
         public ProfileView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

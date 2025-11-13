@@ -10,8 +10,8 @@ namespace LNUBookShareUI.Common
 
         public RelayCommand(Action execute, Func<bool>? canExecute = null)
         {
-            _execute = execute;
-            _canExecute = canExecute;
+            this._execute = execute;
+            this._canExecute = canExecute;
         }
 
         public event EventHandler? CanExecuteChanged
@@ -20,8 +20,8 @@ namespace LNUBookShareUI.Common
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
-        public void Execute(object? parameter) => _execute.Invoke();
+        public bool CanExecute(object? parameter) => this._canExecute?.Invoke() ?? true;
+        public void Execute(object? parameter) => this._execute.Invoke();
     }
 
     public class RelayCommand<T> : ICommand
@@ -31,8 +31,8 @@ namespace LNUBookShareUI.Common
 
         public RelayCommand(Action<T> execute, Func<T, bool>? canExecute = null)
         {
-            _execute = execute;
-            _canExecute = canExecute;
+            this._execute = execute;
+            this._canExecute = canExecute;
         }
 
         public event EventHandler? CanExecuteChanged
@@ -45,7 +45,7 @@ namespace LNUBookShareUI.Common
         {
             if (parameter is T param)
             {
-                return _canExecute?.Invoke(param) ?? true;
+                return this._canExecute?.Invoke(param) ?? true;
             }
             return false;
         }
@@ -54,7 +54,7 @@ namespace LNUBookShareUI.Common
         {
             if (parameter is T param)
             {
-                _execute.Invoke(param);
+                this._execute.Invoke(param);
             }
         }
     }

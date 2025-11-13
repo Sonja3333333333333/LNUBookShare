@@ -10,6 +10,6 @@ namespace LNUBookShareBLL.Features.Profile
     public class UpdateProfileCommand : IRequest
     {
         public int UserId { get; set; }
-        public ProfileEditDto Dto { get; set; }
+        public ProfileEditDto? Dto { get; set; }
     }
 }

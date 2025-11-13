@@ -12,12 +12,12 @@ namespace LNUBookShareBLL.Features.Books
 
         public GetBooksQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<PaginatedResultDto<BookCardDto>> Handle(GetBooksQuery request, CancellationToken cancellationToken)
         {
-            var query = _dbContext.Books
+            var query = this._dbContext.Books
                 .Include(b => b.Owner)
                 .Include(b => b.Cover)
                 .Include(b => b.Category)
@@ -96,7 +96,7 @@ namespace LNUBookShareBLL.Features.Books
 
                      OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "Власник невідомий",
                      OwnerId = (book.Owner != null) ? book.Owner.UserId : 0,
-                     IsFavoritedByCurrentUser = _dbContext.Favorites.Any(f =>
+                     IsFavoritedByCurrentUser = this._dbContext.Favorites.Any(f =>
                          f.BookId == book.BookId && f.UserId == request.CurrentUserId)
                  })
                  .ToListAsync(cancellationToken);

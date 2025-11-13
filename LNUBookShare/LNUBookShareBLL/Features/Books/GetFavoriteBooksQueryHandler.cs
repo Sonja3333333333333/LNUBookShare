@@ -13,13 +13,13 @@ namespace LNUBookShareBLL.Features.Favorites
 
         public GetFavoriteBooksQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<PaginatedResultDto<FavoriteBookCardDto>> Handle(GetFavoriteBooksQuery request, CancellationToken cancellationToken)
         {
             // 1. Починаємо запит з таблиці "Favorites"
-            var query = _dbContext.Favorites
+            var query = this._dbContext.Favorites
                 // Фільтруємо за поточним користувачем
                 .Where(f => f.UserId == request.CurrentUserId)
                 // Включаємо пов'язані дані *перед* проекцією

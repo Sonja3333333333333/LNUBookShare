@@ -25,22 +25,22 @@ namespace LNUBookShareUI.ViewModels
         private string _lastName = string.Empty;
         public string LastName
         {
-            get => _lastName;
-            set => SetProperty(ref _lastName, value);
+            get => this._lastName;
+            set => this.SetProperty(ref this._lastName, value);
         }
 
         private string _firstName = string.Empty;
         public string FirstName
         {
-            get => _firstName;
-            set => SetProperty(ref _firstName, value);
+            get => this._firstName;
+            set => this.SetProperty(ref this._firstName, value);
         }
 
         private string _profileImageUrl = string.Empty;
         public string ProfileImageUrl
         {
-            get => _profileImageUrl;
-            set => SetProperty(ref _profileImageUrl, value);
+            get => this._profileImageUrl;
+            set => this.SetProperty(ref this._profileImageUrl, value);
         }
 
         public ObservableCollection<FacultyDto> Faculties { get; } = new();
@@ -48,8 +48,8 @@ namespace LNUBookShareUI.ViewModels
         private FacultyDto _selectedFaculty;
         public FacultyDto SelectedFaculty
         {
-            get => _selectedFaculty;
-            set => SetProperty(ref _selectedFaculty, value);
+            get => this._selectedFaculty;
+            set => this.SetProperty(ref this._selectedFaculty, value);
         }
 
         
@@ -60,12 +60,12 @@ namespace LNUBookShareUI.ViewModels
 
         public EditProfileViewModel(IMediator mediator)
         {
-            _mediator = mediator;
+            this._mediator = mediator;
 
             // 4. Ініціалізовано команди
-            SaveCommand = new RelayCommand<object>(async (w) => await Save(w));
-            CancelCommand = new RelayCommand<object>(Cancel);
-            ChangePhotoCommand = new RelayCommand(async () => await ChangePhoto());
+            this.SaveCommand = new RelayCommand<object>(async (w) => await this.Save(w));
+            this.CancelCommand = new RelayCommand<object>(this.Cancel);
+            this.ChangePhotoCommand = new RelayCommand(async () => await this.ChangePhoto());
         }
 
         private async Task ChangePhoto()
@@ -88,14 +88,14 @@ namespace LNUBookShareUI.ViewModels
                     };
 
                   
-                    string newProfilePath = await _mediator.Send(uploadCommand);
+                    string newProfilePath = await this._mediator.Send(uploadCommand);
 
-                    
-                    ProfileImageUrl = newProfilePath;
+
+                    this.ProfileImageUrl = newProfilePath;
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Не вдалося завантажити фото: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    _ = MessageBox.Show($"Не вдалося завантажити фото: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
         }
@@ -104,24 +104,24 @@ namespace LNUBookShareUI.ViewModels
             {
                 try
                 {
-                    var profileDto = await _mediator.Send(new GetProfileForEditQuery { UserId = _currentUserId });
+                    var profileDto = await this._mediator.Send(new GetProfileForEditQuery { UserId = _currentUserId });
 
-                    LastName = profileDto.LastName;
-                    FirstName = profileDto.FirstName;
-                    ProfileImageUrl = profileDto.ProfileImageUrl;
+                this.LastName = profileDto.LastName;
+                this.FirstName = profileDto.FirstName;
+                this.ProfileImageUrl = profileDto.ProfileImageUrl;
 
-                    var facultyList = await _mediator.Send(new GetAllFacultiesQuery());
-                    Faculties.Clear();
+                    var facultyList = await this._mediator.Send(new GetAllFacultiesQuery());
+                this.Faculties.Clear();
                     foreach (var faculty in facultyList)
                     {
-                        Faculties.Add(faculty);
+                    this.Faculties.Add(faculty);
                     }
 
-                    SelectedFaculty = Faculties.FirstOrDefault(f => f.FacultyId == profileDto.FacultyId);
+                this.SelectedFaculty = this.Faculties.FirstOrDefault(f => f.FacultyId == profileDto.FacultyId);
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Не вдалося завантажити дані профілю: {ex.Message}");
+                _ = MessageBox.Show($"Не вдалося завантажити дані профілю: {ex.Message}");
                 }
             }
 
@@ -144,13 +144,13 @@ namespace LNUBookShareUI.ViewModels
                     UserId = _currentUserId,
                     Dto = profileDto
                 };
-                await _mediator.Send(command);
+                _ = await this._mediator.Send(command);
 
                 if (window is Window w) { w.Close(); }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Не вдалося зберегти профіль: {ex.Message}");
+                _ = MessageBox.Show($"Не вдалося зберегти профіль: {ex.Message}");
             }
         }
 

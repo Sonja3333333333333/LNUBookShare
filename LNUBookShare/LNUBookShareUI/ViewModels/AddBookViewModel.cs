@@ -24,51 +24,51 @@ namespace LNUBookShareUI.ViewModels
         private string _title = string.Empty;
         public string Title
         {
-            get => _title;
-            set => SetProperty(ref _title, value);
+            get => this._title;
+            set => this.SetProperty(ref this._title, value);
         }
 
         private string _author = string.Empty;
         public string Author
         {
-            get => _author;
-            set => SetProperty(ref _author, value);
+            get => this._author;
+            set => this.SetProperty(ref this._author, value);
         }
 
         private string _isbn;
         public string Isbn
         {
-            get => _isbn;
-            set => SetProperty(ref _isbn, value);
+            get => this._isbn;
+            set => this.SetProperty(ref this._isbn, value);
         }
 
         private int? _year;
         public int? Year
         {
-            get => _year;
-            set => SetProperty(ref _year, value);
+            get => this._year;
+            set => this.SetProperty(ref this._year, value);
         }
 
         private string _publisher;
         public string Publisher
         {
-            get => _publisher;
-            set => SetProperty(ref _publisher, value);
+            get => this._publisher;
+            set => this.SetProperty(ref this._publisher, value);
         }
 
         private string _language;
         public string Language
         {
-            get => _language;
-            set => SetProperty(ref _language, value);
+            get => this._language;
+            set => this.SetProperty(ref this._language, value);
         }
 
         // --- Для обкладинки ---
         private string _coverImagePath;
         public string CoverImagePath
         {
-            get => _coverImagePath;
-            set => SetProperty(ref _coverImagePath, value);
+            get => this._coverImagePath;
+            set => this.SetProperty(ref this._coverImagePath, value);
         }
 
         // --- Для ComboBox ---
@@ -76,8 +76,8 @@ namespace LNUBookShareUI.ViewModels
         private CategoryDto _selectedCategory;
         public CategoryDto SelectedCategory
         {
-            get => _selectedCategory;
-            set => SetProperty(ref _selectedCategory, value);
+            get => this._selectedCategory;
+            set => this.SetProperty(ref this._selectedCategory, value);
         }
 
         // --- Команди ---
@@ -87,22 +87,22 @@ namespace LNUBookShareUI.ViewModels
 
         public AddBookViewModel(IMediator mediator)
         {
-            _mediator = mediator;
-            ChangeCoverCommand = new RelayCommand(async () => await ChangeCover());
-            SaveCommand = new RelayCommand<object>(async (w) => await Save(w));
-            CancelCommand = new RelayCommand<object>(Cancel);
+            this._mediator = mediator;
+            this.ChangeCoverCommand = new RelayCommand(async () => await this.ChangeCover());
+            this.SaveCommand = new RelayCommand<object>(async (w) => await this.Save(w));
+            this.CancelCommand = new RelayCommand<object>(this.Cancel);
         }
 
         public async Task LoadDataAsync()
         {
             // Завантажуємо категорії для ComboBox
-            var categoryList = await _mediator.Send(new GetAllCategoriesQuery());
-            Categories.Clear();
+            var categoryList = await this._mediator.Send(new GetAllCategoriesQuery());
+            this.Categories.Clear();
             foreach (var category in categoryList)
             {
-                Categories.Add(category);
+                this.Categories.Add(category);
             }
-            SelectedCategory = Categories.FirstOrDefault();
+            this.SelectedCategory = this.Categories.FirstOrDefault();
         }
 
         private async Task ChangeCover()
@@ -125,12 +125,12 @@ namespace LNUBookShareUI.ViewModels
                     };
 
                     // BLL повертає АБСОЛЮТНИЙ шлях (C:\...)
-                    string newPhysicalPath = await _mediator.Send(uploadCommand);
-                    CoverImagePath = newPhysicalPath; // Оновлюємо UI
+                    string newPhysicalPath = await this._mediator.Send(uploadCommand);
+                    this.CoverImagePath = newPhysicalPath; // Оновлюємо UI
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"Не вдалося завантажити фото: {ex.Message}", "Помилка");
+                    _ = MessageBox.Show($"Не вдалося завантажити фото: {ex.Message}", "Помилка");
                 }
             }
         }
@@ -140,7 +140,7 @@ namespace LNUBookShareUI.ViewModels
             try
             {
                 // Валідація
-                if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Author) || SelectedCategory == null)
+                if (string.IsNullOrWhiteSpace(this.Title) || string.IsNullOrWhiteSpace(this.Author) || this.SelectedCategory == null)
                 {
                     throw new Exception("Назва, Автор та Категорія є обов'язковими.");
                 }
@@ -167,13 +167,13 @@ namespace LNUBookShareUI.ViewModels
                 };
 
                 // Відправляємо
-                await _mediator.Send(command);
+                _ = await this._mediator.Send(command);
 
                 if (window is Window w) { w.Close(); }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Не вдалося зберегти книгу: {ex.Message}", "Помилка");
+                _ = MessageBox.Show($"Не вдалося зберегти книгу: {ex.Message}", "Помилка");
             }
         }
 

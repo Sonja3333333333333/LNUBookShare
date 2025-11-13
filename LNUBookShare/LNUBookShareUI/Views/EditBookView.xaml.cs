@@ -21,7 +21,7 @@ namespace LNUBookShareUI.Views
     {
         public EditBookView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

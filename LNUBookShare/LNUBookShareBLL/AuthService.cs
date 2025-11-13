@@ -18,7 +18,7 @@ namespace LNUBookShareBLL
 
         public AuthService()
         {
-            _emailService = new EmailService();
+            this._emailService = new EmailService();
         }
 
         // --- НОВИЙ ПРИВАТНИЙ МЕТОД ---
@@ -30,7 +30,7 @@ namespace LNUBookShareBLL
 
             // 2. Вказуємо, що ми використовуємо Npgsql (PostgreSQL) 
             //    і передаємо йому рядок підключення
-            optionsBuilder.UseNpgsql(_connectionString);
+            _ = optionsBuilder.UseNpgsql(this._connectionString);
 
             // 3. Створюємо і повертаємо DbContext з цими опціями
             return new LNUBookShareDbContext(optionsBuilder.Options);
@@ -46,13 +46,13 @@ namespace LNUBookShareBLL
             string confirmationLink = $"https://api.vash-proekt.com/api/auth/confirm?token={token}";
 
             // 2. Створюємо DbContext за допомогою нашого нового методу
-            using (var dbContext = CreateDbContext())
+            using (var dbContext = this.CreateDbContext())
             {
                 // 3. Створюємо об'єкт User 
                 var newUser = new User
                 {
                     Email = email,
-                    PasswordHash = HashPassword(password), // !! Потрібно реалізувати хешування
+                    PasswordHash = this.HashPassword(password), // !! Потрібно реалізувати хешування
                     IsEmailConfirmed = false, // ГОЛОВНЕ: ще не підтверджений
                     FirstName = "New", // Можете додати більше полів
                     LastName = "User",
@@ -61,8 +61,8 @@ namespace LNUBookShareBLL
                 };
 
                 // 4. Додаємо користувача в БД
-                dbContext.Users.Add(newUser);
-                await dbContext.SaveChangesAsync(); // Зберігаємо, щоб отримати newUser.UserId
+                _ = dbContext.Users.Add(newUser);
+                _ = await dbContext.SaveChangesAsync(); // Зберігаємо, щоб отримати newUser.UserId
 
                 // 5. Створюємо запис для токена в таблиці Emailconfirmation
                 var confirmation = new Emailconfirmation
@@ -72,11 +72,11 @@ namespace LNUBookShareBLL
                     ExpiresAt = DateTime.UtcNow.AddHours(24) // Токен діє 24 години
                 };
 
-                dbContext.Emailconfirmations.Add(confirmation);
-                await dbContext.SaveChangesAsync(); // Зберігаємо токен
+                _ = dbContext.Emailconfirmations.Add(confirmation);
+                _ = await dbContext.SaveChangesAsync(); // Зберігаємо токен
 
                 // 6. ТІЛЬКИ ЯКЩО ВСЕ ЗБЕРЕГЛОСЯ, відправляємо лист
-                await _emailService.SendConfirmationEmailAsync(email, confirmationLink);
+                await this._emailService.SendConfirmationEmailAsync(email, confirmationLink);
             }
         }
 

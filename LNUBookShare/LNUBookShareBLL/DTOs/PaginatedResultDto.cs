@@ -8,7 +8,7 @@
         /// <summary>
         /// Елементи на поточній сторінці.
         /// </summary>
-        public List<T> Items { get; set; }
+        public List<T>? Items { get; set; }
 
         /// <summary>
         /// Загальна кількість знайдених елементів (для розрахунку сторінок).

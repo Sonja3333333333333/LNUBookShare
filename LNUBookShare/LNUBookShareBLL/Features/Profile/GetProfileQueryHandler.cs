@@ -11,13 +11,13 @@ namespace LNUBookShareBLL.Features.Profile
 
         public GetProfileQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<ProfileDto> Handle(GetProfileQuery request, CancellationToken cancellationToken)
         {
             // 1. Шукаємо користувача і одразу підтягуємо його факультет та аватар
-            var user = await _dbContext.Users
+            var user = await this._dbContext.Users
                 .Include(u => u.Faculty)
                 .Include(u => u.Avatar)
                 .AsNoTracking() // Це запит "тільки для читання"
@@ -30,7 +30,7 @@ namespace LNUBookShareBLL.Features.Profile
 
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            string finalAvatarPath = null;
+            string? finalAvatarPath = null;
             if (user.Avatar != null && !string.IsNullOrEmpty(user.Avatar.ImagePath))
             {
                 string dbPath = user.Avatar.ImagePath;
@@ -46,7 +46,7 @@ namespace LNUBookShareBLL.Features.Profile
                 }
             }
 
-            var ownedBooks = await _dbContext.Books
+            var ownedBooks = await this._dbContext.Books
                 .Include(b => b.Cover)
                 .Where(b => b.OwnerId == request.UserId)
                 .AsNoTracking()

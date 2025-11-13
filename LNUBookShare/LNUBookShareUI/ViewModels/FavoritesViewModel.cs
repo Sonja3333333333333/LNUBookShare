@@ -26,23 +26,23 @@ namespace LNUBookShareUI.ViewModels
         private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new();
         public ObservableCollection<FavoriteBookCardDto> FavoriteBooks
         {
-            get => _favoriteBooks;
-            set => SetProperty(ref _favoriteBooks, value);
+            get => this._favoriteBooks;
+            set => this.SetProperty(ref this._favoriteBooks, value);
         }
 
         private int _totalResults;
         public int TotalResults
         {
-            get => _totalResults;
-            set => SetProperty(ref _totalResults, value);
+            get => this._totalResults;
+            set => this.SetProperty(ref this._totalResults, value);
         }
         private int _currentPage = 1;
         private int _totalPages = 1;
         private readonly int _pageSize = 10;
         public int CurrentPage
         {
-            get => _currentPage;
-            set => SetProperty(ref _currentPage, value);
+            get => this._currentPage;
+            set => this.SetProperty(ref this._currentPage, value);
         }
 
         // --- Сортування ---
@@ -50,12 +50,12 @@ namespace LNUBookShareUI.ViewModels
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
         {
-            get => _selectedSort;
+            get => this._selectedSort;
             set
             {
-                if (SetProperty(ref _selectedSort, value))
+                if (this.SetProperty(ref this._selectedSort, value))
                 {
-                    _ = LoadFavoritesAsync(); // Одразу перезавантажуємо
+                    _ = this.LoadFavoritesAsync(); // Одразу перезавантажуємо
                 }
             }
         }
@@ -64,12 +64,12 @@ namespace LNUBookShareUI.ViewModels
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
         public BookFilterStatus SelectedStatusFilter
         {
-            get => _selectedStatusFilter;
+            get => this._selectedStatusFilter;
             set
             {
-                if (SetProperty(ref _selectedStatusFilter, value))
+                if (this.SetProperty(ref this._selectedStatusFilter, value))
                 {
-                    _ = LoadFavoritesAsync(); // Одразу перезавантажуємо
+                    _ = this.LoadFavoritesAsync(); // Одразу перезавантажуємо
                 }
             }
         }
@@ -91,37 +91,37 @@ namespace LNUBookShareUI.ViewModels
         // --- Конструктор ---
         public FavoritesViewModel(IMediator mediator, INavigationService navigationService)
         {
-            _mediator = mediator;
-            _navigationService = navigationService;
+            this._mediator = mediator;
+            this._navigationService = navigationService;
 
             // Ініціалізація словника для ComboBox сортування
-            SortOptions = new Dictionary<BookSortCriteria, string>
+            this.SortOptions = new Dictionary<BookSortCriteria, string>
             {
                 { BookSortCriteria.Title, "Назва" },
                 { BookSortCriteria.Author, "Автор" },
                 { BookSortCriteria.Year, "Рік" }
             };
-     
+
 
             // Команди
-            GoBackCommand = new RelayCommand<object>(GoBack);
-            RemoveFromFavoritesCommand = new RelayCommand<int>(async (bookId) => await RemoveFavoriteAsync(bookId));
-            ClearFavoritesCommand = new RelayCommand(async () => await ClearFavoritesAsync());
+            this.GoBackCommand = new RelayCommand<object>(this.GoBack);
+            this.RemoveFromFavoritesCommand = new RelayCommand<int>(async (bookId) => await this.RemoveFavoriteAsync(bookId));
+            this.ClearFavoritesCommand = new RelayCommand(async () => await this.ClearFavoritesAsync());
 
             // Команди Фільтрів
-            SetFilterAllCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.All);
-            SetFilterAvailableCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Available);
-            SetFilterIssuedCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Issued);
+            this.SetFilterAllCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.All);
+            this.SetFilterAvailableCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Available);
+            this.SetFilterIssuedCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Issued);
 
             // Пагінація
-            NextPageCommand = new RelayCommand(async () => await GoToNextPageAsync(), CanGoToNextPage);
-            PreviousPageCommand = new RelayCommand(async () => await GoToPreviousPageAsync(), CanGoToPreviousPage);
+            this.NextPageCommand = new RelayCommand(async () => await this.GoToNextPageAsync(), this.CanGoToNextPage);
+            this.PreviousPageCommand = new RelayCommand(async () => await this.GoToPreviousPageAsync(), this.CanGoToPreviousPage);
 
-            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
-            ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
+            this.OpenBookDetailsCommand = new RelayCommand<int>(this.OpenBookDetails);
+            this.ViewOwnerProfileCommand = new RelayCommand<int>(this.ViewOwnerProfile);
 
             // Завантажуємо дані при відкритті вікна
-            _ = LoadFavoritesAsync();
+            _ = this.LoadFavoritesAsync();
         }
 
         // --- Методи ---
@@ -129,7 +129,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (bookId > 0)
             {
-                _navigationService.ShowBookDetails(bookId);
+                this._navigationService.ShowBookDetails(bookId);
             }
         }
 
@@ -137,7 +137,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (ownerId > 0)
             {
-                _navigationService.ShowViewProfile(ownerId);
+                this._navigationService.ShowViewProfile(ownerId);
             }
         }
 
@@ -154,28 +154,28 @@ namespace LNUBookShareUI.ViewModels
                     PageSize = this._pageSize
                 };
 
-                var result = await _mediator.Send(query);
+                var result = await this._mediator.Send(query);
 
                 // Розраховуємо сторінки
-                _totalPages = (int)Math.Ceiling((double)result.TotalCount / _pageSize);
-                if (_totalPages == 0) _totalPages = 1;
+                this._totalPages = (int)Math.Ceiling((double)result.TotalCount / this._pageSize);
+                if (this._totalPages == 0) this._totalPages = 1;
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    FavoriteBooks.Clear();
+                    this.FavoriteBooks.Clear();
 
                     foreach (var book in result.Items)
                     {
-                        FavoriteBooks.Add(book);
+                        this.FavoriteBooks.Add(book);
                     }
 
-                    TotalResults = result.TotalCount; // 👈 1. ЦЕЙ РЯДОК БУВ ВІДСУТНІЙ
+                    this.TotalResults = result.TotalCount; // 👈 1. ЦЕЙ РЯДОК БУВ ВІДСУТНІЙ
                     CommandManager.InvalidateRequerySuggested(); // 👈 2. І ЦЕЙ (для кнопок ← →)
                 });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка завантаження вподобаних: {ex.Message}", "Помилка");
+                _ = MessageBox.Show($"Помилка завантаження вподобаних: {ex.Message}", "Помилка");
             }
         }
 
@@ -191,14 +191,14 @@ namespace LNUBookShareUI.ViewModels
                 };
 
                 // Викликаємо BLL (він видалить книгу з вподобаних)
-                await _mediator.Send(command);
+                _ = await this._mediator.Send(command);
 
                 // Оновлюємо список
-                await LoadFavoritesAsync();
+                await this.LoadFavoritesAsync();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка видалення з вподобаних: {ex.Message}", "Помилка");
+                _ = MessageBox.Show($"Помилка видалення з вподобаних: {ex.Message}", "Помилка");
             }
         }
 
@@ -217,31 +217,31 @@ namespace LNUBookShareUI.ViewModels
             try
             {
                 var command = new ClearFavoritesCommand { UserId = _currentUserId };
-                await _mediator.Send(command);
-                await LoadFavoritesAsync(); // Оновлюємо список (тепер він буде порожній)
+                _ = await this._mediator.Send(command);
+                await this.LoadFavoritesAsync(); // Оновлюємо список (тепер він буде порожній)
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка очищення: {ex.Message}", "Помилка");
+                _ = MessageBox.Show($"Помилка очищення: {ex.Message}", "Помилка");
             }
         }
 
-        private bool CanGoToNextPage() => _currentPage < _totalPages;
+        private bool CanGoToNextPage() => this._currentPage < this._totalPages;
         private async Task GoToNextPageAsync()
         {
-            if (CanGoToNextPage())
+            if (this.CanGoToNextPage())
             {
-                CurrentPage++;
-                await LoadFavoritesAsync();
+                this.CurrentPage++;
+                await this.LoadFavoritesAsync();
             }
         }
-        private bool CanGoToPreviousPage() => _currentPage > 1;
+        private bool CanGoToPreviousPage() => this._currentPage > 1;
         private async Task GoToPreviousPageAsync()
         {
-            if (CanGoToPreviousPage())
+            if (this.CanGoToPreviousPage())
             {
-                CurrentPage--;
-                await LoadFavoritesAsync();
+                this.CurrentPage--;
+                await this.LoadFavoritesAsync();
             }
         }
 

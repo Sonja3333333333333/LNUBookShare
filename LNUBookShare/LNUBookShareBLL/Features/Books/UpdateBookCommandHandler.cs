@@ -11,12 +11,12 @@ namespace LNUBookShareBLL.Features.Books
 
         public UpdateBookCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(UpdateBookCommand request, CancellationToken cancellationToken)
         {
-            var book = await _dbContext.Books
+            var book = await this._dbContext.Books
                 .FirstOrDefaultAsync(b => b.BookId == request.BookId, cancellationToken);
 
             if (book == null)
@@ -47,7 +47,7 @@ namespace LNUBookShareBLL.Features.Books
                 string relativePath = Path.GetRelativePath(baseDir, request.Dto.CoverImagePath);
                 relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
-                var image = await _dbContext.Images
+                var image = await this._dbContext.Images
                     .FirstOrDefaultAsync(i => i.ImagePath == relativePath, cancellationToken);
 
                 if (image != null)
@@ -56,7 +56,7 @@ namespace LNUBookShareBLL.Features.Books
                 }
             }
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
             return Unit.Value;
         }
     }

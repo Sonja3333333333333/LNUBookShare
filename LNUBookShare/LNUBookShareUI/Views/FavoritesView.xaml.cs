@@ -9,7 +9,7 @@ namespace LNUBookShareUI.Views
     {
         public FavoritesView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

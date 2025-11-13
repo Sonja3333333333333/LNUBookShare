@@ -14,7 +14,7 @@ namespace LNUBookShareBLL.Features.Auth
         // public ResendConfirmationEmailCommandHandler(LNUBookShareDbContext dbContext, IEmailService emailService)
         public ResendConfirmationEmailCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
             // _emailService = emailService;
         }
 
@@ -26,7 +26,7 @@ namespace LNUBookShareBLL.Features.Auth
                 throw new Exception("Введіть коректну пошту @lnu.edu.ua.");
             }
 
-            var user = await _dbContext.Users
+            var user = await this._dbContext.Users
                 .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 
             if (user == null)
@@ -39,7 +39,7 @@ namespace LNUBookShareBLL.Features.Auth
                 throw new Exception("Цей акаунт вже підтверджено.");
             }
 
-            var tokenEntity = await _dbContext.Emailconfirmations
+            var tokenEntity = await this._dbContext.Emailconfirmations
                 .FirstOrDefaultAsync(t => t.UserId == user.UserId, cancellationToken);
 
             if (tokenEntity == null)
@@ -48,7 +48,7 @@ namespace LNUBookShareBLL.Features.Auth
                 {
                     UserId = user.UserId
                 };
-                await _dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
+                _ = await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
             }
 
             // 5. БІЗНЕС-ЛОГІКА: Перевірка таймера (60 сек)
@@ -62,7 +62,7 @@ namespace LNUBookShareBLL.Features.Auth
             tokenEntity.CreatedAt = DateTime.UtcNow;
             tokenEntity.ExpiresAt = DateTime.UtcNow.AddHours(24); // Даємо ще 24 години
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
 
             // 8. Відправка email (коли сервіс буде готовий)
             // await _emailService.SendConfirmationEmail(

@@ -7,6 +7,6 @@ namespace LNUBookShareBLL.Features.Books
     {
         public int BookId { get; set; }
         public int CurrentUserId { get; set; } // Для перевірки прав
-        public BookEditDto Dto { get; set; }
+        public BookEditDto? Dto { get; set; }
     }
 }

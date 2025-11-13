@@ -9,8 +9,8 @@ public class AsyncRelayCommand<T> : ICommand
 
     public AsyncRelayCommand(Func<T, Task> execute, Predicate<T>? canExecute = null)
     {
-        _execute = execute;
-        _canExecute = canExecute;
+        this._execute = execute;
+        this._canExecute = canExecute;
     }
 
     public event EventHandler? CanExecuteChanged
@@ -21,12 +21,12 @@ public class AsyncRelayCommand<T> : ICommand
 
     public bool CanExecute(object? parameter)
     {
-        return parameter is T param && (_canExecute?.Invoke(param) ?? true);
+        return parameter is T param && (this._canExecute?.Invoke(param) ?? true);
     }
 
     public async void Execute(object? parameter)
     {
         if (parameter is T param)
-            await _execute(param);
+            await this._execute(param);
     }
 }

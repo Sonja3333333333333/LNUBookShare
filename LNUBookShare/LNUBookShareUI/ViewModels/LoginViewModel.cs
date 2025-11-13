@@ -19,8 +19,8 @@ namespace LNUBookShareUI.ViewModels
         private string _email;
         public string Email
         {
-            get => _email;
-            set => SetProperty(ref _email, value);
+            get => this._email;
+            set => this.SetProperty(ref this._email, value);
         }
 
         // ❌ ВЛАСТИВІСТЬ 'Password' ВИДАЛЕНО
@@ -28,8 +28,8 @@ namespace LNUBookShareUI.ViewModels
         private string _errorMessage;
         public string ErrorMessage
         {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
+            get => this._errorMessage;
+            set => this.SetProperty(ref this._errorMessage, value);
         }
 
         // --- Команди ---
@@ -39,11 +39,11 @@ namespace LNUBookShareUI.ViewModels
         // --- Конструктор ---
         public LoginViewModel(IMediator mediator, INavigationService navigationService)
         {
-            _mediator = mediator;
-            _navigationService = navigationService;
+            this._mediator = mediator;
+            this._navigationService = navigationService;
 
-            LoginCommand = new RelayCommand<object>(async (param) => await LoginAsync(param));
-            GoToRegisterCommand = new RelayCommand<object>(GoToRegister);
+            this.LoginCommand = new RelayCommand<object>(async (param) => await this.LoginAsync(param));
+            this.GoToRegisterCommand = new RelayCommand<object>(this.GoToRegister);
         }
 
         // --- Метод Входу ---
@@ -52,7 +52,7 @@ namespace LNUBookShareUI.ViewModels
             // 3. "Розпаковуємо" PasswordBox
             if (parameter is not PasswordBox passwordBox)
             {
-                ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
+                this.ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
                 return;
             }
 
@@ -68,28 +68,28 @@ namespace LNUBookShareUI.ViewModels
                     Password = password
                 };
 
-                LoginResultDto result = await _mediator.Send(query);
+                LoginResultDto result = await this._mediator.Send(query);
 
                 if (result != null)
                 {
                     // Успіх!
-                    ErrorMessage = ""; // Очищуємо помилки
-                    _navigationService.ShowMainView();
+                    this.ErrorMessage = ""; // Очищуємо помилки
+                    this._navigationService.ShowMainView();
 
-                    var window = GetWindowFromParameter(parameter);
+                    var window = this.GetWindowFromParameter(parameter);
                     window?.Close();
                 }
             }
             catch (Exception ex)
             {
-                ErrorMessage = ex.Message;
+                this.ErrorMessage = ex.Message;
             }
         }
 
         // --- Метод переходу на Реєстрацію ---
         private void GoToRegister(object parameter)
         {
-            _navigationService.ShowRegister();
+            this._navigationService.ShowRegister();
 
             // Закриваємо поточне вікно (LoginView)
             if (parameter is Window w)

@@ -47,7 +47,7 @@ namespace LNUBookShareBLL
                 await client.AuthenticateAsync("apuhlij66@gmail.com", "bearlox135798852Aa2)");
 
                 // 5. Відправляємо
-                await client.SendAsync(message);
+                _ = await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }
         }

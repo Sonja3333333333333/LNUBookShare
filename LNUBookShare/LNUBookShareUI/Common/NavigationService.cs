@@ -15,26 +15,26 @@ namespace LNUBookShareUI.Common
 
         public NavigationService(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
+            this._serviceProvider = serviceProvider;
         }
 
         public async Task ShowEditBookAsync(int bookId)
         {
-            var view = _serviceProvider.GetService<EditBookView>();
-            var viewModel = _serviceProvider.GetService<EditBookViewModel>();
+            var view = this._serviceProvider.GetService<EditBookView>();
+            var viewModel = this._serviceProvider.GetService<EditBookViewModel>();
 
             view.DataContext = viewModel;
 
             // Завантажуємо категорії ТА дані книги
             await viewModel.LoadDataAsync(bookId);
 
-            view.ShowDialog();
+            _ = view.ShowDialog();
         }
 
         public async Task ShowAddBookAsync()
         {
-            var view = _serviceProvider.GetService<AddBookView>();
-            var viewModel = _serviceProvider.GetService<AddBookViewModel>();
+            var view = this._serviceProvider.GetService<AddBookView>();
+            var viewModel = this._serviceProvider.GetService<AddBookViewModel>();
 
             view.DataContext = viewModel;
 
@@ -42,7 +42,7 @@ namespace LNUBookShareUI.Common
             await viewModel.LoadDataAsync();
 
             // Показуємо як діалог
-            view.ShowDialog();
+            _ = view.ShowDialog();
         }
 
         public async void ShowBookDetails(int bookId)
@@ -50,10 +50,10 @@ namespace LNUBookShareUI.Common
             try
             {
 
-                var view = _serviceProvider.GetService<BookDetailsView>();
+                var view = this._serviceProvider.GetService<BookDetailsView>();
 
                 var viewModel = new BookDetailsViewModel(
-                    _serviceProvider.GetService<IMediator>(),
+                    this._serviceProvider.GetService<IMediator>(),
                     this
                 );
 
@@ -68,17 +68,17 @@ namespace LNUBookShareUI.Common
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Не вдалося відкрити деталі книги: {ex.Message}");
+                _ = MessageBox.Show($"Не вдалося відкрити деталі книги: {ex.Message}");
             }
         }
 
         public void ShowProfile()
         {
             // 1. Просимо у "фабрики" нове вікно
-            var profileView = _serviceProvider.GetService<ProfileView>();
+            var profileView = this._serviceProvider.GetService<ProfileView>();
 
             // 2. Просимо у "фабрики" нову ViewModel
-            var profileViewModel = _serviceProvider.GetService<ProfileViewModel>();
+            var profileViewModel = this._serviceProvider.GetService<ProfileViewModel>();
 
             // 3. З'єднуємо їх
             profileView.DataContext = profileViewModel;
@@ -89,11 +89,11 @@ namespace LNUBookShareUI.Common
         }
         public void ShowViewProfile(int id)
         {
-            var profileView = _serviceProvider.GetService<ProfileView>();
+            var profileView = this._serviceProvider.GetService<ProfileView>();
 
 
             var viewOtherProfileViewModel = new ViewOtherProfileViewModel(
-                _serviceProvider.GetService<IMediator>(),
+                this._serviceProvider.GetService<IMediator>(),
                 this,
                 id
             );
@@ -103,9 +103,9 @@ namespace LNUBookShareUI.Common
         }
         public void ShowFavorites()
         {
-            var favoritesView = _serviceProvider.GetService<FavoritesView>();
+            var favoritesView = this._serviceProvider.GetService<FavoritesView>();
 
-            var favoritesViewModel = _serviceProvider.GetService<FavoritesViewModel>();
+            var favoritesViewModel = this._serviceProvider.GetService<FavoritesViewModel>();
 
             favoritesView.DataContext = favoritesViewModel;
 
@@ -114,34 +114,34 @@ namespace LNUBookShareUI.Common
 
         public void ShowMainView()
         {
-            var mainView = _serviceProvider.GetService<MainView>();
-            mainView.DataContext = _serviceProvider.GetService<MainViewModel>();
+            var mainView = this._serviceProvider.GetService<MainView>();
+            mainView.DataContext = this._serviceProvider.GetService<MainViewModel>();
             mainView.Show();
         }
 
         public void ShowLogin()
         {
-            var loginView = _serviceProvider.GetService<LoginView>();
-            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
+            var loginView = this._serviceProvider.GetService<LoginView>();
+            loginView.DataContext = this._serviceProvider.GetService<LoginViewModel>();
             loginView.Show();
         }
 
         public void ShowRegister()
         {
-            var registerView = _serviceProvider.GetService<RegisterView>();
-            registerView.DataContext = _serviceProvider.GetService<RegisterViewModel>();
+            var registerView = this._serviceProvider.GetService<RegisterView>();
+            registerView.DataContext = this._serviceProvider.GetService<RegisterViewModel>();
             registerView.Show();
         }
         public async Task ShowEditProfile()
         {
-            var editProfileView = _serviceProvider.GetService<EditProfileView>();
-            var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+            var editProfileView = this._serviceProvider.GetService<EditProfileView>();
+            var editProfileViewModel = this._serviceProvider.GetService<EditProfileViewModel>();
 
             await editProfileViewModel.LoadDataAsync();
 
             editProfileView.DataContext = editProfileViewModel;
 
-            editProfileView.ShowDialog();
+            _ = editProfileView.ShowDialog();
         }
 
     }

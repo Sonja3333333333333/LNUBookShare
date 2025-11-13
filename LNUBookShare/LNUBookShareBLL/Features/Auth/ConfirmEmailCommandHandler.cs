@@ -12,13 +12,13 @@ namespace LNUBookShareBLL.Features.Auth
 
         public ConfirmEmailCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
         {
     
-            var tokenEntity = await _dbContext.Emailconfirmations
+            var tokenEntity = await this._dbContext.Emailconfirmations
                 .Include(t => t.User)
                 .FirstOrDefaultAsync(t => t.ConfirmationToken == request.ConfirmationToken, cancellationToken);
 
@@ -29,8 +29,8 @@ namespace LNUBookShareBLL.Features.Auth
 
             if (tokenEntity.ExpiresAt < DateTime.UtcNow)
             {
-                _dbContext.Emailconfirmations.Remove(tokenEntity);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                _ = this._dbContext.Emailconfirmations.Remove(tokenEntity);
+                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
                 throw new Exception("Термін дії токена вийшов. Будь ласка, надішліть запит на підтвердження повторно.");
             }
 
@@ -41,16 +41,16 @@ namespace LNUBookShareBLL.Features.Auth
 
             if (tokenEntity.User.IsEmailConfirmed)
             {
-                _dbContext.Emailconfirmations.Remove(tokenEntity);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                _ = this._dbContext.Emailconfirmations.Remove(tokenEntity);
+                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
                 return Unit.Value; 
             }
 
             tokenEntity.User.IsEmailConfirmed = true;
 
-            _dbContext.Emailconfirmations.Remove(tokenEntity);
+            _ = this._dbContext.Emailconfirmations.Remove(tokenEntity);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }

@@ -10,13 +10,13 @@ namespace LNUBookShareBLL.Features.Books
 
         public DeleteBookCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
             // 1. Знаходимо книгу
-            var book = await _dbContext.Books
+            var book = await this._dbContext.Books
                 .FirstOrDefaultAsync(b => b.BookId == request.BookId, cancellationToken);
 
             if (book == null)
@@ -31,12 +31,12 @@ namespace LNUBookShareBLL.Features.Books
             }
 
             // 3. Видаляємо книгу
-            _dbContext.Books.Remove(book);
+            _ = this._dbContext.Books.Remove(book);
 
             // (Ми можемо також видалити її з 'Favorite' у всіх,
             // але 'CASCADE' в базі має зробити це автоматично)
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }

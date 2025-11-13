@@ -15,12 +15,12 @@ namespace LNUBookShareBLL.Features.Categories
 
         public GetAllCategoriesQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<IEnumerable<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
-            return await _dbContext.Categories
+            return await this._dbContext.Categories
                 .AsNoTracking()
                 .Select(c => new CategoryDto
                 {

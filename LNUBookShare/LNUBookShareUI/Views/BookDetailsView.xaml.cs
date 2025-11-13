@@ -12,13 +12,13 @@ namespace LNUBookShareUI.Views
 
         public BookDetailsView(BookDetailsViewModel viewModel)
         {
-            InitializeComponent();
-            _viewModel = viewModel;
-            DataContext = _viewModel;
+            this.InitializeComponent();
+            this._viewModel = viewModel;
+            this.DataContext = this._viewModel;
         }
         public async Task LoadBook(int bookId)
         {
-            await _viewModel.LoadBookDetailsAsync(bookId);
+            await this._viewModel.LoadBookDetailsAsync(bookId);
         }
     }
 }

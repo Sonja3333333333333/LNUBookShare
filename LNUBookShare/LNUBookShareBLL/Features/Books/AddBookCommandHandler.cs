@@ -11,7 +11,7 @@ namespace LNUBookShareBLL.Features.Books
 
         public AddBookCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<int> Handle(AddBookCommand request, CancellationToken cancellationToken)
@@ -34,7 +34,7 @@ namespace LNUBookShareBLL.Features.Books
                 relativePath = relativePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
                 // 3. Шукаємо в БД
-                var image = await _dbContext.Images
+                var image = await this._dbContext.Images
                     .FirstOrDefaultAsync(i => i.ImagePath == relativePath, cancellationToken);
 
                 if (image != null)
@@ -64,8 +64,8 @@ namespace LNUBookShareBLL.Features.Books
                 CoverId = coverId // <-- Прив'язуємо ID обкладинки
             };
 
-            await _dbContext.Books.AddAsync(newBook, cancellationToken);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = await this._dbContext.Books.AddAsync(newBook, cancellationToken);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
 
             // Повертаємо ID нової книги
             return newBook.BookId;

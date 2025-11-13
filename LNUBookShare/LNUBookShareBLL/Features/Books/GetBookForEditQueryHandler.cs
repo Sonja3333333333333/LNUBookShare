@@ -11,14 +11,14 @@ namespace LNUBookShareBLL.Features.Books
 
         public GetBookForEditQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<BookEditDto> Handle(GetBookForEditQuery request, CancellationToken cancellationToken)
         {
             string baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
-            var bookData = await _dbContext.Books
+            var bookData = await this._dbContext.Books
                 .AsNoTracking()
                 .Include(b => b.Cover) // <-- ВАЖЛИВО: Завантажуємо обкладинку
                 .Where(b => b.BookId == request.BookId)

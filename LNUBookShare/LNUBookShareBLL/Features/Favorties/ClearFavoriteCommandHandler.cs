@@ -11,23 +11,23 @@ namespace LNUBookShareBLL.Features.Favorites
 
         public ClearFavoritesCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(ClearFavoritesCommand request, CancellationToken cancellationToken)
         {
             // 1. Знаходимо ВСІ записи вподобань для цього користувача
-            var favoritesToRemove = await _dbContext.Favorites
+            var favoritesToRemove = await this._dbContext.Favorites
                 .Where(f => f.UserId == request.UserId)
                 .ToListAsync(cancellationToken);
 
             if (favoritesToRemove.Any())
             {
                 // 2. Видаляємо їх
-                _dbContext.Favorites.RemoveRange(favoritesToRemove);
+                this._dbContext.Favorites.RemoveRange(favoritesToRemove);
 
                 // 3. Зберігаємо зміни
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
             }
 
             return Unit.Value; // Повертаємо "успіх" (void)

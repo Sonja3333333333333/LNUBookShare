@@ -13,23 +13,23 @@ namespace LNUBookShareBLL.Features.Favorites
 
         public ToggleFavoriteCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<bool> Handle(ToggleFavoriteCommand request, CancellationToken cancellationToken)
         {
-            var favoriteEntry = await _dbContext.Favorites
+            var favoriteEntry = await this._dbContext.Favorites
                 .FirstOrDefaultAsync(f => f.UserId == request.UserId && f.BookId == request.BookId, cancellationToken);
 
             if (favoriteEntry != null)
             {
-                _dbContext.Favorites.Remove(favoriteEntry);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                _ = this._dbContext.Favorites.Remove(favoriteEntry);
+                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
                 return false;
             }
             else
             {
-                var bookExists = await _dbContext.Books.AnyAsync(b => b.BookId == request.BookId, cancellationToken);
+                var bookExists = await this._dbContext.Books.AnyAsync(b => b.BookId == request.BookId, cancellationToken);
                 if (!bookExists)
                 {
                     throw new System.Exception("Книгу не знайдено.");
@@ -42,8 +42,8 @@ namespace LNUBookShareBLL.Features.Favorites
                     CreatedAt = System.DateTime.UtcNow
                 };
 
-                await _dbContext.Favorites.AddAsync(newFavorite, cancellationToken);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                _ = await this._dbContext.Favorites.AddAsync(newFavorite, cancellationToken);
+                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
                 return true;
             }
         }

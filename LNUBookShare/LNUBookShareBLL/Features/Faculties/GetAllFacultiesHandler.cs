@@ -15,13 +15,13 @@ namespace LNUBookShareBLL.Features.Faculties
 
         public GetAllFacultiesQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<List<FacultyDto>> Handle(GetAllFacultiesQuery request, CancellationToken cancellationToken)
         {
             // 1. Звертаємось до таблиці Faculties у базі
-            return await _dbContext.Faculties
+            return await this._dbContext.Faculties
                 .OrderBy(f => f.Name) // Сортуємо за алфавітом
                 .Select(f => new FacultyDto // 2. Перетворюємо (Проектуємо) на DTO
                 {

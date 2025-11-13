@@ -20,8 +20,8 @@ namespace LNUBookShareUI.ViewModels
         private BookDetailsDto _book = new();
         public BookDetailsDto Book
         {
-            get => _book;
-            set => SetProperty(ref _book, value);
+            get => this._book;
+            set => this.SetProperty(ref this._book, value);
         }
 
         
@@ -32,20 +32,20 @@ namespace LNUBookShareUI.ViewModels
 
         public BookDetailsViewModel(IMediator mediator, INavigationService navigationService)
         {
-            _mediator = mediator;
-            _navigationService = navigationService;
+            this._mediator = mediator;
+            this._navigationService = navigationService;
 
-            GoBackCommand = new RelayCommand<object>(GoBack);
-            ToggleFavoriteCommand = new RelayCommand(async () => await ToggleFavorite());
-            ViewOwnerProfileCommand = new RelayCommand(ViewOwnerProfile);
+            this.GoBackCommand = new RelayCommand<object>(this.GoBack);
+            this.ToggleFavoriteCommand = new RelayCommand(async () => await this.ToggleFavorite());
+            this.ViewOwnerProfileCommand = new RelayCommand(this.ViewOwnerProfile);
         }
 
         private void ViewOwnerProfile()
         {
             
-            if (Book != null && Book.OwnerId > 0)
+            if (this.Book != null && this.Book.OwnerId > 0)
             {
-                _navigationService.ShowViewProfile(Book.OwnerId);
+                this._navigationService.ShowViewProfile(this.Book.OwnerId);
             }
         }
 
@@ -54,7 +54,7 @@ namespace LNUBookShareUI.ViewModels
             int currentUserId = 1;
             try
             {
-                Book = await _mediator.Send(new GetBookDetailsQuery
+                this.Book = await this._mediator.Send(new GetBookDetailsQuery
                 {
                     BookId = bookId,
                     CurrentUserId = currentUserId
@@ -79,7 +79,7 @@ namespace LNUBookShareUI.ViewModels
         // 7. Атрибут [RelayCommand] видалено
         private async Task ToggleFavorite()
         {
-            if (Book == null || Book.BookId == 0) return;
+            if (this.Book == null || this.Book.BookId == 0) return;
 
             int currentUserId = 1;
 
@@ -87,12 +87,12 @@ namespace LNUBookShareUI.ViewModels
             {
                 var command = new ToggleFavoriteCommand
                 {
-                    BookId = Book.BookId,
+                    BookId = this.Book.BookId,
                     UserId = currentUserId
                 };
 
-                await _mediator.Send(command);
-                await LoadBookDetailsAsync(Book.BookId);
+                _ = await this._mediator.Send(command);
+                await this.LoadBookDetailsAsync(this.Book.BookId);
             }
             catch (Exception ex)
             {

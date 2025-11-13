@@ -12,7 +12,7 @@ namespace LNUBookShareBLL.Features.Auth
 
         public RegisterUserCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         //Головний метод
@@ -60,7 +60,7 @@ namespace LNUBookShareBLL.Features.Auth
                 throw new Exception("Дозволено лише пошту @lnu.edu.ua.");
             }
 
-            var emilExists = await _dbContext.Users.AnyAsync(u => u.Email == request.Email, cancellationToken);
+            var emilExists = await this._dbContext.Users.AnyAsync(u => u.Email == request.Email, cancellationToken);
 
             if(emilExists)
             {
@@ -80,7 +80,7 @@ namespace LNUBookShareBLL.Features.Auth
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _dbContext.Users.AddAsync(newUser, cancellationToken);
+            _ = await this._dbContext.Users.AddAsync(newUser, cancellationToken);
 
             var confirmationToken = Guid.NewGuid().ToString(); //генеруємо токен
 
@@ -92,9 +92,9 @@ namespace LNUBookShareBLL.Features.Auth
                 ExpiresAt = DateTime.UtcNow.AddHours(24)
             };
 
-            await _dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
+            _ = await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
 
 
             //Тут треба викликати сервіс відправки пошти для надіслання підтверження

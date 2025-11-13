@@ -21,8 +21,8 @@ namespace LNUBookShareUI
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             var services = new ServiceCollection();
-            ConfigureServices(services);
-            _serviceProvider = services.BuildServiceProvider();
+            this.ConfigureServices(services);
+            this._serviceProvider = services.BuildServiceProvider();
         }
 
         private void ConfigureServices(IServiceCollection services)
@@ -38,49 +38,49 @@ namespace LNUBookShareUI
                                       "Username=neondb_owner;" +
                                       "Password=npg_GqkRolz4rhy6;" +
                                       "SSL Mode=Require;" +
-                                      "Trust Server Certificate=true"; 
-          
+                                      "Trust Server Certificate=true";
 
-            services.AddDbContext<LNUBookShareDbContext>(options =>
+
+            _ = services.AddDbContext<LNUBookShareDbContext>(options =>
                 options.UseNpgsql(connectionString)
             );
 
             // 2. BLL
-            services.AddMediatR(typeof(GetBooksQuery).Assembly);
-            services.AddMediatR(typeof(UploadImageCommand).Assembly);
+            _ = services.AddMediatR(typeof(GetBooksQuery).Assembly);
+            _ = services.AddMediatR(typeof(UploadImageCommand).Assembly);
 
             // 3. ViewModels
-            services.AddTransient<MainViewModel>();
-            services.AddTransient<LoginViewModel>();
-            services.AddTransient<ProfileViewModel>();
-            services.AddTransient<RegisterViewModel>();
+            _ = services.AddTransient<MainViewModel>();
+            _ = services.AddTransient<LoginViewModel>();
+            _ = services.AddTransient<ProfileViewModel>();
+            _ = services.AddTransient<RegisterViewModel>();
 
-            services.AddTransient<LoginView>();
-            services.AddTransient<RegisterView>();
-            services.AddTransient<MainView>();
-            services.AddTransient<ProfileView>();
+            _ = services.AddTransient<LoginView>();
+            _ = services.AddTransient<RegisterView>();
+            _ = services.AddTransient<MainView>();
+            _ = services.AddTransient<ProfileView>();
 
-            services.AddTransient<BookDetailsView>();
-            services.AddTransient<BookDetailsViewModel>();
+            _ = services.AddTransient<BookDetailsView>();
+            _ = services.AddTransient<BookDetailsViewModel>();
 
-            services.AddTransient<FavoritesView>();
-            services.AddTransient<FavoritesViewModel>();
+            _ = services.AddTransient<FavoritesView>();
+            _ = services.AddTransient<FavoritesViewModel>();
 
-            services.AddTransient<EditProfileView>();
-            services.AddTransient<EditProfileViewModel>();
+            _ = services.AddTransient<EditProfileView>();
+            _ = services.AddTransient<EditProfileViewModel>();
 
-            services.AddTransient<AddBookView>();
-            services.AddTransient<AddBookViewModel>();
+            _ = services.AddTransient<AddBookView>();
+            _ = services.AddTransient<AddBookViewModel>();
 
-            services.AddTransient<EditBookView>();
-            services.AddTransient<EditBookViewModel>();
+            _ = services.AddTransient<EditBookView>();
+            _ = services.AddTransient<EditBookViewModel>();
 
-            services.AddSingleton<INavigationService, NavigationService>();
+            _ = services.AddSingleton<INavigationService, NavigationService>();
 
-            services.AddTransient<Func<int, ViewOtherProfileViewModel>>(provider => userId =>
+            _ = services.AddTransient<Func<int, ViewOtherProfileViewModel>>(provider => userId =>
                 new ViewOtherProfileViewModel(
                     provider.GetService<IMediator>(),
-                    provider.GetService<INavigationService>(), // <-- ДОДАНО СЕРВІС НАВІГАЦІЇ
+                    provider.GetService<INavigationService>(),
                     userId
                 ));
         }
@@ -96,8 +96,8 @@ namespace LNUBookShareUI
             //editProfileView.Show();
 
             //Щоб показати головне вікно розкоментуй мене
-            var mainView = _serviceProvider.GetService<MainView>();
-            var mainViewModel = _serviceProvider.GetService<MainViewModel>();
+            var mainView = this._serviceProvider.GetService<MainView>();
+            var mainViewModel = this._serviceProvider.GetService<MainViewModel>();
             mainView.DataContext = mainViewModel;
             mainView.Show();
 

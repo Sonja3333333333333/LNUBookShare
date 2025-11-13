@@ -21,7 +21,7 @@ namespace LNUBookShareUI.Views
     {
         public LoginView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

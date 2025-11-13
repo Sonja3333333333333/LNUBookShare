@@ -21,7 +21,7 @@ namespace LNUBookShareUI.Views
     {
         public RegisterView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

@@ -13,9 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data; // Потрібен для ICollectionView
 using System.Windows.Input;
-using System.Windows.Navigation;
-using LNUBookShareBLL.DTOs;
-using LNUBookShareUI.Views;
+
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -29,18 +27,18 @@ namespace LNUBookShareUI.ViewModels
         private ProfileDto _profile;
         public ProfileDto Profile
         {
-            get => _profile;
-            set => SetProperty(ref _profile, value);
+            get => this._profile;
+            set => this.SetProperty(ref this._profile, value);
         }
 
         private bool _isMyProfile;
         public bool IsMyProfile
         {
-            get => _isMyProfile;
+            get => this._isMyProfile;
             set
             {
-                _isMyProfile = value;
-                OnPropertyChanged(nameof(IsMyProfile)); 
+                this._isMyProfile = value;
+                this.OnPropertyChanged(nameof(this.IsMyProfile)); 
             }
         }
 
@@ -56,12 +54,12 @@ namespace LNUBookShareUI.ViewModels
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
         {
-            get => _selectedSort;
+            get => this._selectedSort;
             set
             {
-                if (SetProperty(ref _selectedSort, value))
+                if (this.SetProperty(ref this._selectedSort, value))
                 {
-                    ApplySort(); // Застосовуємо сортування
+                    this.ApplySort(); // Застосовуємо сортування
                 }
             }
         }
@@ -69,12 +67,12 @@ namespace LNUBookShareUI.ViewModels
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
         public BookFilterStatus SelectedStatusFilter
         {
-            get => _selectedStatusFilter;
+            get => this._selectedStatusFilter;
             set
             {
-                if (SetProperty(ref _selectedStatusFilter, value))
+                if (this.SetProperty(ref this._selectedStatusFilter, value))
                 {
-                    ApplyFilter(); // Застосовуємо фільтр
+                    this.ApplyFilter(); // Застосовуємо фільтр
                 }
             }
         }
@@ -99,16 +97,16 @@ namespace LNUBookShareUI.ViewModels
         // --- Конструктор ---
         public ProfileViewModel(IMediator mediator, INavigationService navigationService)
         {
-            _mediator = mediator;
+            this._mediator = mediator;
             this.IsMyProfile = true;
-            _navigationService = navigationService;
+            this._navigationService = navigationService;
 
             // Ініціалізуємо "розумний" список
-            OwnedBooksView = CollectionViewSource.GetDefaultView(_allOwnedBooks);
-            OwnedBooksView.Filter = FilterBooks; // Прив'язуємо фільтр
+            this.OwnedBooksView = CollectionViewSource.GetDefaultView(this._allOwnedBooks);
+            this.OwnedBooksView.Filter = this.FilterBooks; // Прив'язуємо фільтр
 
             // Словник для сортування (як у MainViewModel)
-            SortOptions = new Dictionary<BookSortCriteria, string>
+            this.SortOptions = new Dictionary<BookSortCriteria, string>
             {
                 { BookSortCriteria.Title, "Назва" },
                 { BookSortCriteria.Author, "Автор" },
@@ -116,42 +114,45 @@ namespace LNUBookShareUI.ViewModels
             };
 
             // Команди
-            LoadDataCommand = new RelayCommand(async () => await LoadProfileAsync());
-            DeleteBookCommand = new RelayCommand<int>(async (bookId) => await DeleteBookAsync(bookId));
+            this.LoadDataCommand = new RelayCommand(async () => await this.LoadProfileAsync());
+            this.DeleteBookCommand = new RelayCommand<int>(async (bookId) => await this.DeleteBookAsync(bookId));
 
-            SetFilterAllCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.All);
-            SetFilterAvailableCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Available);
-            SetFilterIssuedCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Issued);
+            this.SetFilterAllCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.All);
+            this.SetFilterAvailableCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Available);
+            this.SetFilterIssuedCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Issued);
 
-            GoBackCommand = new RelayCommand<object>(GoBack);
+            this.GoBackCommand = new RelayCommand<object>(this.GoBack);
 
-            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+            this.OpenBookDetailsCommand = new RelayCommand<int>(this.OpenBookDetails);
 
-            OpenEditProfileCommand = new RelayCommand(async () => await OpenEditProfile());
+            this.OpenEditProfileCommand = new RelayCommand(async () => await this.OpenEditProfile());
 
-            OpenAddBookCommand = new RelayCommand(async () => await OpenAddBook());
+            this.OpenAddBookCommand = new RelayCommand(async () => await this.OpenAddBook());
 
-            OpenEditBookCommand = new RelayCommand<int>(async (id) => await OpenEditBook(id));
+            this.OpenEditBookCommand = new RelayCommand<int>(async (id) => await this.OpenEditBook(id));
 
             // Завантажуємо дані при відкритті
-            _ = LoadProfileAsync();
+            _ = this.LoadProfileAsync();
            
         }
 
         private async Task OpenEditBook(int bookId)
         {
-            if (bookId == 0) return;
+            if (bookId == 0)
+            {
+                return;
+            }
 
             try
             {
-                await _navigationService.ShowEditBookAsync(bookId);
+                await this._navigationService.ShowEditBookAsync(bookId);
                 // Оновлюємо список книг у профілі після закриття
-                await LoadProfileAsync();
+                await this.LoadProfileAsync();
             }
             catch (Exception ex)
             {
                 // Якщо користувач не власник, BLL видасть помилку
-                MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}", "Помилка");
+                _ = MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}", "Помилка");
             }
         }
 
@@ -159,10 +160,10 @@ namespace LNUBookShareUI.ViewModels
         private async Task OpenAddBook()
         {
             
-            await _navigationService.ShowAddBookAsync();
+            await this._navigationService.ShowAddBookAsync();
 
           
-            await LoadProfileAsync();
+            await this.LoadProfileAsync();
         }
 
         private async Task OpenEditProfile()
@@ -170,12 +171,12 @@ namespace LNUBookShareUI.ViewModels
             try
             {
                 
-                await _navigationService.ShowEditProfile();
-                await LoadProfileAsync();
+                await this._navigationService.ShowEditProfile();
+                await this.LoadProfileAsync();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}");
+                _ = MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}");
             }
         }
 
@@ -185,7 +186,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (bookId > 0)
             {
-                _navigationService.ShowBookDetails(bookId);
+                this._navigationService.ShowBookDetails(bookId);
             }
         }
 
@@ -194,27 +195,27 @@ namespace LNUBookShareUI.ViewModels
             try
             {
                 var query = new GetProfileQuery { UserId = _currentUserId };
-                var result = await _mediator.Send(query);
+                var result = await this._mediator.Send(query);
 
                 // 1. Заповнюємо дані профілю
-                Profile = result;
+                this.Profile = result;
 
                 // 2. Заповнюємо повний список книг
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    _allOwnedBooks.Clear();
+                    this._allOwnedBooks.Clear();
                     foreach (var book in result.OwnedBooks)
                     {
-                        _allOwnedBooks.Add(book);
+                        this._allOwnedBooks.Add(book);
                     }
                 });
 
                 // 3. Застосовуємо поточні сортування/фільтри
-                ApplySort();
+                this.ApplySort();
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка завантаження профілю: {ex.Message}");
+                _ = MessageBox.Show($"Помилка завантаження профілю: {ex.Message}");
             }
         }
 
@@ -229,17 +230,17 @@ namespace LNUBookShareUI.ViewModels
 
             try
             {
-                await _mediator.Send(command);
+                _ = await this._mediator.Send(command);
                 // Успіх: видаляємо книгу з локального списку (швидше, ніж перезавантажувати)
-                var bookToRemove = _allOwnedBooks.FirstOrDefault(b => b.BookId == bookId);
+                var bookToRemove = this._allOwnedBooks.FirstOrDefault(b => b.BookId == bookId);
                 if (bookToRemove != null)
                 {
-                    _allOwnedBooks.Remove(bookToRemove);
+                    _ = this._allOwnedBooks.Remove(bookToRemove);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Помилка видалення: {ex.Message}");
+                _ = MessageBox.Show($"Помилка видалення: {ex.Message}");
             }
         }
 
@@ -248,24 +249,24 @@ namespace LNUBookShareUI.ViewModels
         private void ApplyFilter()
         {
             // Просто "змушуємо" ICollectionView оновити свій фільтр
-            OwnedBooksView.Refresh();
+            this.OwnedBooksView.Refresh();
         }
 
         private bool FilterBooks(object item)
         {
-            if (SelectedStatusFilter == BookFilterStatus.All)
+            if (this.SelectedStatusFilter == BookFilterStatus.All)
             {
                 return true; // Показуємо всі
             }
 
             var book = (OwnedBookDto)item;
 
-            if (SelectedStatusFilter == BookFilterStatus.Available)
+            if (this.SelectedStatusFilter == BookFilterStatus.Available)
             {
                 return book.Status == "available";
             }
 
-            if (SelectedStatusFilter == BookFilterStatus.Issued)
+            if (this.SelectedStatusFilter == BookFilterStatus.Issued)
             {
                 return book.Status == "issued";
             }
@@ -285,19 +286,19 @@ namespace LNUBookShareUI.ViewModels
         private void ApplySort()
         {
             // Очищуємо старі сортування
-            OwnedBooksView.SortDescriptions.Clear();
+            this.OwnedBooksView.SortDescriptions.Clear();
 
             // Додаємо нове сортування
-            switch (SelectedSort)
+            switch (this.SelectedSort)
             {
                 case BookSortCriteria.Title:
-                    OwnedBooksView.SortDescriptions.Add(new SortDescription("Title", ListSortDirection.Ascending));
+                    this.OwnedBooksView.SortDescriptions.Add(new SortDescription("Title", ListSortDirection.Ascending));
                     break;
                 case BookSortCriteria.Author:
-                    OwnedBooksView.SortDescriptions.Add(new SortDescription("Author", ListSortDirection.Ascending));
+                    this.OwnedBooksView.SortDescriptions.Add(new SortDescription("Author", ListSortDirection.Ascending));
                     break;
                 case BookSortCriteria.Year:
-                    OwnedBooksView.SortDescriptions.Add(new SortDescription("Year", ListSortDirection.Ascending));
+                    this.OwnedBooksView.SortDescriptions.Add(new SortDescription("Year", ListSortDirection.Ascending));
                     break;
             }
         }

@@ -13,7 +13,7 @@ namespace LNUBookShareBLL.Features.Auth
 
         public LoginUserQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<LoginResultDto> Handle(LoginUserQuery request, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ namespace LNUBookShareBLL.Features.Auth
             }
 
 
-            var user = await _dbContext.Users
+            var user = await this._dbContext.Users
                 .Include(u => u.Faculty) 
                 .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
 

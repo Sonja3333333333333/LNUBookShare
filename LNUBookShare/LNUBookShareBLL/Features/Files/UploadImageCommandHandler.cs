@@ -10,7 +10,7 @@ namespace LNUBookShareBLL.Features.Files
 
         public UploadImageCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<string> Handle(UploadImageCommand request, CancellationToken cancellationToken)
@@ -21,7 +21,7 @@ namespace LNUBookShareBLL.Features.Files
             string uploadDir = Path.Combine(baseDir, "uploads", "images");
 
             // 2. Створюємо папку, якщо її немає
-            Directory.CreateDirectory(uploadDir);
+            _ = Directory.CreateDirectory(uploadDir);
 
             // 3. Генеруємо унікальне ім'я файлу
             string fileExtension = Path.GetExtension(request.FileName);
@@ -45,8 +45,8 @@ namespace LNUBookShareBLL.Features.Files
                 ImageType = fileExtension
             };
 
-            _dbContext.Images.Add(newImage);
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = this._dbContext.Images.Add(newImage);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
 
             // 7. Повертаємо шлях до ViewModel
             return physicalPath;

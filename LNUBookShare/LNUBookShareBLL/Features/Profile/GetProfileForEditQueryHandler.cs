@@ -13,12 +13,12 @@ namespace LNUBookShareBLL.Features.Profile
 
         public GetProfileForEditQueryHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<ProfileEditDto> Handle(GetProfileForEditQuery request, CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users
+            var user = await this._dbContext.Users
                 .AsNoTracking()
                 .Include(u => u.Avatar) 
                 .Include(u => u.Faculty) 
@@ -30,7 +30,7 @@ namespace LNUBookShareBLL.Features.Profile
                 throw new Exception("Користувача не знайдено.");
             }
 
-            string finalImagePath = null;
+            string? finalImagePath = null;
             if (user.Avatar != null && !string.IsNullOrEmpty(user.Avatar.ImagePath))
             {
                 string dbPath = user.Avatar.ImagePath;

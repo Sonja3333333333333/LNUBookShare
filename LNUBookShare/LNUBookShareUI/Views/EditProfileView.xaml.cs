@@ -6,7 +6,7 @@ namespace LNUBookShareUI.Views
     {
         public EditProfileView()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
     }
 }

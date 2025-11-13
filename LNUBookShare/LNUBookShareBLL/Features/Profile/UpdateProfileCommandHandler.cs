@@ -11,7 +11,7 @@ namespace LNUBookShareBLL.Features.Profile
 
         public UpdateProfileCommandHandler(LNUBookShareDbContext dbContext)
         {
-            _dbContext = dbContext;
+            this._dbContext = dbContext;
         }
 
         public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ namespace LNUBookShareBLL.Features.Profile
             }
 
             // --- Оновлення ---
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken);
+            var user = await this._dbContext.Users.FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken);
 
             if (user == null)
             {
@@ -53,7 +53,7 @@ namespace LNUBookShareBLL.Features.Profile
                 // (UploadImageCommandHandler зберіг його з '\')
                 relativePath = relativePath.Replace(Path.DirectorySeparatorChar, '\\');
 
-                var image = await _dbContext.Images
+                var image = await this._dbContext.Images
                     .FirstOrDefaultAsync(a => a.ImagePath == relativePath, cancellationToken);
 
                 if (image != null)
@@ -66,7 +66,7 @@ namespace LNUBookShareBLL.Features.Profile
                 }
             }
 
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
 
             return Unit.Value;
         }

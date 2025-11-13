@@ -32,21 +32,21 @@ namespace LNUBookShareUI.ViewModels
         private ObservableCollection<BookCardDto> _books = new();
         public ObservableCollection<BookCardDto> Books
         {
-            get => _books;
-            set => SetProperty(ref _books, value);
+            get => this._books;
+            set => this.SetProperty(ref this._books, value);
         }
 
         private int _totalResults;
         public int TotalResults
         {
-            get => _totalResults;
-            set => SetProperty(ref _totalResults, value);
+            get => this._totalResults;
+            set => this.SetProperty(ref this._totalResults, value);
         }
 
         public int CurrentPage
         {
-            get => _currentPage;
-            set => SetProperty(ref _currentPage, value);
+            get => this._currentPage;
+            set => this.SetProperty(ref this._currentPage, value);
         }
 
         // --- Критерії Пошуку ---
@@ -54,15 +54,15 @@ namespace LNUBookShareUI.ViewModels
         private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
         public BookSearchCriteria SelectedSearchCriteria
         {
-            get => _selectedSearchCriteria;
-            set => SetProperty(ref _selectedSearchCriteria, value);
+            get => this._selectedSearchCriteria;
+            set => this.SetProperty(ref this._selectedSearchCriteria, value);
         }
 
         private string _searchTerm = "";
         public string SearchTerm
         {
-            get => _searchTerm;
-            set => SetProperty(ref _searchTerm, value);
+            get => this._searchTerm;
+            set => this.SetProperty(ref this._searchTerm, value);
         }
 
         // --- Критерії Сортування ---
@@ -70,14 +70,14 @@ namespace LNUBookShareUI.ViewModels
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
         {
-            get => _selectedSort;
+            get => this._selectedSort;
             set
             {
-                bool valueChanged = SetProperty(ref _selectedSort, value);
-                if (valueChanged && _isSearchPerformed)
+                bool valueChanged = this.SetProperty(ref this._selectedSort, value);
+                if (valueChanged && this._isSearchPerformed)
                 {
-                    CurrentPage = 1;
-                    _ = LoadBooksAsync();
+                    this.CurrentPage = 1;
+                    _ = this.LoadBooksAsync();
                 }
             }
         }
@@ -86,13 +86,13 @@ namespace LNUBookShareUI.ViewModels
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
         public BookFilterStatus SelectedStatusFilter
         {
-            get => _selectedStatusFilter;
+            get => this._selectedStatusFilter;
             set
             {
-                if (SetProperty(ref _selectedStatusFilter, value) && _isSearchPerformed)
+                if (this.SetProperty(ref this._selectedStatusFilter, value) && this._isSearchPerformed)
                 {
-                    CurrentPage = 1;
-                    _ = LoadBooksAsync();
+                    this.CurrentPage = 1;
+                    _ = this.LoadBooksAsync();
                 }
             }
         }
@@ -115,10 +115,10 @@ namespace LNUBookShareUI.ViewModels
         // --- Конструктор ---
         public MainViewModel(IMediator mediator, INavigationService navigationService)
         {
-            _mediator = mediator;
-            _navigationService = navigationService;
+            this._mediator = mediator;
+            this._navigationService = navigationService;
 
-            SortOptions = new Dictionary<BookSortCriteria, string>
+            this.SortOptions = new Dictionary<BookSortCriteria, string>
             {
                 { BookSortCriteria.Title, "Назва" },
                 { BookSortCriteria.Author, "Автор" },
@@ -126,7 +126,7 @@ namespace LNUBookShareUI.ViewModels
                 { BookSortCriteria.Category, "Категорія"}
             };
 
-            SearchOptions = new Dictionary<BookSearchCriteria, string>
+            this.SearchOptions = new Dictionary<BookSearchCriteria, string>
             {
                 { BookSearchCriteria.Title, "Назва" },
                 { BookSearchCriteria.Author, "Автор" },
@@ -135,62 +135,62 @@ namespace LNUBookShareUI.ViewModels
 
             };
 
-           
+
 
             // Зв'язуємо команди
-            LoadBooksCommand = new RelayCommand(async () => await SearchAsync());
-            ToggleFavoriteCommand = new RelayCommand<int>(async (id) => await ToggleFavoriteAsync(id));
+            this.LoadBooksCommand = new RelayCommand(async () => await this.SearchAsync());
+            this.ToggleFavoriteCommand = new RelayCommand<int>(async (id) => await this.ToggleFavoriteAsync(id));
 
             // Фільтри
-            SetFilterAllCommand = new RelayCommand(() => SetFilter(BookFilterStatus.All));
-            SetFilterAvailableCommand = new RelayCommand(() => SetFilter(BookFilterStatus.Available));
-            SetFilterIssuedCommand = new RelayCommand(() => SetFilter(BookFilterStatus.Issued));
+            this.SetFilterAllCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.All));
+            this.SetFilterAvailableCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Available));
+            this.SetFilterIssuedCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Issued));
 
             // Пагінація
-            NextPageCommand = new RelayCommand(async () => await GoToNextPageAsync(), CanGoToNextPage);
-            PreviousPageCommand = new RelayCommand(async () => await GoToPreviousPageAsync(), CanGoToPreviousPage);
+            this.NextPageCommand = new RelayCommand(async () => await this.GoToNextPageAsync(), this.CanGoToNextPage);
+            this.PreviousPageCommand = new RelayCommand(async () => await this.GoToPreviousPageAsync(), this.CanGoToPreviousPage);
 
-            OpenProfileCommand = new RelayCommand(OpenProfile);
-            OpenFavoritesCommand = new RelayCommand(OpenFavorites);
+            this.OpenProfileCommand = new RelayCommand(this.OpenProfile);
+            this.OpenFavoritesCommand = new RelayCommand(this.OpenFavorites);
 
-            ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
+            this.ViewOwnerProfileCommand = new RelayCommand<int>(this.ViewOwnerProfile);
 
-            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+            this.OpenBookDetailsCommand = new RelayCommand<int>(this.OpenBookDetails);
         }
 
         // --- Логіка ---
         private void OpenProfile()
         {
             // Просто викликаємо метод із сервісу
-            _navigationService.ShowProfile();
+            this._navigationService.ShowProfile();
         }
         private void ViewOwnerProfile(int ownerId)
         {
 
-            _navigationService.ShowViewProfile(ownerId);
+            this._navigationService.ShowViewProfile(ownerId);
         }
         private void OpenFavorites()
         {
             // Робимо те саме, що й для профілю
-            _navigationService.ShowFavorites();
+            this._navigationService.ShowFavorites();
         }
 
         private void SetFilter(BookFilterStatus status)
         {
-            SelectedStatusFilter = status;
+            this.SelectedStatusFilter = status;
         }
 
         private async Task SearchAsync()
         {
-            CurrentPage = 1; // Скидаємо сторінку при кожному новому пошуку
-            await LoadBooksAsync();
+            this.CurrentPage = 1; // Скидаємо сторінку при кожному новому пошуку
+            await this.LoadBooksAsync();
         }
 
         private void OpenBookDetails(int bookId)
         {
             if (bookId > 0)
             {
-                _navigationService.ShowBookDetails(bookId);
+                this._navigationService.ShowBookDetails(bookId);
             }
         }
 
@@ -209,27 +209,27 @@ namespace LNUBookShareUI.ViewModels
                     SortBy = this.SelectedSort
                 };
 
-                var result = await _mediator.Send(query);
+                var result = await this._mediator.Send(query);
 
-                _isSearchPerformed = true; // "Піднімаємо прапорець"
+                this._isSearchPerformed = true; // "Піднімаємо прапорець"
 
-                _totalPages = (int)Math.Ceiling((double)result.TotalCount / _pageSize);
-                if (_totalPages == 0) _totalPages = 1;
+                this._totalPages = (int)Math.Ceiling((double)result.TotalCount / this._pageSize);
+                if (this._totalPages == 0) this._totalPages = 1;
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    Books.Clear();
+                    this.Books.Clear();
                     foreach (var book in result.Items)
                     {
-                        Books.Add(book);
+                        this.Books.Add(book);
                     }
-                    TotalResults = result.TotalCount;
+                    this.TotalResults = result.TotalCount;
                     CommandManager.InvalidateRequerySuggested(); // Оновлюємо стан кнопок ← →
                 });
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Сталася помилка: {ex.Message}", "Помилка завантаження");
+                _ = MessageBox.Show($"Сталася помилка: {ex.Message}", "Помилка завантаження");
             }
         }
 
@@ -243,8 +243,8 @@ namespace LNUBookShareUI.ViewModels
                     UserId = _currentUserId
                 };
 
-                await _mediator.Send(command);
-                await LoadBooksAsync();
+                _ = await this._mediator.Send(command);
+                await this.LoadBooksAsync();
             }
             catch (Exception ex)
             {
@@ -252,27 +252,27 @@ namespace LNUBookShareUI.ViewModels
                 string errorMessage = $"Помилка: {ex.Message}\n\n" +
                                       $"Деталі (InnerException): {ex.InnerException?.Message}";
 
-                MessageBox.Show(errorMessage, "Помилка (ToggleFavorite)");
+                _ = MessageBox.Show(errorMessage, "Помилка (ToggleFavorite)");
             }
         }
 
         // --- Логіка Пагінації ---
-        private bool CanGoToNextPage() => _isSearchPerformed && _currentPage < _totalPages;
+        private bool CanGoToNextPage() => this._isSearchPerformed && this._currentPage < this._totalPages;
         private async Task GoToNextPageAsync()
         {
-            if (CanGoToNextPage())
+            if (this.CanGoToNextPage())
             {
-                CurrentPage++;
-                await LoadBooksAsync();
+                this.CurrentPage++;
+                await this.LoadBooksAsync();
             }
         }
-        private bool CanGoToPreviousPage() => _isSearchPerformed && _currentPage > 1;
+        private bool CanGoToPreviousPage() => this._isSearchPerformed && this._currentPage > 1;
         private async Task GoToPreviousPageAsync()
         {
-            if (CanGoToPreviousPage())
+            if (this.CanGoToPreviousPage())
             {
-                CurrentPage--;
-                await LoadBooksAsync();
+                this.CurrentPage--;
+                await this.LoadBooksAsync();
             }
         }
     }

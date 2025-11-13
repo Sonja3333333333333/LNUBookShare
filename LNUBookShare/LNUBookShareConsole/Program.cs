@@ -20,7 +20,7 @@ var host = Host.CreateDefaultBuilder(args)
     {
         string connectionString = context.Configuration.GetConnectionString("DefaultConnection");
         // ----- НОВИЙ, ПРАВИЛЬНИЙ КОД -----
-        services.AddDbContext<LNUBookShareDbContext>(options =>
+        _ = services.AddDbContext<LNUBookShareDbContext>(options =>
     // Додаємо логування, щоб бачити SQL-запити в консолі
     options.UseNpgsql(connectionString).LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
 );
@@ -57,7 +57,7 @@ static async Task SeedDatabaseAsync(LNUBookShareDbContext dbContext)
 
     // Спочатку все очистимо
     Console.WriteLine($"Очищення старих даних... (TRUNCATE RESTART IDENTITY)");
-    await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE favorite, book, \"User\", category, faculty, image, emailconfirmation RESTART IDENTITY CASCADE");
+    _ = await dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE favorite, book, \"User\", category, faculty, image, emailconfirmation RESTART IDENTITY CASCADE");
 
     // --- 1. Генеруємо незалежні дані (Факультети, Категорії, Зображення) ---
 
@@ -81,7 +81,7 @@ static async Task SeedDatabaseAsync(LNUBookShareDbContext dbContext)
     await dbContext.Images.AddRangeAsync(images);
 
     // ЗБЕРІГАЄМО, щоб отримати ID для наступних кроків
-    await dbContext.SaveChangesAsync();
+    _ = await dbContext.SaveChangesAsync();
     Console.WriteLine("...Факультети, Категорії та Зображення збережено в БД.");
 
     // --- 2. Генеруємо Користувачів (залежать від Факультетів та Зображень) ---
@@ -105,7 +105,7 @@ static async Task SeedDatabaseAsync(LNUBookShareDbContext dbContext)
     await dbContext.Users.AddRangeAsync(users);
 
     // ЗБЕРІГАЄМО, щоб отримати ID Користувачів
-    await dbContext.SaveChangesAsync();
+    _ = await dbContext.SaveChangesAsync();
     Console.WriteLine("...Користувачів збережено в БД.");
 
     // --- 3. Генеруємо Книги (залежать від Користувачів, Категорій, Зображень) ---
@@ -131,7 +131,7 @@ static async Task SeedDatabaseAsync(LNUBookShareDbContext dbContext)
     await dbContext.Books.AddRangeAsync(books);
 
     // ЗБЕРІГАЄМО, щоб отримати ID Книг
-    await dbContext.SaveChangesAsync();
+    _ = await dbContext.SaveChangesAsync();
     Console.WriteLine("...Книги збережено в БД.");
 
     // --- 4. Генеруємо Залежні таблиці (Уподобане, Підтвердження Email) ---
@@ -156,7 +156,7 @@ static async Task SeedDatabaseAsync(LNUBookShareDbContext dbContext)
         }
         while (uniqueFavoritePairs.Contains((randomUserId, randomBookId)));
 
-        uniqueFavoritePairs.Add((randomUserId, randomBookId));
+        _ = uniqueFavoritePairs.Add((randomUserId, randomBookId));
         favorites.Add(new Favorite { UserId = randomUserId, BookId = randomBookId });
     }
     await dbContext.Favorites.AddRangeAsync(favorites);
@@ -179,7 +179,7 @@ static async Task SeedDatabaseAsync(LNUBookShareDbContext dbContext)
     await dbContext.Emailconfirmations.AddRangeAsync(confirmations);
 
     // --- ФІНАЛЬНЕ ЗБЕРЕЖЕННЯ ---
-    await dbContext.SaveChangesAsync();
+    _ = await dbContext.SaveChangesAsync();
     Console.WriteLine("...Уподобане та Підтвердження Email збережено в БД.");
 }
 

@@ -4,6 +4,6 @@ namespace LNUBookShareBLL.Features.Auth
 {
     public class ResendConfirmationEmailCommand : IRequest
     {
-        public string Email { get; set; }
+        public string? Email { get; set; }
     }
 }
