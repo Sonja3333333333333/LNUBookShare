@@ -214,7 +214,10 @@ namespace LNUBookShareUI.ViewModels
                 this._isSearchPerformed = true; // "Піднімаємо прапорець"
 
                 this._totalPages = (int)Math.Ceiling((double)result.TotalCount / this._pageSize);
-                if (this._totalPages == 0) this._totalPages = 1;
+                if (this._totalPages == 0)
+                {
+                    this._totalPages = 1;
+                }
 
                 App.Current.Dispatcher.Invoke(() =>
                 {

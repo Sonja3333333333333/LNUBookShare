@@ -27,6 +27,8 @@ public class AsyncRelayCommand<T> : ICommand
     public async void Execute(object? parameter)
     {
         if (parameter is T param)
+        {
             await this._execute(param);
+        }
     }
 }

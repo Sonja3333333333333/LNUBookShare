@@ -79,7 +79,10 @@ namespace LNUBookShareUI.ViewModels
         // 7. Атрибут [RelayCommand] видалено
         private async Task ToggleFavorite()
         {
-            if (this.Book == null || this.Book.BookId == 0) return;
+            if (this.Book == null || this.Book.BookId == 0)
+            {
+                return;
+            }
 
             int currentUserId = 1;
 
