@@ -1,8 +1,11 @@
 ﻿using MediatR;
-using LNUBookShareDAL.Models; 
+using LNUBookShareDAL.Models;
 using Microsoft.EntityFrameworkCore;
 using static BCrypt.Net.BCrypt;
 using System.Text.RegularExpressions;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace LNUBookShareBLL.Features.Auth
 {
@@ -15,10 +18,22 @@ namespace LNUBookShareBLL.Features.Auth
             this._dbContext = dbContext;
         }
 
-        //Головний метод
         public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
-            //валідація
+            this.ValidateRequest(request);
+            await this.CheckEmailUniquenessAsync(request.Email, cancellationToken);
+
+            var (newUser, tokenEntity) = this.CreateUserAndTokenEntities(request);
+
+            await this._dbContext.Users.AddAsync(newUser, cancellationToken);
+            await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
+            await this._dbContext.SaveChangesAsync(cancellationToken);
+
+            return newUser.UserId;
+        }
+
+        private void ValidateRequest(RegisterUserCommand request)
+        {
             if (string.IsNullOrWhiteSpace(request.FirstName))
             {
                 throw new Exception("Ім'я не може бути порожнім.");
@@ -59,14 +74,19 @@ namespace LNUBookShareBLL.Features.Auth
             {
                 throw new Exception("Дозволено лише пошту @lnu.edu.ua.");
             }
+        }
 
-            var emilExists = await this._dbContext.Users.AnyAsync(u => u.Email == request.Email, cancellationToken);
-
-            if(emilExists)
+        private async Task CheckEmailUniquenessAsync(string email, CancellationToken cancellationToken)
+        {
+            var emailExists = await this._dbContext.Users.AnyAsync(user => user.Email == email, cancellationToken);
+            if (emailExists)
             {
                 throw new Exception("Користувач із таким email уже зареєстрований.");
             }
+        }
 
+        private (User, Emailconfirmation) CreateUserAndTokenEntities(RegisterUserCommand request)
+        {
             var passwordHash = HashPassword(request.Password);
 
             var newUser = new User
@@ -80,10 +100,7 @@ namespace LNUBookShareBLL.Features.Auth
                 CreatedAt = DateTime.UtcNow
             };
 
-            _ = await this._dbContext.Users.AddAsync(newUser, cancellationToken);
-
-            var confirmationToken = Guid.NewGuid().ToString(); //генеруємо токен
-
+            var confirmationToken = Guid.NewGuid().ToString();
             var tokenEntity = new Emailconfirmation
             {
                 User = newUser,
@@ -92,16 +109,7 @@ namespace LNUBookShareBLL.Features.Auth
                 ExpiresAt = DateTime.UtcNow.AddHours(24)
             };
 
-            _ = await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
-
-            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
-
-
-            //Тут треба викликати сервіс відправки пошти для надіслання підтверження
-
-            return newUser.UserId;
-
+            return (newUser, tokenEntity);
         }
-
     }
 }

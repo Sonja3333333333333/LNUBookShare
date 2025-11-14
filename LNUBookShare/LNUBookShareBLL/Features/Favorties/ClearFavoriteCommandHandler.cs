@@ -1,7 +1,10 @@
 ﻿using MediatR;
-using LNUBookShareDAL;
-using Microsoft.EntityFrameworkCore;
 using LNUBookShareDAL.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace LNUBookShareBLL.Features.Favorites
 {
@@ -16,21 +19,27 @@ namespace LNUBookShareBLL.Features.Favorites
 
         public async Task<Unit> Handle(ClearFavoritesCommand request, CancellationToken cancellationToken)
         {
-            // 1. Знаходимо ВСІ записи вподобань для цього користувача
-            var favoritesToRemove = await this._dbContext.Favorites
-                .Where(f => f.UserId == request.UserId)
-                .ToListAsync(cancellationToken);
+            var favoritesToRemove = await this.GetFavoritesForUserAsync(request.UserId, cancellationToken);
 
             if (favoritesToRemove.Any())
             {
-                // 2. Видаляємо їх
-                this._dbContext.Favorites.RemoveRange(favoritesToRemove);
-
-                // 3. Зберігаємо зміни
-                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
+                await this.DeleteFavoritesAsync(favoritesToRemove, cancellationToken);
             }
 
-            return Unit.Value; // Повертаємо "успіх" (void)
+            return Unit.Value;
+        }
+
+        private async Task<List<Favorite>> GetFavoritesForUserAsync(int userId, CancellationToken cancellationToken)
+        {
+            return await this._dbContext.Favorites
+                .Where(favorite => favorite.UserId == userId)
+                .ToListAsync(cancellationToken);
+        }
+
+        private async Task DeleteFavoritesAsync(List<Favorite> favoritesToRemove, CancellationToken cancellationToken)
+        {
+            this._dbContext.Favorites.RemoveRange(favoritesToRemove);
+            await this._dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

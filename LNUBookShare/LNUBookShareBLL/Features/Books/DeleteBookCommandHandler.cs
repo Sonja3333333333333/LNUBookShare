@@ -15,30 +15,39 @@ namespace LNUBookShareBLL.Features.Books
 
         public async Task<Unit> Handle(DeleteBookCommand request, CancellationToken cancellationToken)
         {
-            // 1. Знаходимо книгу
+            var book = await this.GetBookAsync(request.BookId, cancellationToken);
+
+            this.ValidateOwnership(book, request.CurrentUserId);
+
+            await this.DeleteBookAndSaveAsync(book, cancellationToken);
+
+            return Unit.Value;
+        }
+
+        private async Task<Book> GetBookAsync(int bookId, CancellationToken cancellationToken)
+        {
             var book = await this._dbContext.Books
-                .FirstOrDefaultAsync(b => b.BookId == request.BookId, cancellationToken);
+                .FirstOrDefaultAsync(book => book.BookId == bookId, cancellationToken);
 
             if (book == null)
             {
                 throw new System.Exception("Книгу не знайдено.");
             }
+            return book;
+        }
 
-            // 2. ПЕРЕВІРКА БЕЗПЕКИ: Чи справді цей користувач є власником?
-            if (book.OwnerId != request.CurrentUserId)
+        private void ValidateOwnership(Book book, int currentUserId)
+        {
+            if (book.OwnerId != currentUserId)
             {
                 throw new System.Exception("Ви не можете видалити книгу, яка вам не належить.");
             }
+        }
 
-            // 3. Видаляємо книгу
-            _ = this._dbContext.Books.Remove(book);
-
-            // (Ми можемо також видалити її з 'Favorite' у всіх,
-            // але 'CASCADE' в базі має зробити це автоматично)
-
-            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
+        private async Task DeleteBookAndSaveAsync(Book book, CancellationToken cancellationToken)
+        {
+            this._dbContext.Books.Remove(book);
+            await this._dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

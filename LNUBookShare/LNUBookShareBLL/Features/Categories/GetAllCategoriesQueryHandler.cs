@@ -22,10 +22,10 @@ namespace LNUBookShareBLL.Features.Categories
         {
             return await this._dbContext.Categories
                 .AsNoTracking()
-                .Select(c => new CategoryDto
+                .Select(category => new CategoryDto
                 {
-                    CategoryId = c.CategoryId,
-                    Name = c.Name
+                    CategoryId = category.CategoryId,
+                    Name = category.Name
                 })
                 .OrderBy(c => c.Name)
                 .ToListAsync(cancellationToken);

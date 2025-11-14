@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareDAL.Models;
+using LNUBookShareBLL.Common;
+
 
 namespace LNUBookShareBLL.Features.Books
 {
@@ -16,47 +18,51 @@ namespace LNUBookShareBLL.Features.Books
 
         public async Task<BookEditDto> Handle(GetBookForEditQuery request, CancellationToken cancellationToken)
         {
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var book = await this.GetBookByIdAsync(request.BookId, cancellationToken);
 
-            var bookData = await this._dbContext.Books
+            this.ValidateOwnership(book, request.CurrentUserId);
+
+            return this.MapBookToDto(book);
+        }
+
+        private async Task<Book> GetBookByIdAsync(int bookId, CancellationToken cancellationToken)
+        {
+            var book = await this._dbContext.Books
                 .AsNoTracking()
-                .Include(b => b.Cover) // <-- ВАЖЛИВО: Завантажуємо обкладинку
-                .Where(b => b.BookId == request.BookId)
-                .Select(b => new
-                {
-                    BookData = new BookEditDto
-                    {
-                        Title = b.Title,
-                        Author = b.Author,
-                        Isbn = b.Isbn,
-                        Year = b.Year,
-                        Publisher = b.Publisher,
-                        Language = b.Language,
-                        CategoryId = b.CategoryId,
-                        Status = b.Status,
-
-                        // --- ОНОВЛЕНА ЛОГІКА ДЛЯ ФОТО ---
-                        CoverImagePath = (b.Cover == null || string.IsNullOrEmpty(b.Cover.ImagePath))
-                            ? null // Немає шляху
-                            : (b.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || b.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                                ? b.Cover.ImagePath // Це URL
-                                : Path.Combine(baseDir, b.Cover.ImagePath) // Це файл
-                    },
-                    OwnerId = b.OwnerId
-                })
+                .Include(book => book.Cover)
+                .Where(book => book.BookId == bookId)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (bookData == null)
+            if (book == null)
             {
                 throw new Exception("Книгу не знайдено.");
             }
 
-            if (bookData.OwnerId != request.CurrentUserId)
+            return book;
+        }
+
+        private void ValidateOwnership(Book book, int currentUserId)
+        {
+            if (book.OwnerId != currentUserId)
             {
                 throw new Exception("Ви не можете редагувати чужу книгу.");
             }
+        }
 
-            return bookData.BookData;
+        private BookEditDto MapBookToDto(Book book)
+        {
+            return new BookEditDto
+            {
+                Title = book.Title,
+                Author = book.Author,
+                Isbn = book.Isbn,
+                Year = book.Year,
+                Publisher = book.Publisher,
+                Language = book.Language,
+                CategoryId = book.CategoryId,
+                Status = book.Status,
+                CoverImagePath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null)
+            };
         }
     }
 }

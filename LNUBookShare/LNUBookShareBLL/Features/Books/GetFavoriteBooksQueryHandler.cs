@@ -2,8 +2,9 @@
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using Microsoft.EntityFrameworkCore;
-
 using LNUBookShareDAL.Models;
+using LNUBookShareBLL.Common;
+
 
 namespace LNUBookShareBLL.Features.Favorites
 {
@@ -18,54 +19,72 @@ namespace LNUBookShareBLL.Features.Favorites
 
         public async Task<PaginatedResultDto<FavoriteBookCardDto>> Handle(GetFavoriteBooksQuery request, CancellationToken cancellationToken)
         {
-            // 1. Починаємо запит з таблиці "Favorites"
-            var query = this._dbContext.Favorites
-                // Фільтруємо за поточним користувачем
-                .Where(f => f.UserId == request.CurrentUserId)
-                // Включаємо пов'язані дані *перед* проекцією
-                .Include(f => f.Book.Owner)
-                .Include(f => f.Book.Cover)
-                // "Розгортаємо" запит, щоб працювати зі списком Книг (Book)
-                .Select(f => f.Book);
+            var query = this.GetBaseQuery(request.CurrentUserId);
 
-            // 2. Застосовуємо ФІЛЬТРАЦІЮ (WHERE) за статусом
-            switch (request.FilterBy)
-            {
-                case BookFilterStatus.Available:
-                    query = query.Where(b => b.Status == "available");
-                    break;
-                case BookFilterStatus.Issued:
-                    query = query.Where(b => b.Status == "issued");
-                    break;
-            }
+            query = this.ApplyFilters(query, request.FilterBy);
 
-            // 3. Отримуємо ЗАГАЛЬНУ КІЛЬКІСТЬ (до пагінації!)
             var totalCount = await query.CountAsync(cancellationToken);
 
-            // 4. Застосовуємо СОРТУВАННЯ (ORDER BY)
-            switch (request.SortBy)
+            query = this.ApplySorting(query, request.SortBy);
+
+            var paginatedQuery = this.ApplyPagination(query, request.PageNumber, request.PageSize);
+
+            var books = await this.ProjectToDtoAsync(paginatedQuery, cancellationToken);
+
+            return new PaginatedResultDto<FavoriteBookCardDto>
             {
-                case BookSortCriteria.Author:
-                    query = query.OrderBy(b => b.Author);
+                Items = books,
+                TotalCount = totalCount
+            };
+        }
+
+        private IQueryable<Book> GetBaseQuery(int currentUserId)
+        {
+            return this._dbContext.Favorites
+                .AsNoTracking()
+                .Where(favorite => favorite.UserId == currentUserId)
+                .Include(favorite => favorite.Book.Owner)
+                .Include(favorite => favorite.Book.Cover)
+                .Select(favorite => favorite.Book);
+        }
+
+        private IQueryable<Book> ApplyFilters(IQueryable<Book> query, BookFilterStatus filterBy)
+        {
+            switch (filterBy)
+            {
+                case BookFilterStatus.Available:
+                    query = query.Where(book => book.Status == "available");
                     break;
-                case BookSortCriteria.Year:
-                    query = query.OrderBy(b => b.Year);
-                    break;
-                default:
-                    query = query.OrderBy(b => b.Title); // Сортування за Назвою за замовчуванням
+                case BookFilterStatus.Issued:
+                    query = query.Where(book => book.Status == "issued");
                     break;
             }
+            return query;
+        }
 
-            // 5. Застосовуємо ПАГІНАЦІЮ (SKIP / TAKE)
-            var paginatedQuery = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize);
+        private IQueryable<Book> ApplySorting(IQueryable<Book> query, BookSortCriteria sortBy)
+        {
+            switch (sortBy)
+            {
+                case BookSortCriteria.Author:
+                    return query.OrderBy(book => book.Author);
+                case BookSortCriteria.Year:
+                    return query.OrderBy(book => book.Year);
+                default:
+                    return query.OrderBy(book => book.Title);
+            }
+        }
 
+        private IQueryable<Book> ApplyPagination(IQueryable<Book> query, int pageNumber, int pageSize)
+        {
+            return query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+        }
 
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-
-            // 6. Проекція (SELECT)
-            var books = await paginatedQuery
+        private async Task<List<FavoriteBookCardDto>> ProjectToDtoAsync(IQueryable<Book> query, CancellationToken cancellationToken)
+        {
+            return await query
                 .Select(book => new FavoriteBookCardDto
                 {
                     BookId = book.BookId,
@@ -73,24 +92,11 @@ namespace LNUBookShareBLL.Features.Favorites
                     Author = book.Author,
                     Year = book.Year,
                     Status = book.Status,
-
-                    // --- ОНОВЛЕНА ЛОГІКА ДЛЯ ОБКЛАДИНКИ ---
-                    CoverPath = (book.Cover == null || string.IsNullOrEmpty(book.Cover.ImagePath))
-                        ? null
-                        : (book.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || book.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                            ? book.Cover.ImagePath
-                            : Path.Combine(baseDir, book.Cover.ImagePath),
-
+                    CoverPath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null),
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "N/A",
                     OwnerId = book.OwnerId
                 })
                 .ToListAsync(cancellationToken);
-            // 7. Повертаємо фінальний DTO
-            return new PaginatedResultDto<FavoriteBookCardDto>
-            {
-                Items = books,
-                TotalCount = totalCount
-            };
         }
     }
 }

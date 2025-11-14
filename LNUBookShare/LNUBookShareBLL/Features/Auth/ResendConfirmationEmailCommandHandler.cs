@@ -1,33 +1,44 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-
 using LNUBookShareDAL.Models;
+
 
 namespace LNUBookShareBLL.Features.Auth
 {
-    //знаходить користувача перевіряє чи не зарано для повторної відправки і оновлює токен у базі
     public class ResendConfirmationEmailCommandHandler : IRequestHandler<ResendConfirmationEmailCommand>
     {
         private readonly LNUBookShareDbContext _dbContext;
-        // private readonly IEmailService _emailService; // Це знадобиться пізніше
 
-        // public ResendConfirmationEmailCommandHandler(LNUBookShareDbContext dbContext, IEmailService emailService)
         public ResendConfirmationEmailCommandHandler(LNUBookShareDbContext dbContext)
         {
             this._dbContext = dbContext;
-            // _emailService = emailService;
         }
 
         public async Task<Unit> Handle(ResendConfirmationEmailCommand request, CancellationToken cancellationToken)
         {
+            this.ValidateRequest(request);
 
+            var user = await this.GetUserAndValidateStateAsync(request.Email, cancellationToken);
+
+            var tokenEntity = await this.GetAndValidateTokenAsync(user.UserId, cancellationToken);
+
+            await this.UpdateAndSaveTokenAsync(tokenEntity);
+
+            return Unit.Value;
+        }
+
+        private void ValidateRequest(ResendConfirmationEmailCommand request)
+        {
             if (string.IsNullOrWhiteSpace(request.Email) || !request.Email.EndsWith("@lnu.edu.ua"))
             {
                 throw new Exception("Введіть коректну пошту @lnu.edu.ua.");
             }
+        }
 
+        private async Task<User> GetUserAndValidateStateAsync(string email, CancellationToken cancellationToken)
+        {
             var user = await this._dbContext.Users
-                .FirstOrDefaultAsync(u => u.Email == request.Email, cancellationToken);
+                .FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
 
             if (user == null)
             {
@@ -39,39 +50,39 @@ namespace LNUBookShareBLL.Features.Auth
                 throw new Exception("Цей акаунт вже підтверджено.");
             }
 
+            return user;
+        }
+
+        private async Task<Emailconfirmation> GetAndValidateTokenAsync(int userId, CancellationToken cancellationToken)
+        {
             var tokenEntity = await this._dbContext.Emailconfirmations
-                .FirstOrDefaultAsync(t => t.UserId == user.UserId, cancellationToken);
+                .FirstOrDefaultAsync(token => token.UserId == userId, cancellationToken);
 
             if (tokenEntity == null)
             {
-                tokenEntity = new LNUBookShareDAL.Models.Emailconfirmation
+                tokenEntity = new Emailconfirmation
                 {
-                    UserId = user.UserId
+                    UserId = userId
                 };
-                _ = await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
+                await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
             }
 
-            // 5. БІЗНЕС-ЛОГІКА: Перевірка таймера (60 сек)
             var oneMinuteAgo = DateTime.UtcNow.AddMinutes(-1);
             if (tokenEntity.CreatedAt > oneMinuteAgo)
             {
                 throw new Exception("Повторно надіслати лист можна лише раз на хвилину.");
             }
 
+            return tokenEntity;
+        }
+
+        private async Task UpdateAndSaveTokenAsync(Emailconfirmation tokenEntity)
+        {
             tokenEntity.ConfirmationToken = Guid.NewGuid().ToString();
             tokenEntity.CreatedAt = DateTime.UtcNow;
-            tokenEntity.ExpiresAt = DateTime.UtcNow.AddHours(24); // Даємо ще 24 години
+            tokenEntity.ExpiresAt = DateTime.UtcNow.AddHours(24);
 
-            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
-
-            // 8. Відправка email (коли сервіс буде готовий)
-            // await _emailService.SendConfirmationEmail(
-            //     user.Email,
-            //     tokenEntity.ConfirmationToken
-            // );
-
-            return Unit.Value; // Означає "void" або "успіх"
+            await this._dbContext.SaveChangesAsync();
         }
     }
 }
-    
