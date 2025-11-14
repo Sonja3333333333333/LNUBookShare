@@ -3,6 +3,13 @@ using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using Microsoft.EntityFrameworkCore;
 using LNUBookShareDAL.Models;
+using LNUBookShareBLL.Common;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace LNUBookShareBLL.Features.Books
 {
@@ -18,19 +25,38 @@ namespace LNUBookShareBLL.Features.Books
         public async Task<PaginatedResultDto<BookCardDto>> Handle(GetBooksQuery request, CancellationToken cancellationToken)
         {
             var query = this._dbContext.Books
-                .Include(b => b.Owner)
-                .Include(b => b.Cover)
-                .Include(b => b.Category)
+                .AsNoTracking()
+                .Include(book => book.Owner)
+                .Include(book => book.Cover)
+                .Include(book => book.Category)
                 .AsQueryable();
 
-            // 2. ФІЛЬТРАЦІЯ
+            query = this.ApplyFilters(query, request);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+
+            query = this.ApplySorting(query, request.SortBy);
+
+            var paginatedQuery = this.ApplyPagination(query, request.PageNumber, request.PageSize);
+
+            var books = await this.ProjectToDtoAsync(paginatedQuery, request.CurrentUserId, cancellationToken);
+
+            return new PaginatedResultDto<BookCardDto>
+            {
+                Items = books,
+                TotalCount = totalCount
+            };
+        }
+
+        private IQueryable<Book> ApplyFilters(IQueryable<Book> query, GetBooksQuery request)
+        {
             switch (request.FilterBy)
             {
                 case BookFilterStatus.Available:
-                    query = query.Where(b => b.Status == "available");
+                    query = query.Where(book => book.Status == "available");
                     break;
                 case BookFilterStatus.Issued:
-                    query = query.Where(b => b.Status == "issued");
+                    query = query.Where(book => book.Status == "issued");
                     break;
             }
 
@@ -40,72 +66,59 @@ namespace LNUBookShareBLL.Features.Books
                 switch (request.SearchBy)
                 {
                     case BookSearchCriteria.Title:
-                        query = query.Where(b => b.Title.ToLower().Contains(term));
+                        query = query.Where(book => book.Title.ToLower().Contains(term));
                         break;
                     case BookSearchCriteria.Author:
-                        query = query.Where(b => b.Author.ToLower().Contains(term));
+                        query = query.Where(book => book.Author.ToLower().Contains(term));
                         break;
                     case BookSearchCriteria.ISBN:
-                        query = query.Where(b => b.Isbn != null && b.Isbn.ToLower().Contains(term));
+                        query = query.Where(book => book.Isbn != null && book.Isbn.ToLower().Contains(term));
                         break;
                     case BookSearchCriteria.Category:
-                        query = query.Where(b => b.Category != null && b.Category.Name.ToLower().Contains(term));
+                        query = query.Where(book => book.Category != null && book.Category.Name.ToLower().Contains(term));
                         break;
                 }
             }
+            return query;
+        }
 
-            var totalCount = await query.CountAsync(cancellationToken);
-
-            // 4. СОРТУВАННЯ
-            switch (request.SortBy)
+        private IQueryable<Book> ApplySorting(IQueryable<Book> query, BookSortCriteria sortBy)
+        {
+            switch (sortBy)
             {
                 case BookSortCriteria.Author:
-                    query = query.OrderBy(b => b.Author);
-                    break;
+                    return query.OrderBy(book => book.Author);
                 case BookSortCriteria.Year:
-                    query = query.OrderBy(b => b.Year);
-                    break;
+                    return query.OrderBy(book => book.Year);
                 default:
-                    query = query.OrderBy(b => b.Title);
-                    break;
+                    return query.OrderBy(book => book.Title);
             }
+        }
 
-            // 5. ПАГІНАЦІЯ
-            var paginatedQuery = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize);
+        private IQueryable<Book> ApplyPagination(IQueryable<Book> query, int pageNumber, int pageSize)
+        {
+            return query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+        }
 
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-
-            // 6. ПРОЕКЦІЯ (SELECT)
-            var books = await paginatedQuery
-                 .Select(book => new BookCardDto
-                 {
-                     BookId = book.BookId,
-                     Title = book.Title,
-                     Author = book.Author,
-                     Year = book.Year,
-                     Status = book.Status,
-
-                     // --- ОНОВЛЕНА ЛОГІКА ДЛЯ ОБКЛАДИНКИ ---
-                     CoverPath = (book.Cover == null || string.IsNullOrEmpty(book.Cover.ImagePath))
-                         ? null
-                         : (book.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || book.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                             ? book.Cover.ImagePath
-                             : Path.Combine(baseDir, book.Cover.ImagePath),
-
-                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "Власник невідомий",
-                     OwnerId = (book.Owner != null) ? book.Owner.UserId : 0,
-                     IsFavoritedByCurrentUser = this._dbContext.Favorites.Any(f =>
-                         f.BookId == book.BookId && f.UserId == request.CurrentUserId)
-                 })
-                 .ToListAsync(cancellationToken);
-            // 7. РЕЗУЛЬТАТ
-            return new PaginatedResultDto<BookCardDto>
-            {
-                Items = books,
-                TotalCount = totalCount
-            };
+        private async Task<List<BookCardDto>> ProjectToDtoAsync(IQueryable<Book> query, int currentUserId, CancellationToken cancellationToken)
+        {
+            return await query
+                .Select(book => new BookCardDto
+                {
+                    BookId = book.BookId,
+                    Title = book.Title,
+                    Author = book.Author,
+                    Year = book.Year,
+                    Status = book.Status,
+                    CoverPath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null),
+                    OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "Власник невідомий",
+                    OwnerId = (book.Owner != null) ? book.Owner.UserId : 0,
+                    IsFavoritedByCurrentUser = this._dbContext.Favorites.Any(favorite =>
+                        favorite.BookId == book.BookId && favorite.UserId == currentUserId)
+                })
+                .ToListAsync(cancellationToken);
         }
     }
 }

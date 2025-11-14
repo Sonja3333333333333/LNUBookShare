@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareDAL.Models;
+using LNUBookShareBLL.Common;
+
 
 namespace LNUBookShareBLL.Features.Profile
 {
@@ -16,69 +18,60 @@ namespace LNUBookShareBLL.Features.Profile
 
         public async Task<ProfileDto> Handle(GetProfileQuery request, CancellationToken cancellationToken)
         {
-            // 1. Шукаємо користувача і одразу підтягуємо його факультет та аватар
+            var user = await this.GetUserAsync(request.UserId, cancellationToken);
+            var ownedBooks = await this.GetOwnedBooksAsync(request.UserId, cancellationToken);
+            var profileDto = this.MapToProfileDto(user, ownedBooks);
+
+            return profileDto;
+        }
+
+        private async Task<User> GetUserAsync(int userId, CancellationToken cancellationToken)
+        {
             var user = await this._dbContext.Users
-                .Include(u => u.Faculty)
-                .Include(u => u.Avatar)
-                .AsNoTracking() // Це запит "тільки для читання"
-                .FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken);
+                .AsNoTracking()
+                .Include(user => user.Faculty)
+                .Include(user => user.Avatar)
+                .FirstOrDefaultAsync(user => user.UserId == userId, cancellationToken);
 
             if (user == null)
             {
                 throw new System.Exception("Користувача не знайдено.");
             }
 
-            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            return user;
+        }
 
-            string? finalAvatarPath = null;
-            if (user.Avatar != null && !string.IsNullOrEmpty(user.Avatar.ImagePath))
-            {
-                string dbPath = user.Avatar.ImagePath;
-                // Перевіряємо, чи це URL
-                if (dbPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                    dbPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                {
-                    finalAvatarPath = dbPath; // Це URL, використовуємо як є
-                }
-                else
-                {
-                    finalAvatarPath = Path.Combine(baseDir, dbPath); // Це файл, робимо абсолютним
-                }
-            }
-
-            var ownedBooks = await this._dbContext.Books
-                .Include(b => b.Cover)
-                .Where(b => b.OwnerId == request.UserId)
+        private async Task<List<OwnedBookDto>> GetOwnedBooksAsync(int userId, CancellationToken cancellationToken)
+        {
+            return await this._dbContext.Books
                 .AsNoTracking()
-                .Select(b => new OwnedBookDto
+                .Include(book => book.Cover)
+                .Where(book => book.OwnerId == userId)
+                .Select(book => new OwnedBookDto
                 {
-                    BookId = b.BookId,
-                    Title = b.Title,
-                    Author = b.Author,
-                    Year = b.Year,
-                    Status = b.Status,
-                    // Застосовуємо ту саму логіку до обкладинок:
-                    CoverPath = (b.Cover == null || string.IsNullOrEmpty(b.Cover.ImagePath))
-                        ? null // Немає шляху
-                        : (b.Cover.ImagePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || b.Cover.ImagePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                            ? b.Cover.ImagePath // Це URL
-                            : Path.Combine(baseDir, b.Cover.ImagePath) // Це файл
+                    BookId = book.BookId,
+                    Title = book.Title,
+                    Author = book.Author,
+                    Year = book.Year,
+                    Status = book.Status,
+                    CoverPath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null)
                 })
                 .ToListAsync(cancellationToken);
+        }
 
-            var profileDto = new ProfileDto
+        private ProfileDto MapToProfileDto(User user, List<OwnedBookDto> ownedBooks)
+        {
+            string finalAvatarPath = PathHelper.ConvertToAbsolutePath(user.Avatar?.ImagePath);
+
+            return new ProfileDto
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
                 FacultyName = user.Faculty?.Name ?? "Не вказано",
-                AvatarPath = finalAvatarPath, 
+                AvatarPath = finalAvatarPath,
                 OwnedBooks = ownedBooks
             };
-
-            
-
-            return profileDto;
         }
     }
 }

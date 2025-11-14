@@ -1,5 +1,5 @@
-﻿using LNUBookShareBLL.DTOs;
-using LNUBookShareDAL; 
+﻿using LNUBookShareBLL.Common;
+using LNUBookShareBLL.DTOs;
 using LNUBookShareDAL.Models;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -18,44 +18,38 @@ namespace LNUBookShareBLL.Features.Profile
 
         public async Task<ProfileEditDto> Handle(GetProfileForEditQuery request, CancellationToken cancellationToken)
         {
+            var user = await this.GetUserAsync(request.UserId, cancellationToken);
+            var profileDto = this.MapUserToDto(user);
+            return profileDto;
+        }
+
+        private async Task<User> GetUserAsync(int userId, CancellationToken cancellationToken)
+        {
             var user = await this._dbContext.Users
                 .AsNoTracking()
-                .Include(u => u.Avatar) 
-                .Include(u => u.Faculty) 
-                .Where(u => u.UserId == request.UserId)
+                .Include(user => user.Avatar)
+                .Include(user => user.Faculty)
+                .Where(user => user.UserId == userId)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (user == null)
             {
                 throw new Exception("Користувача не знайдено.");
             }
+            return user;
+        }
 
-            string? finalImagePath = null;
-            if (user.Avatar != null && !string.IsNullOrEmpty(user.Avatar.ImagePath))
-            {
-                string dbPath = user.Avatar.ImagePath;
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+        private ProfileEditDto MapUserToDto(User user)
+        {
+            var finalImagePath = PathHelper.ConvertToAbsolutePath(user.Avatar?.ImagePath);
 
-                if (dbPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                    dbPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
-                {
-                    finalImagePath = dbPath; // Це URL
-                }
-                else
-                {
-                    finalImagePath = Path.Combine(baseDir, dbPath); // Це файл
-                }
-            }
-
-            var profileDto = new ProfileEditDto
+            return new ProfileEditDto
             {
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 FacultyId = user.FacultyId,
                 ProfileImageUrl = finalImagePath
             };
-
-            return profileDto;
         }
     }
 }

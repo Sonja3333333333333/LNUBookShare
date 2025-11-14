@@ -1,11 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
-
 using LNUBookShareDAL.Models;
+
 
 namespace LNUBookShareBLL.Features.Auth
 {
-   
     public class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, Unit>
     {
         private readonly LNUBookShareDbContext _dbContext;
@@ -17,11 +16,22 @@ namespace LNUBookShareBLL.Features.Auth
 
         public async Task<Unit> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken)
         {
-    
-            var tokenEntity = await this._dbContext.Emailconfirmations
-                .Include(t => t.User)
-                .FirstOrDefaultAsync(t => t.ConfirmationToken == request.ConfirmationToken, cancellationToken);
+            var tokenEntity = await this.GetTokenWithUserAsync(request.ConfirmationToken, cancellationToken);
+            await this.ValidateTokenAsync(tokenEntity, cancellationToken);
+            await this.HandleConfirmationAsync(tokenEntity, cancellationToken);
 
+            return Unit.Value;
+        }
+
+        private async Task<Emailconfirmation> GetTokenWithUserAsync(string confirmationToken, CancellationToken cancellationToken)
+        {
+            return await this._dbContext.Emailconfirmations
+                .Include(token => token.User)
+                .FirstOrDefaultAsync(token => token.ConfirmationToken == confirmationToken, cancellationToken);
+        }
+
+        private async Task ValidateTokenAsync(Emailconfirmation tokenEntity, CancellationToken cancellationToken)
+        {
             if (tokenEntity == null)
             {
                 throw new Exception("Недійсний токен підтвердження.");
@@ -29,8 +39,8 @@ namespace LNUBookShareBLL.Features.Auth
 
             if (tokenEntity.ExpiresAt < DateTime.UtcNow)
             {
-                _ = this._dbContext.Emailconfirmations.Remove(tokenEntity);
-                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
+                this._dbContext.Emailconfirmations.Remove(tokenEntity);
+                await this._dbContext.SaveChangesAsync(cancellationToken);
                 throw new Exception("Термін дії токена вийшов. Будь ласка, надішліть запит на підтвердження повторно.");
             }
 
@@ -38,21 +48,18 @@ namespace LNUBookShareBLL.Features.Auth
             {
                 throw new Exception("Акаунт, пов'язаний з цим токеном, не знайдено.");
             }
+        }
 
-            if (tokenEntity.User.IsEmailConfirmed)
+        private async Task HandleConfirmationAsync(Emailconfirmation tokenEntity, CancellationToken cancellationToken)
+        {
+            if (tokenEntity.User.IsEmailConfirmed == false)
             {
-                _ = this._dbContext.Emailconfirmations.Remove(tokenEntity);
-                _ = await this._dbContext.SaveChangesAsync(cancellationToken);
-                return Unit.Value; 
+                tokenEntity.User.IsEmailConfirmed = true;
             }
 
-            tokenEntity.User.IsEmailConfirmed = true;
+            this._dbContext.Emailconfirmations.Remove(tokenEntity);
 
-            _ = this._dbContext.Emailconfirmations.Remove(tokenEntity);
-
-            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
+            await this._dbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }

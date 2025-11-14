@@ -2,6 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using LNUBookShareDAL.Models;
+using LNUBookShareBLL.DTOs;
+using LNUBookShareBLL.Common;
+
 
 namespace LNUBookShareBLL.Features.Profile
 {
@@ -16,59 +19,78 @@ namespace LNUBookShareBLL.Features.Profile
 
         public async Task<Unit> Handle(UpdateProfileCommand request, CancellationToken cancellationToken)
         {
-            // --- Валідація (та сама, що й при реєстрації) ---
-            if (string.IsNullOrWhiteSpace(request.Dto.FirstName) || !Regex.IsMatch(request.Dto.FirstName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
+            this.ValidateRequest(request.Dto);
+
+            var user = await this.GetUserAsync(request.UserId, cancellationToken);
+
+            var avatarId = await this.GetAvatarIdAsync(request.Dto.ProfileImageUrl, cancellationToken);
+
+            this.UpdateUserEntity(user, request.Dto, avatarId);
+
+            await this._dbContext.SaveChangesAsync(cancellationToken);
+
+            return Unit.Value;
+        }
+
+        private void ValidateRequest(ProfileEditDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.FirstName) || !Regex.IsMatch(dto.FirstName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
             {
                 throw new Exception("Ім'я повинно містити лише літери.");
             }
-            if (string.IsNullOrWhiteSpace(request.Dto.LastName) || !Regex.IsMatch(request.Dto.LastName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
+            if (string.IsNullOrWhiteSpace(dto.LastName) || !Regex.IsMatch(dto.LastName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
             {
                 throw new Exception("Прізвище повинно містити лише літери.");
             }
-            if (request.Dto.FacultyId <= 0)
+            if (dto.FacultyId <= 0)
             {
                 throw new Exception("Необхідно обрати факультет.");
             }
+        }
 
-            // --- Оновлення ---
-            var user = await this._dbContext.Users.FirstOrDefaultAsync(u => u.UserId == request.UserId, cancellationToken);
+        private async Task<User> GetUserAsync(int userId, CancellationToken cancellationToken)
+        {
+            var user = await this._dbContext.Users.FirstOrDefaultAsync(u => u.UserId == userId, cancellationToken);
 
             if (user == null)
             {
                 throw new Exception("Користувача не знайдено.");
             }
+            return user;
+        }
 
-            // Оновлюємо поля
-            user.FirstName = request.Dto.FirstName;
-            user.LastName = request.Dto.LastName;
-            user.FacultyId = request.Dto.FacultyId;
-            user.UpdatedAt = DateTime.UtcNow;
-
-            if (!string.IsNullOrEmpty(request.Dto.ProfileImageUrl))
+        private async Task<int?> GetAvatarIdAsync(string imagePath, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(imagePath))
             {
-                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
-                string relativePath = Path.GetRelativePath(baseDir, request.Dto.ProfileImageUrl);
-
-                // 2. Нормалізуємо шлях, як він збережений в БД
-                // (UploadImageCommandHandler зберіг його з '\')
-                relativePath = relativePath.Replace(Path.DirectorySeparatorChar, '\\');
-
-                var image = await this._dbContext.Images
-                    .FirstOrDefaultAsync(a => a.ImagePath == relativePath, cancellationToken);
-
-                if (image != null)
-                {
-                    user.AvatarId = image.ImageId;
-                }
-                else
-                {
-                    Console.WriteLine($"Увага: не вдалося знайти Image за шляхом {relativePath}");
-                }
+                return null;
             }
 
-            _ = await this._dbContext.SaveChangesAsync(cancellationToken);
+            string relativePath = PathHelper.ConvertToRelativePath(imagePath);
 
-            return Unit.Value;
+            var image = await this._dbContext.Images
+                .FirstOrDefaultAsync(img => img.ImagePath == relativePath, cancellationToken);
+
+            if (image == null)
+            {
+                Console.WriteLine($"Увага: не вдалося знайти Image за шляхом {relativePath}");
+                return null;
+            }
+
+            return image.ImageId;
+        }
+
+        private void UpdateUserEntity(User user, ProfileEditDto dto, int? avatarId)
+        {
+            user.FirstName = dto.FirstName;
+            user.LastName = dto.LastName;
+            user.FacultyId = dto.FacultyId;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            if (avatarId.HasValue)
+            {
+                user.AvatarId = avatarId.Value;
+            }
         }
     }
 }
