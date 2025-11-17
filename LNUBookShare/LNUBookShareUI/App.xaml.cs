@@ -9,6 +9,7 @@ using LNUBookShareDAL.Models;
 using System;
 using LNUBookShareUI.Common;
 using LNUBookShareBLL.Features.Files;
+using LNUBookShareBLL; // <--- ДОДАНО
 
 namespace LNUBookShareUI
 {
@@ -28,7 +29,7 @@ namespace LNUBookShareUI
         private void ConfigureServices(IServiceCollection services)
         {
 
-           
+
             // string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
 
             // Новий рядок (хмарний Neon)
@@ -42,12 +43,18 @@ namespace LNUBookShareUI
 
 
             _ = services.AddDbContext<LNUBookShareDbContext>(options =>
-                options.UseNpgsql(connectionString)
-            );
+      options.UseNpgsql(connectionString),
+      ServiceLifetime.Transient // <--- ДОДАЙТЕ ЦЕЙ ПАРАМЕТР
+  );
 
             // 2. BLL
             _ = services.AddMediatR(typeof(GetBooksQuery).Assembly);
             _ = services.AddMediatR(typeof(UploadImageCommand).Assembly);
+
+            // ----- ОСЬ ЦЕ ВИПРАВЛЕННЯ -----
+            // Реєструємо EmailService, щоб RegisterUserCommandHandler міг його отримати
+            _ = services.AddTransient<EmailService>();
+            // -----------------------------
 
             // 3. ViewModels
             _ = services.AddTransient<MainViewModel>();
@@ -96,15 +103,15 @@ namespace LNUBookShareUI
             //editProfileView.Show();
 
             //Щоб показати головне вікно розкоментуй мене
-            var mainView = this._serviceProvider.GetService<MainView>();
-            var mainViewModel = this._serviceProvider.GetService<MainViewModel>();
-            mainView.DataContext = mainViewModel;
-            mainView.Show();
+            //var mainView = this._serviceProvider.GetService<MainView>();
+            //var mainViewModel = this._serviceProvider.GetService<MainViewModel>();
+            //mainView.DataContext = mainViewModel;
+            //mainView.Show();
 
             //Щоб показати автентифікацію розкоментуй мене
-            //var loginView = _serviceProvider.GetService<LoginView>();
-            //loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
-            //loginView.Show();
+            var loginView = _serviceProvider.GetService<LoginView>();
+            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
+            loginView.Show();
 
             //Щоб показати вікно Профіль розкоментуй мене
             //var profileView = _serviceProvider.GetService<ProfileView>();
