@@ -12,10 +12,13 @@ namespace LNUBookShareBLL.Features.Auth
     public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, int>
     {
         private readonly LNUBookShareDbContext _dbContext;
+        private readonly EmailService _emailService; // <--- ЗМІНА 1: Додано EmailService
 
-        public RegisterUserCommandHandler(LNUBookShareDbContext dbContext)
+        // ЗМІНА 2: EmailService отримується через конструктор
+        public RegisterUserCommandHandler(LNUBookShareDbContext dbContext, EmailService emailService)
         {
             this._dbContext = dbContext;
+            this._emailService = emailService; // <---
         }
 
         public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -27,10 +30,37 @@ namespace LNUBookShareBLL.Features.Auth
 
             await this._dbContext.Users.AddAsync(newUser, cancellationToken);
             await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
-            await this._dbContext.SaveChangesAsync(cancellationToken);
+
+            // ----- ЗМІНА 3: Додано відправку листа та обробку помилок -----
+
+            // Створюємо посилання (вставте URL вашого API)
+            string confirmationLink = $"https://localhost:7163/api/auth/confirm?token={tokenEntity.ConfirmationToken}";
+            try
+            {
+                // 1. Зберігаємо користувача і токен в базі
+                await this._dbContext.SaveChangesAsync(cancellationToken);
+
+                // 2. Намагаємося відправити лист
+                await this._emailService.SendConfirmationEmailAsync(request.Email, confirmationLink);
+            }
+            catch (Exception ex)
+            {
+                // 3. ЯКЩО лист не відправився, "відкочуємо" зміни (видаляємо юзера)
+                // Це запобіжить помилці "Користувач уже існує"
+                _dbContext.Users.Remove(newUser);
+                _dbContext.Emailconfirmations.Remove(tokenEntity);
+                await this._dbContext.SaveChangesAsync(); // Зберігаємо видалення
+
+                // 4. Кидаємо помилку для UI
+                throw new Exception($"Не вдалося надіслати лист підтвердження: {ex.Message}");
+            }
+            // ----- КІНЕЦЬ ЗМІНИ -----
 
             return newUser.UserId;
         }
+
+        // ... (решта коду ValidateRequest, CheckEmailUniquenessAsync, CreateUserAndTokenEntities залишається без змін) ...
+        // (Я прибрав їх звідси для короткого огляду, але вони мають бути у файлі)
 
         private void ValidateRequest(RegisterUserCommand request)
         {

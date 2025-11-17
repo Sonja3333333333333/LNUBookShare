@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LNUBookShareBLL", "LNUBookS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LNUBookShareTests", "LNUBookShareTests\LNUBookShareTests.csproj", "{2D6B5A9F-901C-4C4E-A71D-2A0CC9E5915D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LNUBookShare.API", "LNUBookShare.API\LNUBookShare.API.csproj", "{A40374B5-DF41-4E86-8999-01F8404A411C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,6 +46,10 @@ Global
 		{2D6B5A9F-901C-4C4E-A71D-2A0CC9E5915D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D6B5A9F-901C-4C4E-A71D-2A0CC9E5915D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D6B5A9F-901C-4C4E-A71D-2A0CC9E5915D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A40374B5-DF41-4E86-8999-01F8404A411C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A40374B5-DF41-4E86-8999-01F8404A411C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A40374B5-DF41-4E86-8999-01F8404A411C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A40374B5-DF41-4E86-8999-01F8404A411C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "LNUBookShareUI\\LNUBookShareUI.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "LNUBookShare.API\\LNUBookShare.API.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

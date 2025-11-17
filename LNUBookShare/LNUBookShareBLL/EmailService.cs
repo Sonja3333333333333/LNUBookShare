@@ -1,29 +1,26 @@
-﻿// Це початок файлу LNUBookShareBLL/Services/EmailService.cs
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
+
 using MimeKit;
+
 using System.Threading.Tasks;
 
-// Переконайтеся, що простір імен (namespace) 
-// відповідає вашому проекту
+// Переконайтеся, що namespace LNUBookShareBLL
 namespace LNUBookShareBLL
 {
     public class EmailService
     {
-        // Наш головний метод для відправки листа
-        // Він асинхронний (async Task), бо відправка пошти 
-        // може зайняти час
+        // Асинхронний метод для відправки листа
         public async Task SendConfirmationEmailAsync(string userEmail, string confirmationLink)
         {
-            // 1. Створюємо сам лист
             var message = new MimeMessage();
 
-            // ВАЖЛИВО: це має бути пошта, з якої ви відправляєте
-            message.From.Add(new MailboxAddress("LNU Book Share", "vasha.poshta@gmail.com"));
+            // !! ЗАМІНІТЬ ЦЕ НА ВАШУ ПОШТУ ТА ПАРОЛЬ ДОДАТКА !!
+            message.From.Add(new MailboxAddress("LNU Book Share", "apuhlij66@gmail.com"));
             message.To.Add(new MailboxAddress("Новий Користувач", userEmail));
             message.Subject = "Підтвердження реєстрації LNU Book Share";
 
-            // 2. Створюємо тіло листа (HTML для гарного посилання)
+            // Створюємо HTML-тіло листа
             var bodyBuilder = new BodyBuilder();
             bodyBuilder.HtmlBody = $@"
                 <h1>Дякуємо за реєстрацію!</h1>
@@ -35,19 +32,15 @@ namespace LNUBookShareBLL
             ";
             message.Body = bodyBuilder.ToMessageBody();
 
-            // 3. Налаштовуємо "поштаря" (SmtpClient)
             using (var client = new SmtpClient())
             {
-                // Підключаємось до SMTP-сервера Gmail
-                // (587 - це стандартний порт для безпечної відправки)
+                // Налаштування для Gmail
                 await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
 
-                // 4. Логінимось у вашу пошту
-                // УВАГА: Для Gmail тут потрібен "Пароль додатка"
-                await client.AuthenticateAsync("apuhlij66@gmail.com", "bearlox135798852Aa2)");
+                // !! ПАРОЛЬ ДОДАТКА (APP PASSWORD) ВІД GOOGLE !!
+                await client.AuthenticateAsync("apuhlij66@gmail.com", "ljgsgvptewwucrpy");
 
-                // 5. Відправляємо
-                _ = await client.SendAsync(message);
+                await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }
         }

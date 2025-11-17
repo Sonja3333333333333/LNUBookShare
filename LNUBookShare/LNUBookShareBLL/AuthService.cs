@@ -1,9 +1,8 @@
-﻿// LNUBookShareBLL/AuthService.cs
-
-using LNUBookShareDAL.Models;
+﻿using LNUBookShareDAL.Models;
 using System;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore; // <--- ВАЖЛИВО: додайте цей using
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace LNUBookShareBLL
 {
@@ -11,81 +10,106 @@ namespace LNUBookShareBLL
     {
         private readonly EmailService _emailService;
 
-        // !! ВАЖЛИВО !!
-        // Вам потрібно вставити сюди ваш реальний рядок підключення до БД
-        // (Пізніше ми перенесемо його в конфігураційний файл)
-        private readonly string _connectionString = "Host=localhost;Database=LNUBookShareDb;Username=postgres;Password=your_password";
+        // ----- ЗМІНА 1: Виправлена опечатка -----
+        // Було "neondbФ_owner"
+        private readonly string _connectionString = "Host=ep-wispy-hat-adm0eu4d-pooler.c-2.us-east-1.aws.neon.tech;" +
+                                                    "Database=neondb;" +
+                                                    "Username=neondb_owner;" + // <--- ВИПРАВЛЕНО
+                                                    "Password=npg_GqkRolz4rhy6;" +
+                                                    "SSL Mode=Require;" +
+                                                    "Trust Server Certificate=true";
 
         public AuthService()
         {
-            this._emailService = new EmailService();
+            _emailService = new EmailService();
         }
 
-        // --- НОВИЙ ПРИВАТНИЙ МЕТОД ---
-        // Він створює DbContext з правильними опціями
+        // Приватний метод для створення DbContext
         private LNUBookShareDbContext CreateDbContext()
         {
-            // 1. Створюємо "будівельник" опцій
             var optionsBuilder = new DbContextOptionsBuilder<LNUBookShareDbContext>();
-
-            // 2. Вказуємо, що ми використовуємо Npgsql (PostgreSQL) 
-            //    і передаємо йому рядок підключення
-            _ = optionsBuilder.UseNpgsql(this._connectionString);
-
-            // 3. Створюємо і повертаємо DbContext з цими опціями
+            optionsBuilder.UseNpgsql(_connectionString);
             return new LNUBookShareDbContext(optionsBuilder.Options);
         }
-        // --- КІНЕЦЬ НОВОГО МЕТОДУ ---
 
-
-        // ЦЕЙ МЕТОД ВИКЛИКАЄ ВАШ UI
+        // Головний метод реєстрації (викликається з UI)
         public async Task RegisterUserAsync(string email, string password)
         {
-            // 1. Створюємо токен і посилання
             string token = Guid.NewGuid().ToString();
-            string confirmationLink = $"https://api.vash-proekt.com/api/auth/confirm?token={token}";
 
-            // 2. Створюємо DbContext за допомогою нашого нового методу
-            using (var dbContext = this.CreateDbContext())
+            // !! УВАГА !!
+            // Вставте сюди URL вашого API (напр. https://localhost:7123)
+            string confirmationLink = $"https://localhost:7123/api/auth/confirm?token={token}";
+
+            // Ми оголошуємо ці змінні *до* using, щоб мати до них доступ у catch
+            User newUser = null;
+            Emailconfirmation confirmation = null;
+            LNUBookShareDbContext dbContext = null;
+
+            try
             {
-                // 3. Створюємо об'єкт User 
-                var newUser = new User
+                // 2. Створюємо DbContext
+                dbContext = CreateDbContext();
+
+                // 3. Створюємо User
+                newUser = new User
                 {
                     Email = email,
-                    PasswordHash = this.HashPassword(password), // !! Потрібно реалізувати хешування
-                    IsEmailConfirmed = false, // ГОЛОВНЕ: ще не підтверджений
-                    FirstName = "New", // Можете додати більше полів
+                    PasswordHash = HashPassword(password),
+                    IsEmailConfirmed = false,
+                    FirstName = "New",
                     LastName = "User",
-                    FacultyId = 1, // Тимчасово (потрібно взяти реальний ID)
-                    AvatarId = 1   // Тимчасово (потрібно взяти реальний ID)
+                    FacultyId = 1,
+                    AvatarId = 1
                 };
 
-                // 4. Додаємо користувача в БД
-                _ = dbContext.Users.Add(newUser);
-                _ = await dbContext.SaveChangesAsync(); // Зберігаємо, щоб отримати newUser.UserId
+                // 4. Додаємо User в БД
+                dbContext.Users.Add(newUser);
+                await dbContext.SaveChangesAsync(); // Отримуємо newUser.UserId
 
-                // 5. Створюємо запис для токена в таблиці Emailconfirmation
-                var confirmation = new Emailconfirmation
+                // 5. Створюємо запис Emailconfirmation
+                confirmation = new Emailconfirmation
                 {
-                    UserId = newUser.UserId, // Прив'язуємо до щойно створеного юзера
+                    UserId = newUser.UserId,
                     ConfirmationToken = token,
-                    ExpiresAt = DateTime.UtcNow.AddHours(24) // Токен діє 24 години
+                    ExpiresAt = DateTime.UtcNow.AddHours(24)
                 };
 
-                _ = dbContext.Emailconfirmations.Add(confirmation);
-                _ = await dbContext.SaveChangesAsync(); // Зберігаємо токен
+                dbContext.Emailconfirmations.Add(confirmation);
+                await dbContext.SaveChangesAsync(); // Зберігаємо токен
 
-                // 6. ТІЛЬКИ ЯКЩО ВСЕ ЗБЕРЕГЛОСЯ, відправляємо лист
-                await this._emailService.SendConfirmationEmailAsync(email, confirmationLink);
+                // ----- ЗМІНА 2: Додано try...catch -----
+                // 6. Намагаємося відправити лист
+                await _emailService.SendConfirmationEmailAsync(email, confirmationLink);
+            }
+            catch (Exception emailEx)
+            {
+                // Якщо лист не відправився, ми "відкочуємо" зміни в базі
+                if (newUser != null && confirmation != null && dbContext != null)
+                {
+                    // Видаляємо те, що щойно створили
+                    dbContext.Emailconfirmations.Remove(confirmation);
+                    dbContext.Users.Remove(newUser);
+                    await dbContext.SaveChangesAsync();
+                }
+
+                // Кидаємо нову, зрозумілу помилку для UI
+                throw new Exception($"Failed to send confirmation email: {emailEx.Message}", emailEx);
+            }
+            finally
+            {
+                // Завжди закриваємо DbContext
+                if (dbContext != null)
+                {
+                    await dbContext.DisposeAsync();
+                }
             }
         }
 
-        // Функція для хешування пароля (дуже спрощена, 
-        // для реальних проектів використовуйте BCrypt.Net)
+        // Заглушка для хешування пароля
         private string HashPassword(string password)
         {
-            // ЗАМІНІТЬ ЦЕ НА РЕАЛЬНЕ ХЕШУВАННЯ
-            // Наприклад: return BCrypt.Net.BCrypt.HashPassword(password);
+            // TODO: Замініть це на реальне хешування (напр. BCrypt.Net)
             return password;
         }
     }
