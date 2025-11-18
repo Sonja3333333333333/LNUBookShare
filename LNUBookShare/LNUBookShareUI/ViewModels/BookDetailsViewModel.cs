@@ -17,6 +17,8 @@ namespace LNUBookShareUI.ViewModels
 
         private readonly INavigationService _navigationService;
 
+        private readonly IUserSession _userSession;
+
         private BookDetailsDto _book = new();
         public BookDetailsDto Book
         {
@@ -30,10 +32,11 @@ namespace LNUBookShareUI.ViewModels
 
         public ICommand ViewOwnerProfileCommand { get; }
 
-        public BookDetailsViewModel(IMediator mediator, INavigationService navigationService)
+        public BookDetailsViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
             this._mediator = mediator;
             this._navigationService = navigationService;
+            this._userSession = userSession;
 
             this.GoBackCommand = new RelayCommand<object>(this.GoBack);
             this.ToggleFavoriteCommand = new RelayCommand(async () => await this.ToggleFavorite());
@@ -51,23 +54,21 @@ namespace LNUBookShareUI.ViewModels
 
         public async Task LoadBookDetailsAsync(int bookId)
         {
-            int currentUserId = 1;
+ 
             try
             {
                 this.Book = await this._mediator.Send(new GetBookDetailsQuery
                 {
                     BookId = bookId,
-                    CurrentUserId = currentUserId
+                    CurrentUserId = this._userSession.GetUserId()
                 });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Помилка завантаження деталей книги: {ex.Message}");
-                // TODO: Показати MessageBox
             }
         }
 
-        // 6. Атрибут [RelayCommand] видалено
         private void GoBack(object window)
         {
             if (window is Window w)
@@ -76,7 +77,6 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        // 7. Атрибут [RelayCommand] видалено
         private async Task ToggleFavorite()
         {
             if (this.Book == null || this.Book.BookId == 0)
@@ -100,7 +100,6 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 Console.WriteLine($"Помилка оновлення статусу Вподобане: {ex.Message}");
-                // TODO: Показати MessageBox
             }
         }
     }

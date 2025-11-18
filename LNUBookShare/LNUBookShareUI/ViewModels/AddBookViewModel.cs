@@ -18,9 +18,8 @@ namespace LNUBookShareUI.ViewModels
     public class AddBookViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private int _currentUserId = 1; // "Захардкоджено" ID власника
+        private readonly IUserSession _userSession;
 
-        // --- Властивості для полів вводу ---
         private string _title = string.Empty;
         public string Title
         {
@@ -63,7 +62,6 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._language, value);
         }
 
-        // --- Для обкладинки ---
         private string _coverImagePath;
         public string CoverImagePath
         {
@@ -71,7 +69,6 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._coverImagePath, value);
         }
 
-        // --- Для ComboBox ---
         public ObservableCollection<CategoryDto> Categories { get; } = new();
         private CategoryDto _selectedCategory;
         public CategoryDto SelectedCategory
@@ -80,14 +77,14 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._selectedCategory, value);
         }
 
-        // --- Команди ---
         public ICommand ChangeCoverCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public AddBookViewModel(IMediator mediator)
+        public AddBookViewModel(IMediator mediator, IUserSession userSession)
         {
             this._mediator = mediator;
+            this._userSession = userSession;
             this.ChangeCoverCommand = new RelayCommand(async () => await this.ChangeCover());
             this.SaveCommand = new RelayCommand<object>(async (w) => await this.Save(w));
             this.CancelCommand = new RelayCommand<object>(this.Cancel);
@@ -95,7 +92,6 @@ namespace LNUBookShareUI.ViewModels
 
         public async Task LoadDataAsync()
         {
-            // Завантажуємо категорії для ComboBox
             var categoryList = await this._mediator.Send(new GetAllCategoriesQuery());
             this.Categories.Clear();
             foreach (var category in categoryList)
@@ -107,7 +103,6 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ChangeCover()
         {
-            // Та сама логіка, що й для фото профілю
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Image files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png";
 
@@ -124,9 +119,9 @@ namespace LNUBookShareUI.ViewModels
                         ImageData = imageData
                     };
 
-                    // BLL повертає АБСОЛЮТНИЙ шлях (C:\...)
+ 
                     string newPhysicalPath = await this._mediator.Send(uploadCommand);
-                    this.CoverImagePath = newPhysicalPath; // Оновлюємо UI
+                    this.CoverImagePath = newPhysicalPath; 
                 }
                 catch (Exception ex)
                 {
@@ -139,13 +134,11 @@ namespace LNUBookShareUI.ViewModels
         {
             try
             {
-                // Валідація
                 if (string.IsNullOrWhiteSpace(this.Title) || string.IsNullOrWhiteSpace(this.Author) || this.SelectedCategory == null)
                 {
                     throw new Exception("Назва, Автор та Категорія є обов'язковими.");
                 }
 
-                // Створюємо DTO для BLL
                 var dto = new AddBookDto
                 {
                     Title = this.Title,
@@ -155,18 +148,15 @@ namespace LNUBookShareUI.ViewModels
                     Publisher = this.Publisher,
                     Language = this.Language,
                     CategoryId = this.SelectedCategory.CategoryId,
-                    // Передаємо шлях до обкладинки, BLL сам розбереться з ID
                     CoverImagePath = this.CoverImagePath
                 };
 
-                // Створюємо команду
                 var command = new AddBookCommand
                 {
                     Dto = dto,
-                    OwnerUserId = _currentUserId
+                    OwnerUserId = _userSession.GetUserId()
                 };
 
-                // Відправляємо
                 _ = await this._mediator.Send(command);
 
                 if (window is Window w) { w.Close(); }

@@ -54,7 +54,8 @@ namespace LNUBookShareUI.Common
 
                 var viewModel = new BookDetailsViewModel(
                     this._serviceProvider.GetService<IMediator>(),
-                    this
+                    this, // NavigationService
+                    _serviceProvider.GetService<IUserSession>()
                 );
 
                 // 3. З'єднуємо їх
