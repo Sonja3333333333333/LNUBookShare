@@ -15,13 +15,11 @@ using LNUBookShareBLL.Features.Files;
 
 namespace LNUBookShareUI.ViewModels
 {
-    // 1. Змінено ObservableObject на ViewModelBase
     public class EditProfileViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private int _currentUserId = 1;
+        private readonly IUserSession _userSession;
 
-        // 2. Змінено [ObservableProperty] на повні властивості
         private string _lastName = string.Empty;
         public string LastName
         {
@@ -52,17 +50,15 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._selectedFaculty, value);
         }
 
-        
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
         public ICommand ChangePhotoCommand { get; }
 
-        public EditProfileViewModel(IMediator mediator)
+        public EditProfileViewModel(IMediator mediator, IUserSession userSession)
         {
             this._mediator = mediator;
-
-            // 4. Ініціалізовано команди
+            this._userSession = userSession;
             this.SaveCommand = new RelayCommand<object>(async (w) => await this.Save(w));
             this.CancelCommand = new RelayCommand<object>(this.Cancel);
             this.ChangePhotoCommand = new RelayCommand(async () => await this.ChangePhoto());
@@ -104,20 +100,20 @@ namespace LNUBookShareUI.ViewModels
             {
                 try
                 {
-                    var profileDto = await this._mediator.Send(new GetProfileForEditQuery { UserId = _currentUserId });
+                    var profileDto = await this._mediator.Send(new GetProfileForEditQuery { UserId = this._userSession.GetUserId() });
 
-                this.LastName = profileDto.LastName;
-                this.FirstName = profileDto.FirstName;
-                this.ProfileImageUrl = profileDto.ProfileImageUrl;
+                    this.LastName = profileDto.LastName;
+                    this.FirstName = profileDto.FirstName;
+                    this.ProfileImageUrl = profileDto.ProfileImageUrl;
 
-                    var facultyList = await this._mediator.Send(new GetAllFacultiesQuery());
-                this.Faculties.Clear();
-                    foreach (var faculty in facultyList)
-                    {
-                    this.Faculties.Add(faculty);
-                    }
+                        var facultyList = await this._mediator.Send(new GetAllFacultiesQuery());
+                    this.Faculties.Clear();
+                        foreach (var faculty in facultyList)
+                        {
+                        this.Faculties.Add(faculty);
+                        }
 
-                this.SelectedFaculty = this.Faculties.FirstOrDefault(f => f.FacultyId == profileDto.FacultyId);
+                    this.SelectedFaculty = this.Faculties.FirstOrDefault(f => f.FacultyId == profileDto.FacultyId);
                 }
                 catch (Exception ex)
                 {
@@ -125,7 +121,6 @@ namespace LNUBookShareUI.ViewModels
                 }
             }
 
-        // 5. Видалено [RelayCommand]
         private async Task Save(object window)
         {
             try
@@ -141,7 +136,7 @@ namespace LNUBookShareUI.ViewModels
 
                 var command = new UpdateProfileCommand
                 {
-                    UserId = _currentUserId,
+                    UserId = this._userSession.GetUserId(),
                     Dto = profileDto
                 };
                 _ = await this._mediator.Send(command);
@@ -154,7 +149,6 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        // 6. Видалено [RelayCommand]
         private void Cancel(object window)
         {
             if (window is Window w) { w.Close(); }

@@ -5,7 +5,7 @@ using MediatR;
 using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls; // 👈 1. ДОДАНО ДЛЯ PASSWORD BOX
+using System.Windows.Controls; 
 using System.Windows.Input;
 
 namespace LNUBookShareUI.ViewModels
@@ -14,8 +14,8 @@ namespace LNUBookShareUI.ViewModels
     {
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
+        private readonly IUserSession _userSession;
 
-        // --- Властивості ---
         private string _email;
         public string Email
         {
@@ -23,7 +23,6 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._email, value);
         }
 
-        // ❌ ВЛАСТИВІСТЬ 'Password' ВИДАЛЕНО
 
         private string _errorMessage;
         public string ErrorMessage
@@ -32,36 +31,33 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._errorMessage, value);
         }
 
-        // --- Команди ---
         public ICommand LoginCommand { get; }
         public ICommand GoToRegisterCommand { get; }
 
         // --- Конструктор ---
-        public LoginViewModel(IMediator mediator, INavigationService navigationService)
+        public LoginViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
             this._mediator = mediator;
             this._navigationService = navigationService;
+            this._userSession = userSession; 
 
             this.LoginCommand = new RelayCommand<object>(async (param) => await this.LoginAsync(param));
             this.GoToRegisterCommand = new RelayCommand<object>(this.GoToRegister);
         }
 
-        // --- Метод Входу ---
         private async Task LoginAsync(object parameter)
         {
-            // 3. "Розпаковуємо" PasswordBox
             if (parameter is not PasswordBox passwordBox)
             {
                 this.ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
                 return;
             }
 
-            // 4. Отримуємо пароль звідси
             string password = passwordBox.Password;
 
             try
             {
-                // BLL тепер отримає справжній пароль
+           
                 var query = new LoginUserQuery
                 {
                     Email = this.Email,
@@ -72,8 +68,9 @@ namespace LNUBookShareUI.ViewModels
 
                 if (result != null)
                 {
-                    // Успіх!
-                    this.ErrorMessage = ""; // Очищуємо помилки
+                   
+                    this.ErrorMessage = ""; 
+                    this._userSession.CurrentUser = result;
                     this._navigationService.ShowMainView();
 
                     var window = this.GetWindowFromParameter(parameter);
@@ -86,12 +83,10 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        // --- Метод переходу на Реєстрацію ---
         private void GoToRegister(object parameter)
         {
             this._navigationService.ShowRegister();
 
-            // Закриваємо поточне вікно (LoginView)
             if (parameter is Window w)
             {
                 w.Close();

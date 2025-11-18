@@ -19,12 +19,11 @@ namespace LNUBookShareUI.ViewModels
     {
         private readonly IMediator _mediator;
         private int _currentBookId;
-        private int _currentUserId = 1; // "Захардкоджено"
+        private readonly IUserSession _userSession;
 
-        // --- Властивості для полів вводу ---
         private string _title = string.Empty;
         public string Title { get => this._title; set => this.SetProperty(ref this._title, value); }
-        // ... (додайте всі інші властивості, як у AddBookViewModel) ...
+
         private string _author;
         public string Author { get => this._author; set => this.SetProperty(ref this._author, value); }
 
@@ -40,27 +39,24 @@ namespace LNUBookShareUI.ViewModels
         private string _language;
         public string Language { get => this._language; set => this.SetProperty(ref this._language, value); }
 
-        // --- Для обкладинки ---
         private string _coverImagePath;
         public string CoverImagePath { get => this._coverImagePath; set => this.SetProperty(ref this._coverImagePath, value); }
 
-        // --- Для ComboBox Категорій ---
         public ObservableCollection<CategoryDto> Categories { get; } = new();
         private CategoryDto _selectedCategory;
         public CategoryDto SelectedCategory { get => this._selectedCategory; set => this.SetProperty(ref this._selectedCategory, value); }
 
-        // --- Для RadioButton Статусу ---
         private string _status;
         public string Status { get => this._status; set => this.SetProperty(ref this._status, value); }
 
-        // --- Команди ---
         public ICommand ChangeCoverCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public EditBookViewModel(IMediator mediator)
+        public EditBookViewModel(IMediator mediator, IUserSession userSession)
         {
             this._mediator = mediator;
+            this._userSession = userSession;
             this.ChangeCoverCommand = new RelayCommand(async () => await this.ChangeCover());
             this.SaveCommand = new RelayCommand<object>(async (w) => await this.Save(w));
             this.CancelCommand = new RelayCommand<object>(this.Cancel);
@@ -68,9 +64,8 @@ namespace LNUBookShareUI.ViewModels
 
         public async Task LoadDataAsync(int bookId)
         {
-            this._currentBookId = bookId; // Зберігаємо ID книги
+            this._currentBookId = bookId;
 
-            // 1. Завантажуємо категорії
             var categoryList = await this._mediator.Send(new GetAllCategoriesQuery());
             this.Categories.Clear();
             foreach (var category in categoryList)
@@ -78,8 +73,8 @@ namespace LNUBookShareUI.ViewModels
                 this.Categories.Add(category);
             }
 
-            // 2. Завантажуємо дані книги
-            var dto = await this._mediator.Send(new GetBookForEditQuery { BookId = bookId, CurrentUserId = _currentUserId });
+
+            var dto = await this._mediator.Send(new GetBookForEditQuery { BookId = bookId, CurrentUserId = this._userSession.GetUserId() });
 
             this.Title = dto.Title;
             this.Author = dto.Author;
@@ -88,13 +83,12 @@ namespace LNUBookShareUI.ViewModels
             this.Publisher = dto.Publisher;
             this.Language = dto.Language;
             this.Status = dto.Status;
-            this.CoverImagePath = dto.CoverImagePath; // Вже абсолютний шлях
+            this.CoverImagePath = dto.CoverImagePath;
             this.SelectedCategory = this.Categories.FirstOrDefault(c => c.CategoryId == dto.CategoryId);
         }
 
         private async Task ChangeCover()
         {
-            // (Цей код ідентичний тому, що у AddBookViewModel)
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Image files (*.jpg;*.jpeg;*.png)|*.jpg;*.jpeg;*.png";
 
@@ -128,7 +122,6 @@ namespace LNUBookShareUI.ViewModels
                     string.IsNullOrWhiteSpace(this.Author) ||
                     this.SelectedCategory == null)
                 {
-                    // Використовуємо MessageBox, оскільки це UI
                     _ = MessageBox.Show("Поля 'Назва', 'Автор' та 'Категорія' є обов'язковими.",
                                     "Помилка валідації",
                                     MessageBoxButton.OK,
@@ -153,7 +146,7 @@ namespace LNUBookShareUI.ViewModels
                 var command = new UpdateBookCommand
                 {
                     BookId = _currentBookId,
-                    CurrentUserId = _currentUserId,
+                    CurrentUserId = this._userSession.GetUserId(),
                     Dto = dto
                 };
 

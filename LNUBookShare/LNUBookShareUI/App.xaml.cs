@@ -84,6 +84,8 @@ namespace LNUBookShareUI
 
             _ = services.AddSingleton<INavigationService, NavigationService>();
 
+            _ = services.AddSingleton<IUserSession, UserSession>();
+
             _ = services.AddTransient<Func<int, ViewOtherProfileViewModel>>(provider => userId =>
                 new ViewOtherProfileViewModel(
                     provider.GetService<IMediator>(),

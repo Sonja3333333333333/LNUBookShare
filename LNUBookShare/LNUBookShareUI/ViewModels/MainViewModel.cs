@@ -7,28 +7,24 @@ using LNUBookShareUI.Common;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using System.Linq;
 using System.Collections.Generic;
 using System;
 using System.Windows;
-using System.Windows.Navigation;
-using LNUBookShareUI.Views;
+
 
 namespace LNUBookShareUI.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        // --- Поля ---
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
-        private readonly int _currentUserId = 1; // "Захардкодили" ID користувача!
-        private bool _isSearchPerformed = false; // "Прапорець" пошуку
+        private readonly IUserSession _userSession;
+        private bool _isSearchPerformed = false; 
 
         private int _currentPage = 1;
         private int _totalPages = 1;
         private readonly int _pageSize = 10;
 
-        // --- Властивості ---
         private ObservableCollection<BookCardDto> _books = new();
         public ObservableCollection<BookCardDto> Books
         {
@@ -48,8 +44,6 @@ namespace LNUBookShareUI.ViewModels
             get => this._currentPage;
             set => this.SetProperty(ref this._currentPage, value);
         }
-
-        // --- Критерії Пошуку ---
         public Dictionary<BookSearchCriteria, string> SearchOptions { get; }
         private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
         public BookSearchCriteria SelectedSearchCriteria
@@ -65,7 +59,6 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._searchTerm, value);
         }
 
-        // --- Критерії Сортування ---
         public Dictionary<BookSortCriteria, string> SortOptions { get; }
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
@@ -82,7 +75,6 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        // --- Критерії Фільтрації ---
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
         public BookFilterStatus SelectedStatusFilter
         {
@@ -97,7 +89,6 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        // --- Команди ---
         public ICommand LoadBooksCommand { get; }
         public ICommand ToggleFavoriteCommand { get; }
         public ICommand SetFilterAllCommand { get; }
@@ -111,12 +102,11 @@ namespace LNUBookShareUI.ViewModels
 
         public ICommand OpenBookDetailsCommand { get; }
 
-
-        // --- Конструктор ---
-        public MainViewModel(IMediator mediator, INavigationService navigationService)
+        public MainViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
             this._mediator = mediator;
             this._navigationService = navigationService;
+            this._userSession = userSession;
 
             this.SortOptions = new Dictionary<BookSortCriteria, string>
             {
@@ -136,17 +126,13 @@ namespace LNUBookShareUI.ViewModels
             };
 
 
-
-            // Зв'язуємо команди
             this.LoadBooksCommand = new RelayCommand(async () => await this.SearchAsync());
             this.ToggleFavoriteCommand = new RelayCommand<int>(async (id) => await this.ToggleFavoriteAsync(id));
 
-            // Фільтри
             this.SetFilterAllCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.All));
             this.SetFilterAvailableCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Available));
             this.SetFilterIssuedCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Issued));
 
-            // Пагінація
             this.NextPageCommand = new RelayCommand(async () => await this.GoToNextPageAsync(), this.CanGoToNextPage);
             this.PreviousPageCommand = new RelayCommand(async () => await this.GoToPreviousPageAsync(), this.CanGoToPreviousPage);
 
@@ -158,10 +144,8 @@ namespace LNUBookShareUI.ViewModels
             this.OpenBookDetailsCommand = new RelayCommand<int>(this.OpenBookDetails);
         }
 
-        // --- Логіка ---
         private void OpenProfile()
         {
-            // Просто викликаємо метод із сервісу
             this._navigationService.ShowProfile();
         }
         private void ViewOwnerProfile(int ownerId)
@@ -171,7 +155,6 @@ namespace LNUBookShareUI.ViewModels
         }
         private void OpenFavorites()
         {
-            // Робимо те саме, що й для профілю
             this._navigationService.ShowFavorites();
         }
 
@@ -182,7 +165,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task SearchAsync()
         {
-            this.CurrentPage = 1; // Скидаємо сторінку при кожному новому пошуку
+            this.CurrentPage = 1; 
             await this.LoadBooksAsync();
         }
 
@@ -200,7 +183,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 var query = new GetBooksQuery
                 {
-                    CurrentUserId = _currentUserId,
+                    CurrentUserId = _userSession.GetUserId(),
                     SearchTerm = this.SearchTerm,
                     SearchBy = this.SelectedSearchCriteria,
                     PageNumber = this._currentPage,
@@ -211,7 +194,7 @@ namespace LNUBookShareUI.ViewModels
 
                 var result = await this._mediator.Send(query);
 
-                this._isSearchPerformed = true; // "Піднімаємо прапорець"
+                this._isSearchPerformed = true; 
 
                 this._totalPages = (int)Math.Ceiling((double)result.TotalCount / this._pageSize);
                 if (this._totalPages == 0)
@@ -227,7 +210,7 @@ namespace LNUBookShareUI.ViewModels
                         this.Books.Add(book);
                     }
                     this.TotalResults = result.TotalCount;
-                    CommandManager.InvalidateRequerySuggested(); // Оновлюємо стан кнопок ← →
+                    CommandManager.InvalidateRequerySuggested(); 
                 });
             }
             catch (Exception ex)
@@ -243,7 +226,7 @@ namespace LNUBookShareUI.ViewModels
                 var command = new ToggleFavoriteCommand
                 {
                     BookId = bookId,
-                    UserId = _currentUserId
+                    UserId = _userSession.GetUserId()
                 };
 
                 _ = await this._mediator.Send(command);
@@ -251,7 +234,6 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
-                // Формуємо деталізоване повідомлення
                 string errorMessage = $"Помилка: {ex.Message}\n\n" +
                                       $"Деталі (InnerException): {ex.InnerException?.Message}";
 
@@ -259,7 +241,6 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        // --- Логіка Пагінації ---
         private bool CanGoToNextPage() => this._isSearchPerformed && this._currentPage < this._totalPages;
         private async Task GoToNextPageAsync()
         {
