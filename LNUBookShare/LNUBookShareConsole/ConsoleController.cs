@@ -5,20 +5,19 @@ using LNUBookShareBLL.Features.Books;
 
 namespace LNUBookShareConsole
 {
-    // Цей клас відповідає за головний цикл програми та обробку команд
+  
     public class ConsoleController
     {
         private readonly IMediator _mediator;
         private readonly DataSeeder _seeder;
 
-        // Ми отримуємо сервіси через Dependency Injection
+
         public ConsoleController(IMediator mediator, DataSeeder seeder)
         {
             this._mediator = mediator;
             this._seeder = seeder;
         }
 
-        // Головний метод, який запускає програму
         public async Task RunAsync()
         {
             Console.WriteLine("LNU Book Share Console. Введіть 'help' для списку команд.");
@@ -73,13 +72,12 @@ namespace LNUBookShareConsole
             Console.WriteLine("  exit         - Вийти з програми");
         }
 
-        // --- CRUD-операції ---
 
         private async Task AddBookAsync()
         {
             try
             {
-                // 1. Збираємо дані
+     
                 Console.Write("  Назва: ");
                 string title = Console.ReadLine();
                 Console.Write("  Автор: ");
@@ -94,7 +92,7 @@ namespace LNUBookShareConsole
                     Title = title,
                     Author = author,
                     CategoryId = categoryId
-                    // (Ми не додаємо фото, бо це консоль)
+       
                 };
 
                 var command = new AddBookCommand

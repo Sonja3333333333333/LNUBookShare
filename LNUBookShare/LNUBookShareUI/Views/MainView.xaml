@@ -191,18 +191,16 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <!-- 1. Цей Border слугує і фоном-заглушкою, і контейнером -->
                             <Border Grid.Column="0"
                                 Width="80" Height="100"
                                 Margin="0,0,15,0" VerticalAlignment="Center"
                                 Background="Gainsboro" 
                                 ClipToBounds="True">
-                                                        <!-- 2. Це обріже зображення по краях Border -->
+                                                    
 
-                                                        <!-- 3. Прив'язуємо Image до 'CoverPath' з DTO -->
                                 <Image Source="{Binding CoverPath}"
                                    Stretch="UniformToFill" />
-                                                        <!-- 4. "UniformToFill" гарно заповнює простір -->
+                                                      
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">

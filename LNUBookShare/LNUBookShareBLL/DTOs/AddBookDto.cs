@@ -1,8 +1,6 @@
 ﻿namespace LNUBookShareBLL.DTOs
 {
-    /// <summary>
-    /// DTO, що містить дані для створення нової книги.
-    /// </summary>
+
     public class AddBookDto
     {
         public string? Title { get; set; }

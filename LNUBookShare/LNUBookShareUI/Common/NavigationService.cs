@@ -25,7 +25,7 @@ namespace LNUBookShareUI.Common
 
             view.DataContext = viewModel;
 
-            // Завантажуємо категорії ТА дані книги
+            
             await viewModel.LoadDataAsync(bookId);
 
             _ = view.ShowDialog();
@@ -38,10 +38,10 @@ namespace LNUBookShareUI.Common
 
             view.DataContext = viewModel;
 
-            // Завантажуємо категорії ДО показу вікна
+           
             await viewModel.LoadDataAsync();
 
-            // Показуємо як діалог
+         
             _ = view.ShowDialog();
         }
 
@@ -54,17 +54,17 @@ namespace LNUBookShareUI.Common
 
                 var viewModel = new BookDetailsViewModel(
                     this._serviceProvider.GetService<IMediator>(),
-                    this, // NavigationService
+                    this, 
                     _serviceProvider.GetService<IUserSession>()
                 );
 
-                // 3. З'єднуємо їх
+             
                 view.DataContext = viewModel;
 
-                // 4. Асинхронно завантажуємо дані
+                
                 await viewModel.LoadBookDetailsAsync(bookId);
 
-                // 5. Показуємо вікно
+              
                 view.Show();
             }
             catch (Exception ex)
@@ -75,16 +75,16 @@ namespace LNUBookShareUI.Common
 
         public void ShowProfile()
         {
-            // 1. Просимо у "фабрики" нове вікно
+           
             var profileView = this._serviceProvider.GetService<ProfileView>();
 
-            // 2. Просимо у "фабрики" нову ViewModel
+            
             var profileViewModel = this._serviceProvider.GetService<ProfileViewModel>();
 
-            // 3. З'єднуємо їх
+           
             profileView.DataContext = profileViewModel;
 
-            // 4. Показуємо вікно
+         
             profileView.Show();
 
         }

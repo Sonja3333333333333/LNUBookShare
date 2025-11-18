@@ -4,26 +4,25 @@ using Bogus;
 
 namespace LNUBookShareConsole
 {
-    // 1. Створюємо НОВИЙ клас для всієї логіки
+   
     public class DataSeeder
     {
         private readonly LNUBookShareDbContext _dbContext;
-        private readonly Faker _faker; // Використовуємо один екземпляр Faker
+        private readonly Faker _faker;
 
         public DataSeeder(LNUBookShareDbContext dbContext)
         {
             this._dbContext = dbContext;
-            this._faker = new Faker("uk"); // "uk" для українських даних
+            this._faker = new Faker("uk"); 
         }
 
-        // 2. Це наш ГОЛОВНИЙ метод
         public async Task SeedDatabaseAsync(int recordCount)
         {
-            // --- 0. ОЧИЩЕННЯ ---
+          
             Console.WriteLine($"Очищення старих даних... (TRUNCATE RESTART IDENTITY)");
             await this._dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE favorite, book, \"User\", category, faculty, image, emailconfirmation RESTART IDENTITY CASCADE");
 
-            // --- 1. НЕЗАЛЕЖНІ ДАНІ ---
+           
             Console.WriteLine($"Генерація {recordCount} Факультетів...");
             var faculties = await this.SeedFacultiesAsync(recordCount);
 
@@ -36,19 +35,17 @@ namespace LNUBookShareConsole
             await this._dbContext.SaveChangesAsync();
             Console.WriteLine("...Факультети, Категорії та Зображення збережено в БД.");
 
-            // --- 2. КОРИСТУВАЧІ ---
             Console.WriteLine($"Генерація {recordCount} Користувачів...");
             var users = await this.SeedUsersAsync(recordCount, faculties, images);
             await this._dbContext.SaveChangesAsync();
             Console.WriteLine("...Користувачів збережено в БД.");
 
-            // --- 3. КНИГИ ---
+   
             Console.WriteLine($"Генерація {recordCount} Книг...");
             var books = await this.SeedBooksAsync(recordCount, users, categories, images);
             await this._dbContext.SaveChangesAsync();
             Console.WriteLine("...Книги збережено в БД.");
 
-            // --- 4. ЗАЛЕЖНІ ТАБЛИЦІ ---
             Console.WriteLine($"Генерація {recordCount} записів 'Уподобане'...");
             await this.SeedFavoritesAsync(recordCount, users, books);
 
@@ -58,8 +55,6 @@ namespace LNUBookShareConsole
             await this._dbContext.SaveChangesAsync();
             Console.WriteLine("...Уподобане та Підтвердження Email збережено в БД.");
         }
-
-        // --- 3. Розбиваємо логіку на приватні методи (це і є Clean Code) ---
 
         private async Task<List<Faculty>> SeedFacultiesAsync(int count)
         {

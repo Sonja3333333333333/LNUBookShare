@@ -3,9 +3,6 @@ using LNUBookShareBLL.DTOs;
 using Microsoft.EntityFrameworkCore;
 using static BCrypt.Net.BCrypt;
 using LNUBookShareDAL.Models;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
 
 namespace LNUBookShareBLL.Features.Auth
 {

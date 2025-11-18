@@ -2,9 +2,7 @@
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Profile;
-using LNUBookShareDAL.Models;
 using LNUBookShareUI.Common;
-using LNUBookShareUI.Views;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -15,7 +13,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data; 
 using System.Windows.Input;
-using System.Windows.Navigation;
+
 
 
 namespace LNUBookShareUI.ViewModels
@@ -26,24 +24,20 @@ namespace LNUBookShareUI.ViewModels
         private readonly int _currentUserId ;
         private readonly INavigationService _navigationService;
 
-        // --- Властивості для Інфо про Юзера ---
+   
         private ProfileDto _profile;
         public ProfileDto Profile
         {
             get => this._profile;
             set => this.SetProperty(ref this._profile, value);
         }
-        // ---- Властивість для видимості кнопок ----
+     
         public bool IsMyProfile => false;
 
-        // --- Властивості для Списку Книг ---
-        // Повний (нефільтрований) список книг
         private ObservableCollection<OwnedBookDto> _allOwnedBooks = new();
 
-        // "Розумний" список, який бачить UI (з фільтрами)
         public ICollectionView OwnedBooksView { get; }
 
-        // --- Властивості для Фільтрів та Сортування ---
         public Dictionary<BookSortCriteria, string> SortOptions { get; }
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
@@ -53,7 +47,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (this.SetProperty(ref this._selectedSort, value))
                 {
-                    this.ApplySort(); // Застосовуємо сортування
+                    this.ApplySort(); 
                 }
             }
         }
@@ -66,12 +60,11 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (this.SetProperty(ref this._selectedStatusFilter, value))
                 {
-                    this.ApplyFilter(); // Застосовуємо фільтр
+                    this.ApplyFilter(); 
                 }
             }
         }
 
-        // --- Команди ---
         public ICommand LoadDataCommand { get; }
         public ICommand DeleteBookCommand { get; }
         public ICommand SetFilterAllCommand { get; }
@@ -82,18 +75,15 @@ namespace LNUBookShareUI.ViewModels
 
         public ICommand OpenBookDetailsCommand { get; }
 
-        // --- Конструктор ---
         public ViewOtherProfileViewModel(IMediator mediator, INavigationService navigationService, int  userId)
         {
             this._mediator = mediator;
             this._currentUserId = userId;
             this._navigationService = navigationService;
 
-            // Ініціалізуємо "розумний" список
             this.OwnedBooksView = CollectionViewSource.GetDefaultView(this._allOwnedBooks);
-            this.OwnedBooksView.Filter = this.FilterBooks; // Прив'язуємо фільтр
+            this.OwnedBooksView.Filter = this.FilterBooks;
 
-            // Словник для сортування (як у MainViewModel)
             this.SortOptions = new Dictionary<BookSortCriteria, string>
             {
                 { BookSortCriteria.Title, "Назва" },
@@ -101,7 +91,6 @@ namespace LNUBookShareUI.ViewModels
                 { BookSortCriteria.Year, "Рік" }
             };
 
-            // Команди
             this.LoadDataCommand = new RelayCommand(async () => await this.LoadProfileAsync());
             this.DeleteBookCommand = new RelayCommand<int>(async (bookId) => await this.DeleteBookAsync(bookId));
 
@@ -116,7 +105,6 @@ namespace LNUBookShareUI.ViewModels
             _ = this.LoadProfileAsync();
         }
 
-        // --- Методи ---
         private void OpenBookDetails(int bookId)
         {
             if (bookId > 0)
@@ -131,10 +119,9 @@ namespace LNUBookShareUI.ViewModels
                 var query = new GetProfileQuery { UserId = _currentUserId };
                 var result = await this._mediator.Send(query);
 
-                // 1. Заповнюємо дані профілю
                 this.Profile = result;
 
-                // 2. Заповнюємо повний список книг
+
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     this._allOwnedBooks.Clear();
@@ -144,7 +131,6 @@ namespace LNUBookShareUI.ViewModels
                     }
                 });
 
-                // 3. Застосовуємо поточні сортування/фільтри
                 this.ApplySort();
             }
             catch (Exception ex)
@@ -155,7 +141,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task DeleteBookAsync(int bookId)
         {
-            // TODO: Показати кастомний MessageBox "Ви впевнені?"
+          
             var command = new DeleteBookCommand
             {
                 BookId = bookId,
@@ -165,7 +151,7 @@ namespace LNUBookShareUI.ViewModels
             try
             {
                 _ = await this._mediator.Send(command);
-                // Успіх: видаляємо книгу з локального списку (швидше, ніж перезавантажувати)
+              
                 var bookToRemove = this._allOwnedBooks.FirstOrDefault(b => b.BookId == bookId);
                 if (bookToRemove != null)
                 {
@@ -178,11 +164,11 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        // --- Логіка Фільтрації та Сортування (локально) ---
+    
 
         private void ApplyFilter()
         {
-            // Просто "змушуємо" ICollectionView оновити свій фільтр
+          
             this.OwnedBooksView.Refresh();
         }
 
@@ -190,7 +176,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (this.SelectedStatusFilter == BookFilterStatus.All)
             {
-                return true; // Показуємо всі
+                return true; 
             }
 
             var book = (OwnedBookDto)item;
@@ -210,7 +196,7 @@ namespace LNUBookShareUI.ViewModels
 
         private void GoBack(object window)
         {
-            // 'window' - це параметр, який ми передаємо з XAML
+            
             if (window is Window w)
             {
                 w.Close();
@@ -219,10 +205,9 @@ namespace LNUBookShareUI.ViewModels
 
         private void ApplySort()
         {
-            // Очищуємо старі сортування
+            
             this.OwnedBooksView.SortDescriptions.Clear();
 
-            // Додаємо нове сортування
             switch (this.SelectedSort)
             {
                 case BookSortCriteria.Title:

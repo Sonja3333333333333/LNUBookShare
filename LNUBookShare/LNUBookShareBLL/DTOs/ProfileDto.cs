@@ -9,8 +9,6 @@
         public string? Email { get; set; }
         public string? FacultyName { get; set; }
         public string? AvatarPath { get; set; }
-
-        // Список книг, що належать цьому користувачу
         public List<OwnedBookDto>? OwnedBooks { get; set; }
     }
 }
