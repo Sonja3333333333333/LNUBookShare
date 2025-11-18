@@ -57,24 +57,22 @@ namespace LNUBookShareUI.ViewModels
 
         public ObservableCollection<FacultyDto> Faculties { get; } = new();
 
-        // --- Команди ---
         public ICommand RegisterCommand { get; }
         public ICommand GoToLoginCommand { get; }
 
-        // --- Конструктор ---
+       
         public RegisterViewModel(IMediator mediator, INavigationService navigationService)
         {
             this._mediator = mediator;
             this._navigationService = navigationService;
 
-            // 👇 1. Команда ТЕПЕР ПРИЙМАЄ 'object'
             this.RegisterCommand = new RelayCommand<object>(async (param) => await this.RegisterAsync(param));
             this.GoToLoginCommand = new RelayCommand<object>(this.GoToLogin);
 
             _ = this.LoadFacultiesAsync();
         }
 
-        // --- Метод реєстрації ---
+   
  
         private async Task RegisterAsync(object parameter)
         {

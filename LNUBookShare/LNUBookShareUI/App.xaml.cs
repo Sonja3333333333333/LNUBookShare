@@ -9,7 +9,7 @@ using LNUBookShareDAL.Models;
 using System;
 using LNUBookShareUI.Common;
 using LNUBookShareBLL.Features.Files;
-using LNUBookShareBLL; // <--- ДОДАНО
+using LNUBookShareBLL; 
 
 namespace LNUBookShareUI
 {
@@ -32,8 +32,6 @@ namespace LNUBookShareUI
 
             // string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
 
-            // Новий рядок (хмарний Neon)
-            // Додано "Trust Server Certificate=true" для сумісності з Npgsql v7
             string connectionString = "Host=ep-wispy-hat-adm0eu4d-pooler.c-2.us-east-1.aws.neon.tech;" +
                                       "Database=neondb;" +
                                       "Username=neondb_owner;" +
@@ -44,19 +42,15 @@ namespace LNUBookShareUI
 
             _ = services.AddDbContext<LNUBookShareDbContext>(options =>
       options.UseNpgsql(connectionString),
-      ServiceLifetime.Transient // <--- ДОДАЙТЕ ЦЕЙ ПАРАМЕТР
+      ServiceLifetime.Transient 
   );
 
-            // 2. BLL
             _ = services.AddMediatR(typeof(GetBooksQuery).Assembly);
             _ = services.AddMediatR(typeof(UploadImageCommand).Assembly);
 
-            // ----- ОСЬ ЦЕ ВИПРАВЛЕННЯ -----
-            // Реєструємо EmailService, щоб RegisterUserCommandHandler міг його отримати
+            
             _ = services.AddTransient<EmailService>();
-            // -----------------------------
-
-            // 3. ViewModels
+            
             _ = services.AddTransient<MainViewModel>();
             _ = services.AddTransient<LoginViewModel>();
             _ = services.AddTransient<ProfileViewModel>();

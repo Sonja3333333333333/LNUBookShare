@@ -16,7 +16,7 @@
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
 
-            <!-- Заголовок -->
+       
             <TextBlock Text="LNUBookShare"
                        FontSize="20"
                        FontWeight="Bold"
@@ -31,28 +31,25 @@
             <Border BorderBrush="Gray" BorderThickness="1" Padding="20" CornerRadius="5">
                 <StackPanel>
 
-                    <!-- Email -->
                     <Label Content="Email (університетська пошта)" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
                     <TextBox Height="30"
                              Margin="0,0,0,10"
                              VerticalContentAlignment="Center"
                              Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
 
-                    <!-- Password -->
                     <Label Content="Password" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
                     <PasswordBox x:Name="UserPasswordBox"
                                  Height="30"
                                  Margin="0,0,0,10"
                                  VerticalContentAlignment="Center"/>
 
-                    <!-- Повідомлення про помилку -->
+            
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,0,0,10"/>
                     <Button Content="Увійти"
                             Command="{Binding LoginCommand}"
                             CommandParameter="{Binding ElementName=UserPasswordBox}"
                             Height="35" FontWeight="Bold" IsDefault="True"/>
 
-                    <!-- Посилання на реєстрацію -->
                     <TextBlock TextAlignment="Center" Margin="0,15,0,0">
                         <Hyperlink Foreground="Blue"
                                    TextDecorations="None"

@@ -5,58 +5,53 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShare.API.Controllers
 {
-    [Route("api/[controller]")] // Адреса /api/auth
+    [Route("api/[controller]")] 
     [ApiController]
     public class AuthController : ControllerBase
     {
         private readonly LNUBookShareDbContext _context;
 
-        // Отримуємо доступ до бази
         public AuthController(LNUBookShareDbContext context)
         {
-            _context = context;
+            this._context = context;
         }
 
-        // "Ловить" запити /api/auth/confirm?token=...
+ ..
         [HttpGet("confirm")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
-                return BadRequest("Token is missing.");
+                return this.BadRequest("Token is missing.");
             }
 
-            // 1. Шукаємо токен в базі
-            var confirmation = await _context.Emailconfirmations
+            var confirmation = await this._context.Emailconfirmations
                 .FirstOrDefaultAsync(c => c.ConfirmationToken == token);
 
             if (confirmation == null)
             {
-                return NotFound("Invalid token.");
+                return this.NotFound("Invalid token.");
             }
 
-            // 2. Перевіряємо, чи не прострочений
             if (confirmation.ExpiresAt < DateTime.UtcNow)
             {
-                return BadRequest("Token has expired. Please request a new one.");
+                return this.BadRequest("Token has expired. Please request a new one.");
             }
 
-            // 3. Знаходимо користувача
-            var user = await _context.Users.FindAsync(confirmation.UserId);
+  
+            var user = await this._context.Users.FindAsync(confirmation.UserId);
             if (user == null)
             {
-                return NotFound("Associated user not found.");
+                return this.NotFound("Associated user not found.");
             }
 
-            // 4. ПІДТВЕРДЖУЄМО!
             user.IsEmailConfirmed = true;
 
-            // 5. Видаляємо токен (робимо одноразовим)
-            _context.Emailconfirmations.Remove(confirmation);
 
-            await _context.SaveChangesAsync();
+            this._context.Emailconfirmations.Remove(confirmation);
 
-            // 6. Повертаємо гарну сторінку "Успіх"
+            await this._context.SaveChangesAsync();
+
             string htmlResponse = @"
                 <html>
                 <head><title>Email Confirmed</title></head>
@@ -66,7 +61,7 @@ namespace LNUBookShare.API.Controllers
                 </body>
                 </html>";
 
-            return Content(htmlResponse, "text/html");
+            return this.Content(htmlResponse, "text/html");
         }
     }
 }

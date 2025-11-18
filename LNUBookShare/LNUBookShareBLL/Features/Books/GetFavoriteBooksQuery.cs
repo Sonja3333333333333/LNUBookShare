@@ -8,7 +8,6 @@ namespace LNUBookShareBLL.Features.Favorites
     {
         public int CurrentUserId { get; set; }
 
-        // Параметри з вимог до Вікна 5
         public BookFilterStatus FilterBy { get; set; } = BookFilterStatus.All;
         public BookSortCriteria SortBy { get; set; } = BookSortCriteria.Title;
 

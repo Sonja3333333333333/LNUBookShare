@@ -2,10 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareDAL.Models;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
+
 
 namespace LNUBookShareBLL.Features.Categories
 {
