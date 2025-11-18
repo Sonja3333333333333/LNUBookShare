@@ -84,14 +84,12 @@ namespace LNUBookShareUI.ViewModels
                 return;
             }
 
-            int currentUserId = 1;
-
             try
             {
                 var command = new ToggleFavoriteCommand
                 {
                     BookId = this.Book.BookId,
-                    UserId = currentUserId
+                    UserId = this._userSession.GetUserId()
                 };
 
                 _ = await this._mediator.Send(command);
