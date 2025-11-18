@@ -8,7 +8,6 @@
         d:DataContext="{d:DesignInstance Type=vm:ProfileViewModel}"
         Title="{Binding Profile.FullName, FallbackValue='Профіль'}" Height="700" Width="800">
 
-
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <Style x:Key="LinkButton" TargetType="Button">
@@ -16,9 +15,9 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <TextBlock>
-                    <Hyperlink TextDecorations="None" Foreground="#0078D7">
-                        <Run Text="{TemplateBinding Content}"/>
-                    </Hyperlink>
+                            <Hyperlink TextDecorations="None" Foreground="#0078D7">
+                                <Run Text="{TemplateBinding Content}"/>
+                            </Hyperlink>
                         </TextBlock>
                     </ControlTemplate>
                 </Setter.Value>
@@ -31,7 +30,7 @@
                         <Setter.Value>
                             <ControlTemplate TargetType="Button">
                                 <TextBlock TextDecorations="Underline" Foreground="#005A9E">
-                            <Run Text="{TemplateBinding Content}"/>
+                                    <Run Text="{TemplateBinding Content}"/>
                                 </TextBlock>
                             </ControlTemplate>
                         </Setter.Value>
@@ -41,23 +40,16 @@
         </Style>
     </Window.Resources>
 
-
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-     
             <RowDefinition Height="Auto"/>
- 
             <RowDefinition Height="Auto"/>
-           
             <RowDefinition Height="*"/>
-          
             <RowDefinition Height="Auto"/>
-         
         </Grid.RowDefinitions>
 
         <Button Grid.Row="0" Content="← Назад" HorizontalAlignment="Left" Margin="0,0,0,10" Padding="10,5" Command="{Binding GoBackCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
-
 
         <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Padding="15">
             <Grid>
@@ -79,7 +71,6 @@
                     <TextBlock Text="{Binding Profile.FacultyName}" FontSize="14" FontStyle="Italic"/>
                 </StackPanel>
 
- 
                 <Button Grid.Column="2" Content="✏️" FontSize="20" VerticalAlignment="Top"
                         Width="40" Height="40" ToolTip="Редагувати профіль"
                         Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"
@@ -107,7 +98,6 @@
             </TextBlock>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-
                 <Label Content="Сортувати:" VerticalAlignment="Center"/>
                 <ComboBox ItemsSource="{Binding SortOptions}" 
                           SelectedValue="{Binding SelectedSort}"
@@ -125,11 +115,10 @@
             </StackPanel>
         </Grid>
 
-
         <ListView Grid.Row="3" 
-          ItemsSource="{Binding OwnedBooksView}" 
-          HorizontalContentAlignment="Stretch"
-          BorderThickness="0">
+                  ItemsSource="{Binding OwnedBooksView}" 
+                  HorizontalContentAlignment="Stretch"
+                  BorderThickness="0">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Template">
@@ -158,7 +147,6 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
-
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="Назва: " FontSize="14" FontWeight="Bold" VerticalAlignment="Center"/>
                                     <Button 
@@ -168,8 +156,7 @@
                                         Margin="5,0,0,0"
                                         Style="{StaticResource LinkButton}" Padding="0"
                                         Command="{Binding DataContext.OpenBookDetailsCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                        CommandParameter="{Binding BookId}"
-                                    />
+                                        CommandParameter="{Binding BookId}"/>
                                 </StackPanel>
 
                                 <TextBlock FontStyle="Italic" Margin="0,5,0,5">
@@ -184,24 +171,22 @@
                                     <Run Text="Рік: " FontWeight="Bold"/>
                                     <Run Text="{Binding Year}"/>
                                 </TextBlock>
-
                             </StackPanel>
 
                             <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                 <Button Content="✏️" FontSize="16" Width="35" Height="35" ToolTip="Редагувати книгу"
-                                    Visibility="{Binding DataContext.IsMyProfile, 
-                                                RelativeSource={RelativeSource AncestorType=Window}, 
-                                                Converter={StaticResource BoolToVis}}"
-                                                Command="{Binding DataContext.OpenEditBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                                CommandParameter="{Binding BookId}"
-                                 />
+                                        Visibility="{Binding DataContext.IsMyProfile, 
+                                                    RelativeSource={RelativeSource AncestorType=Window}, 
+                                                    Converter={StaticResource BoolToVis}}"
+                                        Command="{Binding DataContext.OpenEditBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                        CommandParameter="{Binding BookId}"/>
                                 <Button Content="🗑️" FontSize="16" Width="35" Height="35" ToolTip="Видалити книгу"
-                                    Command="{Binding DataContext.DeleteBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                    CommandParameter="{Binding BookId}"
-                                    Margin="0,5,0,0"
-                                    Visibility="{Binding DataContext.IsMyProfile, 
-                                                RelativeSource={RelativeSource AncestorType=Window}, 
-                                                Converter={StaticResource BoolToVis}}"/>
+                                        Command="{Binding DataContext.DeleteBookCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                        CommandParameter="{Binding BookId}"
+                                        Margin="0,5,0,0"
+                                        Visibility="{Binding DataContext.IsMyProfile, 
+                                                    RelativeSource={RelativeSource AncestorType=Window}, 
+                                                    Converter={StaticResource BoolToVis}}"/>
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -209,13 +194,10 @@
             </ListView.ItemTemplate>
         </ListView>
 
-   
         <Button Grid.Row="4" Content="+" FontSize="24" FontWeight="Bold"
                 Width="50" Height="50" HorizontalAlignment="Center" Margin="0,10,0,0"
                 ToolTip="Додати нову книгу"
                 Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"
-                Command="{Binding OpenAddBookCommand}"
-     
+                Command="{Binding OpenAddBookCommand}"/>
     </Grid>
 </Window>
-

@@ -16,7 +16,7 @@ namespace LNUBookShare.API.Controllers
             this._context = context;
         }
 
- ..
+ 
         [HttpGet("confirm")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
         {
