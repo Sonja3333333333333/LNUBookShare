@@ -1,4 +1,26 @@
-﻿using LNUBookShareBLL.DTOs;
+﻿//DRY / SRP  
+//    Централізація логіки UI: Створено приватні методи ShowErrorMessage() та CloseWindow(object window).
+//    Усунуто дублювання коду обробки помилок (MessageBox.Show) та логіки закриття вікна в різних методах
+
+//SRP
+//    Розділення логіки завантаження: Створено CalculateTotalPages(int totalCount) та UpdateUIState(result).	
+//    Метод LoadFavoritesAsync тепер лише координує виклик IMediator та оновлення UI, дотримуючись SRP.
+
+//SRP / DRY	
+//    В LoadFavoritesAsync логіка оновлення колекції винесена в UpdateUIState і викликається через App.Current.Dispatcher.Invoke.	
+//    Гарантує потокобезпечне оновлення UI та зменшує візуальний шум у основному методі завантаження.
+
+//Meaningful Names	
+//    Перейменував GoBack(object parameter) на CloseWindow(object window).	
+//    Робить намір команди GoBackCommand більш очевидним.
+
+//Meaningful Names	
+//    Створено метод ResetPaginationAndLoad() для використання у властивостях SelectedSort та SelectedStatusFilter.	
+//    Спрощує логіку при зміні фільтрів/сортування (встановлюємо CurrentPage = 1 та завантажуємо дані).
+
+
+
+using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Favorites;
 using LNUBookShareUI.Common;
@@ -10,13 +32,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
+using FavoriteBooksPaginatedResult = LNUBookShareBLL.DTOs.PaginatedResultDto<LNUBookShareBLL.DTOs.FavoriteBookCardDto>;
+
 namespace LNUBookShareUI.ViewModels
 {
     public class FavoritesViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
-
         private readonly IUserSession _userSession;
 
         private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new();
@@ -50,7 +73,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (this.SetProperty(ref this._selectedSort, value))
                 {
-                    _ = this.LoadFavoritesAsync(); 
+                    this.ResetPaginationAndLoad();
                 }
             }
         }
@@ -63,7 +86,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (this.SetProperty(ref this._selectedStatusFilter, value))
                 {
-                    _ = this.LoadFavoritesAsync(); 
+                    this.ResetPaginationAndLoad();
                 }
             }
         }
@@ -79,7 +102,6 @@ namespace LNUBookShareUI.ViewModels
         public ICommand OpenBookDetailsCommand { get; }
         public ICommand ViewOwnerProfileCommand { get; }
 
-
         public FavoritesViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
             this._mediator = mediator;
@@ -93,10 +115,11 @@ namespace LNUBookShareUI.ViewModels
                 { BookSortCriteria.Year, "Рік" }
             };
 
-            this.GoBackCommand = new RelayCommand<object>(this.GoBack);
+            this.GoBackCommand = new RelayCommand<object>(this.CloseWindow);
             this.RemoveFromFavoritesCommand = new RelayCommand<int>(async (bookId) => await this.RemoveFavoriteAsync(bookId));
-            this.ClearFavoritesCommand = new RelayCommand(async () => await this.ClearFavoritesAsync());
+            this.ClearFavoritesCommand = new RelayCommand(async () => await this.ClearFavoritesWithConfirmationAsync());
 
+            // DRY: Команди фільтрації залишено лаконічними
             this.SetFilterAllCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.All);
             this.SetFilterAvailableCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Available);
             this.SetFilterIssuedCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Issued);
@@ -109,6 +132,42 @@ namespace LNUBookShareUI.ViewModels
 
             _ = this.LoadFavoritesAsync();
         }
+
+        private void ShowErrorMessage(string message, string title = "Помилка")
+        {
+            _ = MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void CloseWindow(object window)
+        {
+            if (window is Window w)
+            {
+                w.Close();
+            }
+        }
+        private void ResetPaginationAndLoad()
+        {
+            this.CurrentPage = 1;
+            _ = this.LoadFavoritesAsync();
+        }
+
+        private void CalculateTotalPages(int totalCount)
+        {
+            this._totalPages = (int)Math.Ceiling((double)totalCount / this._pageSize);
+            if (this._totalPages == 0)
+            {
+                this._totalPages = 1;
+            }
+        }
+
+        private void UpdateUIState(FavoriteBooksPaginatedResult result)
+        {
+            this.FavoriteBooks = new ObservableCollection<FavoriteBookCardDto>(result.Items);
+
+            this.TotalResults = result.TotalCount;
+            CommandManager.InvalidateRequerySuggested();
+        }
+
 
         private void OpenBookDetails(int bookId)
         {
@@ -126,7 +185,7 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        private async Task LoadFavoritesAsync()
+        public async Task LoadFavoritesAsync()
         {
             try
             {
@@ -135,34 +194,19 @@ namespace LNUBookShareUI.ViewModels
                     CurrentUserId = this._userSession.GetUserId(),
                     FilterBy = this.SelectedStatusFilter,
                     SortBy = this.SelectedSort,
-                    PageNumber = this._currentPage, 
+                    PageNumber = this.CurrentPage,
                     PageSize = this._pageSize
                 };
 
-                var result = await this._mediator.Send(query);
+                FavoriteBooksPaginatedResult result = await this._mediator.Send(query);
 
-                this._totalPages = (int)Math.Ceiling((double)result.TotalCount / this._pageSize);
-                if (this._totalPages == 0)
-                {
-                    this._totalPages = 1;
-                }
+                this.CalculateTotalPages(result.TotalCount);
 
-                App.Current.Dispatcher.Invoke(() =>
-                {
-                    this.FavoriteBooks.Clear();
-
-                    foreach (var book in result.Items)
-                    {
-                        this.FavoriteBooks.Add(book);
-                    }
-
-                    this.TotalResults = result.TotalCount; 
-                    CommandManager.InvalidateRequerySuggested(); 
-                });
+                App.Current.Dispatcher.Invoke(() => this.UpdateUIState(result));
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show($"Помилка завантаження вподобаних: {ex.Message}", "Помилка");
+                this.ShowErrorMessage($"Помилка завантаження вподобаних: {ex.Message}"); 
             }
         }
 
@@ -177,22 +221,20 @@ namespace LNUBookShareUI.ViewModels
                 };
 
                 _ = await this._mediator.Send(command);
-
                 await this.LoadFavoritesAsync();
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show($"Помилка видалення з вподобаних: {ex.Message}", "Помилка");
+                this.ShowErrorMessage($"Помилка видалення з вподобаних: {ex.Message}"); 
             }
         }
 
-        private async Task ClearFavoritesAsync()
+        private async Task ClearFavoritesWithConfirmationAsync()
         {
-
             var result = MessageBox.Show("Ви впевнені, що хочете видалити ВСІ книги з вподобань?",
-                                         "Підтвердження",
-                                         MessageBoxButton.YesNo,
-                                         MessageBoxImage.Warning);
+                                             "Підтвердження",
+                                             MessageBoxButton.YesNo,
+                                             MessageBoxImage.Warning);
 
             if (result != MessageBoxResult.Yes)
             {
@@ -203,15 +245,16 @@ namespace LNUBookShareUI.ViewModels
             {
                 var command = new ClearFavoritesCommand { UserId = this._userSession.GetUserId() };
                 _ = await this._mediator.Send(command);
-                await this.LoadFavoritesAsync(); 
+                await this.LoadFavoritesAsync();
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show($"Помилка очищення: {ex.Message}", "Помилка");
+                this.ShowErrorMessage($"Помилка очищення: {ex.Message}"); 
             }
         }
 
-        private bool CanGoToNextPage() => this._currentPage < this._totalPages;
+
+        private bool CanGoToNextPage() => this.CurrentPage < this._totalPages;
         private async Task GoToNextPageAsync()
         {
             if (this.CanGoToNextPage())
@@ -220,21 +263,13 @@ namespace LNUBookShareUI.ViewModels
                 await this.LoadFavoritesAsync();
             }
         }
-        private bool CanGoToPreviousPage() => this._currentPage > 1;
+        private bool CanGoToPreviousPage() => this.CurrentPage > 1;
         private async Task GoToPreviousPageAsync()
         {
             if (this.CanGoToPreviousPage())
             {
                 this.CurrentPage--;
                 await this.LoadFavoritesAsync();
-            }
-        }
-
-        private void GoBack(object parameter)
-        {
-            if (parameter is Window w)
-            {
-                w.Close();
             }
         }
     }

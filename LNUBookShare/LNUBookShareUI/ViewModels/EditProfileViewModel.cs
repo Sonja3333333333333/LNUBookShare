@@ -1,4 +1,17 @@
-﻿using System;
+﻿//SRP 
+//    Розділення LoadDataAsync: Створено окремі методи LoadUserProfileDataAsync() та LoadFacultiesAsync().	
+//    Кожен метод тепер відповідає лише за одну задачу, підвищуючи читабельність та можливість тестування.
+
+//DRY	
+//    Централізація логіки UI: Створено приватні методи ShowErrorMessage() та CloseWindow(object window).	
+//    Прибрано дублювання коду (повторювані MessageBox.Show та логіка закриття вікна) з методів Save, Cancel та завантаження даних.
+
+//Meaningful Names	
+//    Перейменовано логіку закриття у CloseWindow.
+
+
+
+using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
@@ -7,9 +20,9 @@ using MediatR;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Features.Profile;
 using LNUBookShareBLL.Features.Faculties;
-using LNUBookShareUI.Common; 
+using LNUBookShareUI.Common;
 using System.Windows.Input;
-using Microsoft.Win32; 
+using Microsoft.Win32;
 using System.IO;
 using LNUBookShareBLL.Features.Files;
 
@@ -64,62 +77,86 @@ namespace LNUBookShareUI.ViewModels
             this.ChangePhotoCommand = new RelayCommand(async () => await this.ChangePhoto());
         }
 
+        private void ShowErrorMessage(string message, string title = "Помилка")
+        {
+            _ = MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void CloseWindow(object window)
+        {
+            if (window is Window w)
+            {
+                w.Close();
+            }
+        }
+
         private async Task ChangePhoto()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            openFileDialog.Filter = "Image files (*.jpg;*.jpeg;*.png;*.gif)|*.jpg;*.jpeg;*.png;*.gif|All files (*.*)|*.*";
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Filter = "Image files (*.jpg;*.jpeg;*.png;*.gif)|*.jpg;*.jpeg;*.png;*.gif|All files (*.*)|*.*"
+            };
 
             if (openFileDialog.ShowDialog() == true)
             {
                 try
                 {
                     string filePath = openFileDialog.FileName;
-                    byte[] imageData = File.ReadAllBytes(filePath);
+                    byte[] imageData = await File.ReadAllBytesAsync(filePath); 
 
-                    
                     var uploadCommand = new UploadImageCommand
                     {
                         FileName = Path.GetFileName(filePath),
                         ImageData = imageData
                     };
 
-                  
                     string newProfilePath = await this._mediator.Send(uploadCommand);
-
-
                     this.ProfileImageUrl = newProfilePath;
                 }
                 catch (Exception ex)
                 {
-                    _ = MessageBox.Show($"Не вдалося завантажити фото: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    this.ShowErrorMessage($"Не вдалося завантажити фото: {ex.Message}"); 
                 }
             }
         }
 
-        public async Task LoadDataAsync()
+        private async Task LoadUserProfileDataAsync()
+        {
+            var profileDto = await this._mediator.Send(new GetProfileForEditQuery { UserId = this._userSession.GetUserId() });
+
+            this.LastName = profileDto.LastName;
+            this.FirstName = profileDto.FirstName;
+            this.ProfileImageUrl = profileDto.ProfileImageUrl;
+
+            if (this.Faculties.Any())
             {
-                try
-                {
-                    var profileDto = await this._mediator.Send(new GetProfileForEditQuery { UserId = this._userSession.GetUserId() });
-
-                    this.LastName = profileDto.LastName;
-                    this.FirstName = profileDto.FirstName;
-                    this.ProfileImageUrl = profileDto.ProfileImageUrl;
-
-                        var facultyList = await this._mediator.Send(new GetAllFacultiesQuery());
-                    this.Faculties.Clear();
-                        foreach (var faculty in facultyList)
-                        {
-                        this.Faculties.Add(faculty);
-                        }
-
-                    this.SelectedFaculty = this.Faculties.FirstOrDefault(f => f.FacultyId == profileDto.FacultyId);
-                }
-                catch (Exception ex)
-                {
-                _ = MessageBox.Show($"Не вдалося завантажити дані профілю: {ex.Message}");
-                }
+                this.SelectedFaculty = this.Faculties.FirstOrDefault(f => f.FacultyId == profileDto.FacultyId);
             }
+        }
+
+        private async Task LoadFacultiesAsync()
+        {
+            var facultyList = await this._mediator.Send(new GetAllFacultiesQuery());
+
+            this.Faculties.Clear();
+            foreach (var faculty in facultyList)
+            {
+                this.Faculties.Add(faculty);
+            }
+        }
+
+        public async Task LoadDataAsync()
+        {
+            try
+            {
+                await this.LoadFacultiesAsync();
+                await this.LoadUserProfileDataAsync();
+            }
+            catch (Exception ex)
+            {
+                this.ShowErrorMessage($"Не вдалося завантажити дані профілю: {ex.Message}"); 
+            }
+        }
 
         private async Task Save(object window)
         {
@@ -129,8 +166,7 @@ namespace LNUBookShareUI.ViewModels
                 {
                     FirstName = this.FirstName,
                     LastName = this.LastName,
-                    FacultyId = this.SelectedFaculty.FacultyId,
-
+                    FacultyId = this.SelectedFaculty?.FacultyId ?? 0, 
                     ProfileImageUrl = this.ProfileImageUrl
                 };
 
@@ -141,17 +177,17 @@ namespace LNUBookShareUI.ViewModels
                 };
                 _ = await this._mediator.Send(command);
 
-                if (window is Window w) { w.Close(); }
+                this.CloseWindow(window); 
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show($"Не вдалося зберегти профіль: {ex.Message}");
+                this.ShowErrorMessage($"Не вдалося зберегти профіль: {ex.Message}"); 
             }
         }
 
         private void Cancel(object window)
         {
-            if (window is Window w) { w.Close(); }
+            this.CloseWindow(window); 
         }
     }
 }
