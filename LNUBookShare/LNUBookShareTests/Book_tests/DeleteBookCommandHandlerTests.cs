@@ -19,7 +19,7 @@ namespace LNUBookShareTests.Book_tests
                 .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
                 .Options;
 
-            this._dbContext = new LNUBookShareDbContext(_options);
+            this._dbContext = new LNUBookShareDbContext(this._options);
         }
 
         
