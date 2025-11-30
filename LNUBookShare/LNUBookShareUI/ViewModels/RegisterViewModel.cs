@@ -10,6 +10,11 @@ using System.Windows;
 using System.Windows.Controls; 
 using System.Windows.Input;
 
+
+// З RegisterAsync винесено перевірку паролю у метод ValidateInput , логіки валідаціі відділена
+// тому легко додати нові правила перевірки
+// назви змістовні, тут все добре
+
 namespace LNUBookShareUI.ViewModels
 {
     public class RegisterViewModel : ViewModelBase
@@ -80,34 +85,16 @@ namespace LNUBookShareUI.ViewModels
     
             if (parameter is not PasswordBox passwordBox)
             {
-                this.ErrorMessage = "Сталася помилка (PasswordBox == null).";
+                this.ErrorMessage = "Не вдалося отримати пароль. Будь ласка введіть пароль";
                 return;
             }
-            string password = passwordBox.Password; 
+            string password = passwordBox.Password;
+
+            if (!ValidateInput(password))
+                return;
 
             try
-            {
-                if (string.IsNullOrWhiteSpace(this.FirstName) ||
-                    string.IsNullOrWhiteSpace(this.LastName) ||
-                    string.IsNullOrWhiteSpace(this.Email) ||
-                    string.IsNullOrWhiteSpace(password) ||
-                    this.SelectedFaculty == null)
-                {
-                    this.ErrorMessage = "Будь ласка, заповніть усі поля.";
-                    return;
-                }
-
-                if (!this.Email.EndsWith("@lnu.edu.ua"))
-                {
-                    this.ErrorMessage = "Дозволено лише пошту @lnu.edu.ua.";
-                    return;
-                }
-
-                if (password.Length < 9)
-                {
-                    this.ErrorMessage = "Пароль >= 9 символів.";
-                    return;
-                }
+            {               
 
                 var command = new RegisterUserCommand
                 {
@@ -132,6 +119,32 @@ namespace LNUBookShareUI.ViewModels
                 this.ErrorMessage = ex.Message;
             }
         }
+        private bool ValidateInput(string password)
+        {
+            if (string.IsNullOrWhiteSpace(this.FirstName) ||
+                    string.IsNullOrWhiteSpace(this.LastName) ||
+                    string.IsNullOrWhiteSpace(this.Email) ||
+                    string.IsNullOrWhiteSpace(password) ||
+                    this.SelectedFaculty == null)
+                {
+                    this.ErrorMessage = "Будь ласка, заповніть усі поля.";
+                    return false;
+                }
+
+            if (!this.Email.EndsWith("@lnu.edu.ua"))
+            {
+                this.ErrorMessage = "Дозволено лише пошту @lnu.edu.ua.";
+                return false;
+            }
+
+            if (password.Length < 9)
+            {
+                this.ErrorMessage = "Пароль >= 9 символів.";
+                return false;
+            }
+            return true;
+        }
+
 
         private async Task LoadFacultiesAsync()
         {

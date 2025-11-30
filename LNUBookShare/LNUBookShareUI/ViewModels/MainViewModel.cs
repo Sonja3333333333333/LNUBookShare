@@ -11,6 +11,13 @@ using System.Collections.Generic;
 using System;
 using System.Windows;
 
+//Прибрано дублювання:
+//Перехід сторінок об’єднано в метод ChangePageAsync(int delta).
+//Умови переходів об’єднані в CanChangePage().
+//Фільтри встановлюються через SetFilterCommand замість трьох команд.
+//уникнено дублювання і перенесено логіку в метод RestartSearch()
+//Meaningful Names: назви методів змістовні, тому тут все добре
+
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -44,6 +51,10 @@ namespace LNUBookShareUI.ViewModels
             get => this._currentPage;
             set => this.SetProperty(ref this._currentPage, value);
         }
+
+
+
+
         public Dictionary<BookSearchCriteria, string> SearchOptions { get; }
         private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
         public BookSearchCriteria SelectedSearchCriteria
@@ -52,6 +63,7 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._selectedSearchCriteria, value);
         }
 
+        
         private string _searchTerm = "";
         public string SearchTerm
         {
@@ -59,18 +71,19 @@ namespace LNUBookShareUI.ViewModels
             set => this.SetProperty(ref this._searchTerm, value);
         }
 
+
+
+
         public Dictionary<BookSortCriteria, string> SortOptions { get; }
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         public BookSortCriteria SelectedSort
         {
             get => this._selectedSort;
             set
-            {
-                bool valueChanged = this.SetProperty(ref this._selectedSort, value);
-                if (valueChanged && this._isSearchPerformed)
+            {                
+                if (this.SetProperty(ref this._selectedSort, value) && this._isSearchPerformed)
                 {
-                    this.CurrentPage = 1;
-                    _ = this.LoadBooksAsync();
+                    RestartSearch();
                 }
             }
         }
@@ -83,17 +96,17 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (this.SetProperty(ref this._selectedStatusFilter, value) && this._isSearchPerformed)
                 {
-                    this.CurrentPage = 1;
-                    _ = this.LoadBooksAsync();
+                    RestartSearch();
                 }
             }
         }
 
         public ICommand LoadBooksCommand { get; }
         public ICommand ToggleFavoriteCommand { get; }
-        public ICommand SetFilterAllCommand { get; }
-        public ICommand SetFilterAvailableCommand { get; }
-        public ICommand SetFilterIssuedCommand { get; }
+        //public ICommand SetFilterAllCommand { get; }
+        //public ICommand SetFilterAvailableCommand { get; }
+        //public ICommand SetFilterIssuedCommand { get; }
+        public ICommand SetFilterCommand { get; }//1 filter command
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
         public ICommand OpenProfileCommand { get; }
@@ -128,13 +141,14 @@ namespace LNUBookShareUI.ViewModels
 
             this.LoadBooksCommand = new RelayCommand(async () => await this.SearchAsync());
             this.ToggleFavoriteCommand = new RelayCommand<int>(async (id) => await this.ToggleFavoriteAsync(id));
+            
+            this.SetFilterCommand = new RelayCommand<BookFilterStatus>(filter =>
+            {
+                SelectedStatusFilter = filter;
+            });            
 
-            this.SetFilterAllCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.All));
-            this.SetFilterAvailableCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Available));
-            this.SetFilterIssuedCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Issued));
-
-            this.NextPageCommand = new RelayCommand(async () => await this.GoToNextPageAsync(), this.CanGoToNextPage);
-            this.PreviousPageCommand = new RelayCommand(async () => await this.GoToPreviousPageAsync(), this.CanGoToPreviousPage);
+            NextPageCommand = new RelayCommand(async () => await ChangePageAsync(1), () => CanChangePage(1));
+            PreviousPageCommand = new RelayCommand(async () => await ChangePageAsync(-1), () => CanChangePage(-1));
 
             this.OpenProfileCommand = new RelayCommand(this.OpenProfile);
             this.OpenFavoritesCommand = new RelayCommand(this.OpenFavorites);
@@ -156,12 +170,7 @@ namespace LNUBookShareUI.ViewModels
         private void OpenFavorites()
         {
             this._navigationService.ShowFavorites();
-        }
-
-        private void SetFilter(BookFilterStatus status)
-        {
-            this.SelectedStatusFilter = status;
-        }
+        }        
 
         private async Task SearchAsync()
         {
@@ -176,7 +185,11 @@ namespace LNUBookShareUI.ViewModels
                 this._navigationService.ShowBookDetails(bookId);
             }
         }
-
+        private void RestartSearch()
+        {
+            _currentPage = 1;
+            _ = LoadBooksAsync();
+        }
         private async Task LoadBooksAsync()
         {
             try
@@ -241,6 +254,22 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
+        private bool CanChangePage(int delta) =>
+            _isSearchPerformed &&
+            _currentPage + delta > 1 &&
+            _currentPage + delta < _totalPages;
+
+        private async Task ChangePageAsync(int delta)
+        {
+            if (!CanChangePage(delta)) return;
+
+            _currentPage += delta;
+            await LoadBooksAsync();
+        }
+
+
+
+        /*
         private bool CanGoToNextPage() => this._isSearchPerformed && this._currentPage < this._totalPages;
         private async Task GoToNextPageAsync()
         {
@@ -258,6 +287,6 @@ namespace LNUBookShareUI.ViewModels
                 this.CurrentPage--;
                 await this.LoadBooksAsync();
             }
-        }
+        }*/
     }
 }
