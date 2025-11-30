@@ -19,7 +19,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LNUBookShareBLL.Tests.Profile
+namespace LNUBookShareTests.Profile_tests
 {
     public class UpdateProfileCommandHandlerTests
     {
@@ -66,8 +66,8 @@ namespace LNUBookShareBLL.Tests.Profile
         [Fact]
         public async Task Handle_ShouldUpdateUserProfile_WhenDataIsValid()
         {
-            await using var context = GetInMemoryDbContext();
-            await SeedDatabase(context);
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
 
             var handler = new UpdateProfileCommandHandler(context);
             var command = new UpdateProfileCommand
@@ -96,8 +96,8 @@ namespace LNUBookShareBLL.Tests.Profile
         [Fact]
         public async Task Handle_ShouldUpdateUserAvatar_WhenProfileImageUrlIsValid()
         {
-            await using var context = GetInMemoryDbContext();
-            await SeedDatabase(context);
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
 
             var handler = new UpdateProfileCommandHandler(context);
             var command = new UpdateProfileCommand
@@ -124,8 +124,8 @@ namespace LNUBookShareBLL.Tests.Profile
         [Fact]
         public async Task Handle_ShouldThrowException_WhenUserNotFound()
         {
-            await using var context = GetInMemoryDbContext();
-            await SeedDatabase(context);
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
 
             var handler = new UpdateProfileCommandHandler(context);
             var command = new UpdateProfileCommand
@@ -145,7 +145,7 @@ namespace LNUBookShareBLL.Tests.Profile
         [InlineData(null)]      
         public async Task Handle_ShouldThrowException_WhenFirstNameIsInvalid(string invalidFirstName)
         {
-            await using var context = GetInMemoryDbContext();
+            await using var context = this.GetInMemoryDbContext();
             var handler = new UpdateProfileCommandHandler(context);
             var command = new UpdateProfileCommand
             {
@@ -164,7 +164,7 @@ namespace LNUBookShareBLL.Tests.Profile
         [InlineData(null)]      
         public async Task Handle_ShouldThrowException_WhenLastNameIsInvalid(string invalidLastName)
         {
-            await using var context = GetInMemoryDbContext();
+            await using var context = this.GetInMemoryDbContext();
             var handler = new UpdateProfileCommandHandler(context);
             var command = new UpdateProfileCommand
             {
@@ -182,7 +182,7 @@ namespace LNUBookShareBLL.Tests.Profile
         [InlineData(-1)]
         public async Task Handle_ShouldThrowException_WhenFacultyIdIsInvalid(int invalidFacultyId)
         {
-            await using var context = GetInMemoryDbContext();
+            await using var context = this.GetInMemoryDbContext();
             var handler = new UpdateProfileCommandHandler(context);
             var command = new UpdateProfileCommand
             {

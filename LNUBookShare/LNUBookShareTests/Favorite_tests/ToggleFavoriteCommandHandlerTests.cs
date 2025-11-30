@@ -14,7 +14,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace LNUBookShareBLL.Tests.Favorites
+namespace LNUBookShareTests.Favorite_tests
 {
     public class ToggleFavoriteCommandHandlerTests
     {
@@ -72,8 +72,8 @@ namespace LNUBookShareBLL.Tests.Favorites
         [Fact]
         public async Task Handle_ShouldAddFavorite_WhenItDoesNotExist()
         {
-            await using var context = GetInMemoryDbContext();
-            await SeedDatabase(context); 
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context); 
 
             var handler = new ToggleFavoriteCommandHandler(context);
             var command = new ToggleFavoriteCommand
@@ -96,8 +96,8 @@ namespace LNUBookShareBLL.Tests.Favorites
         [Fact]
         public async Task Handle_ShouldRemoveFavorite_WhenItAlreadyExists()
         {
-            await using var context = GetInMemoryDbContext();
-            await SeedDatabase(context); 
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context); 
 
             var handler = new ToggleFavoriteCommandHandler(context);
             var command = new ToggleFavoriteCommand
@@ -120,8 +120,8 @@ namespace LNUBookShareBLL.Tests.Favorites
         [Fact]
         public async Task Handle_ShouldThrowException_WhenBookDoesNotExist()
         {
-            await using var context = GetInMemoryDbContext();
-            await SeedDatabase(context);
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
 
             var handler = new ToggleFavoriteCommandHandler(context);
             var command = new ToggleFavoriteCommand
