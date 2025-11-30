@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Faculties; 
+using LNUBookShareBLL.Features.Faculties;
 
 
-namespace LNUBookShare.Tests
+namespace LNUBookShareTests.Faculty_tests
 {
     public class GetAllFacultiesQueryHandlerTests
     {
