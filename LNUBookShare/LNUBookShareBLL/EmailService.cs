@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace LNUBookShareBLL
 {
-    public class EmailService
+    public class EmailService : IEmailService
     {
        
-        public async Task SendConfirmationEmailAsync(string userEmail, string confirmationLink)
+        public async Task SendConfirmationEmailAsync(string userEmail, string confirmationLink) 
         {
             var message = new MimeMessage();
 

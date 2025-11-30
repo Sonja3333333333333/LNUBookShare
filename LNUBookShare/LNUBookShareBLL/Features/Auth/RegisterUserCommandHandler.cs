@@ -12,9 +12,9 @@ namespace LNUBookShareBLL.Features.Auth
     public class RegisterUserCommandHandler : IRequestHandler<RegisterUserCommand, int>
     {
         private readonly LNUBookShareDbContext _dbContext;
-        private readonly EmailService _emailService; 
+        private readonly IEmailService _emailService;
 
-        public RegisterUserCommandHandler(LNUBookShareDbContext dbContext, EmailService emailService)
+        public RegisterUserCommandHandler(LNUBookShareDbContext dbContext, IEmailService emailService)
         {
             this._dbContext = dbContext;
             this._emailService = emailService; 

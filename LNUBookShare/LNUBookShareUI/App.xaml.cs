@@ -49,7 +49,7 @@ namespace LNUBookShareUI
             _ = services.AddMediatR(typeof(UploadImageCommand).Assembly);
 
             
-            _ = services.AddTransient<EmailService>();
+            //_ = services.AddTransient<EmailService>();
             
             _ = services.AddTransient<MainViewModel>();
             _ = services.AddTransient<LoginViewModel>();
@@ -86,6 +86,9 @@ namespace LNUBookShareUI
                     provider.GetService<INavigationService>(),
                     userId
                 ));
+
+            services.AddTransient<EmailService>();
+            services.AddTransient<IEmailService, EmailService>();
         }
 
         protected override void OnStartup(StartupEventArgs e)
