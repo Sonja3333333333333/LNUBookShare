@@ -14,10 +14,6 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Input;
 
-//Перейменовано метод GoBack() на CloseWindow, всі решта назви змістовні
-//Фільтри встановлюються через SetStatusFilterCommand замість трьох команд.
-//У фільтрації та сортуванні(ApplySort() та FilterBooks()) використано switch-вираз,
-//тому легко додати нові критерії.
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -81,12 +77,11 @@ namespace LNUBookShareUI.ViewModels
 
         public ICommand LoadDataCommand { get; }
         public ICommand DeleteBookCommand { get; }
-        //public ICommand SetFilterAllCommand { get; }
-        //public ICommand SetFilterAvailableCommand { get; }
-        //public ICommand SetFilterIssuedCommand { get; }
-        public ICommand SetStatusFilterCommand { get; }
+        public ICommand SetFilterAllCommand { get; }
+        public ICommand SetFilterAvailableCommand { get; }
+        public ICommand SetFilterIssuedCommand { get; }
 
-        public ICommand CloseWindowCommand { get; }
+        public ICommand GoBackCommand { get; }
         public ICommand OpenEditProfileCommand { get; }
 
         public ICommand OpenBookDetailsCommand { get; }
@@ -117,13 +112,11 @@ namespace LNUBookShareUI.ViewModels
             this.LoadDataCommand = new RelayCommand(async () => await this.LoadProfileAsync());
             this.DeleteBookCommand = new RelayCommand<int>(async (bookId) => await this.DeleteBookAsync(bookId));
 
-            //this.SetFilterAllCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.All);
-            //this.SetFilterAvailableCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Available);
-            //this.SetFilterIssuedCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Issued);
-            SetStatusFilterCommand = new RelayCommand<BookFilterStatus>(
-                status => SelectedStatusFilter = status);
+            this.SetFilterAllCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.All);
+            this.SetFilterAvailableCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Available);
+            this.SetFilterIssuedCommand = new RelayCommand(() => this.SelectedStatusFilter = BookFilterStatus.Issued);
 
-            this.CloseWindowCommand = new RelayCommand<object>(this.CloseWindow);
+            this.GoBackCommand = new RelayCommand<object>(this.GoBack);
 
             this.OpenBookDetailsCommand = new RelayCommand<int>(this.OpenBookDetails);
 
@@ -254,19 +247,27 @@ namespace LNUBookShareUI.ViewModels
 
         private bool FilterBooks(object item)
         {
-            
-            if (item is not OwnedBookDto book) return false;
-
-            return SelectedStatusFilter switch
+            if (this.SelectedStatusFilter == BookFilterStatus.All)
             {
-                BookFilterStatus.All => true,
-                BookFilterStatus.Available => book.Status == "available",
-                BookFilterStatus.Issued => book.Status == "issued",
-                _ => true
-            };
+                return true; 
+            }
+
+            var book = (OwnedBookDto)item;
+
+            if (this.SelectedStatusFilter == BookFilterStatus.Available)
+            {
+                return book.Status == "available";
+            }
+
+            if (this.SelectedStatusFilter == BookFilterStatus.Issued)
+            {
+                return book.Status == "issued";
+            }
+
+            return true;
         }
 
-        private void CloseWindow(object window)
+        private void GoBack(object window)
         {
             
             if (window is Window w)
@@ -279,17 +280,19 @@ namespace LNUBookShareUI.ViewModels
         {
            
             this.OwnedBooksView.SortDescriptions.Clear();
-
-            var direction = ListSortDirection.Ascending;
-            string propertyName = SelectedSort switch
+            
+            switch (this.SelectedSort)
             {
-                BookSortCriteria.Title => nameof(OwnedBookDto.Title),
-                BookSortCriteria.Author => nameof(OwnedBookDto.Author),
-                BookSortCriteria.Year => nameof(OwnedBookDto.Year),
-                _ => nameof(OwnedBookDto.Title)
-            };
-
-            OwnedBooksView.SortDescriptions.Add(new SortDescription(propertyName, direction));
+                case BookSortCriteria.Title:
+                    this.OwnedBooksView.SortDescriptions.Add(new SortDescription("Title", ListSortDirection.Ascending));
+                    break;
+                case BookSortCriteria.Author:
+                    this.OwnedBooksView.SortDescriptions.Add(new SortDescription("Author", ListSortDirection.Ascending));
+                    break;
+                case BookSortCriteria.Year:
+                    this.OwnedBooksView.SortDescriptions.Add(new SortDescription("Year", ListSortDirection.Ascending));
+                    break;
+            }
         }
     }
 }
