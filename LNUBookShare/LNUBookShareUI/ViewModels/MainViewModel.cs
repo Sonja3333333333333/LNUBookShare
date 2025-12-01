@@ -142,6 +142,8 @@ namespace LNUBookShareUI.ViewModels
             this.ViewOwnerProfileCommand = new RelayCommand<int>(this.ViewOwnerProfile);
 
             this.OpenBookDetailsCommand = new RelayCommand<int>(this.OpenBookDetails);
+
+            _ = LoadBooksAsync();
         }
 
         private void OpenProfile()
@@ -191,6 +193,13 @@ namespace LNUBookShareUI.ViewModels
                     FilterBy = this.SelectedStatusFilter,
                     SortBy = this.SelectedSort
                 };
+
+                if (string.IsNullOrWhiteSpace(this.SearchTerm) &&
+                    this.SelectedStatusFilter == BookFilterStatus.All &&
+                    this.SelectedSort == BookSortCriteria.Title) 
+                {
+                    query.RecommendForUser = true;
+                }
 
                 var result = await this._mediator.Send(query);
 

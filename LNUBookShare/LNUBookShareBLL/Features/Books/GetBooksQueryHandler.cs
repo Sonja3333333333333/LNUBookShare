@@ -31,6 +31,21 @@ namespace LNUBookShareBLL.Features.Books
                 .Include(book => book.Category)
                 .AsQueryable();
 
+            if (request.RecommendForUser)
+            {
+                var currentUserFacultyId = await _dbContext.Users
+                    .Where(u => u.UserId == request.CurrentUserId)
+                    .Select(u => u.FacultyId)
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (currentUserFacultyId > 0) 
+                {
+                    query = query.Where(b => b.Owner.FacultyId == currentUserFacultyId);
+
+                    query = query.Where(b => b.OwnerId != request.CurrentUserId);
+                }
+            }
+
             query = this.ApplyFilters(query, request);
 
             var totalCount = await query.CountAsync(cancellationToken);

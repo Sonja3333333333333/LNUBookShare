@@ -13,5 +13,6 @@ namespace LNUBookShareBLL.Features.Books
         public BookSortCriteria SortBy { get; set; } = BookSortCriteria.Title;
         public int PageNumber { get; set; } = 1;
         public int PageSize { get; set; } = 10;
+        public bool RecommendForUser { get; set; } = false;
     }
 }
