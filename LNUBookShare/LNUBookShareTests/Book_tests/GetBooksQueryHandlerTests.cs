@@ -30,7 +30,8 @@ namespace LNUBookShareTests.Book_tests
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john@example.com",
-                PasswordHash = "password hash"                
+                PasswordHash = "password hash",
+                FacultyId = 10
             };
             var category = new Category
             {
@@ -128,6 +129,77 @@ namespace LNUBookShareTests.Book_tests
                         
             Assert.Equal(3, result.TotalCount);
             Assert.Single(result.Items); 
+        }
+
+        [Fact]
+        public async Task Handle_ShouldReturnRecommendedBooks_FromSameFaculty()
+        {
+            // Arrange
+            var sameFacultyUser = new User
+            {
+                UserId = 2,
+                FacultyId = 10,
+                FirstName = "Same",
+                LastName = "Faculty",
+                Email = "same@faculty.com",
+                PasswordHash = "hash2"
+            };
+
+            var diffFacultyUser = new User
+            {
+                UserId = 3,
+                FacultyId = 20,
+                FirstName = "Diff",
+                LastName = "Faculty",
+                Email = "diff@faculty.com",
+                PasswordHash = "hash3"
+            };
+
+
+            this._dbContext.Users.AddRange(sameFacultyUser, diffFacultyUser);
+
+            this._dbContext.Books.AddRange(
+                new Book { BookId = 10, Title = "Book A", OwnerId = 2, CategoryId = 1, Status = "available", Author = "Unknown" }, 
+                new Book { BookId = 11, Title = "Book B", OwnerId = 3, CategoryId = 1, Status = "available", Author = "Unknown" }, 
+                new Book { BookId = 12, Title = "Book C", OwnerId = 1, CategoryId = 1, Status = "available", Author = "Unknown" }  
+            );
+
+            await this._dbContext.SaveChangesAsync();
+
+            var handler = new GetBooksQueryHandler(this._dbContext);
+
+            var query = new GetBooksQuery
+            {
+                CurrentUserId = 1,
+                RecommendForUser = true,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            // Act
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            // Assert
+            Assert.Single(result.Items);
+            Assert.Equal(10, result.Items.First().BookId);
+        }
+
+        [Fact]
+        public async Task Handle_ShouldNotApplyRecommendation_WhenFlagIsFalse()
+        {
+            var handler = new GetBooksQueryHandler(this._dbContext);
+
+            var query = new GetBooksQuery
+            {
+                CurrentUserId = 1,
+                RecommendForUser = false,
+                PageNumber = 1,
+                PageSize = 10
+            };
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            Assert.Equal(3, result.Items.Count); 
         }
     }
 }
