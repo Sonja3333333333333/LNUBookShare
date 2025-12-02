@@ -1,9 +1,12 @@
-﻿using MediatR;
+﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
-using Microsoft.EntityFrameworkCore;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Common;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LNUBookShareBLL.Features.Favorites
@@ -59,6 +62,7 @@ namespace LNUBookShareBLL.Features.Favorites
                     query = query.Where(book => book.Status == "issued");
                     break;
             }
+
             return query;
         }
 

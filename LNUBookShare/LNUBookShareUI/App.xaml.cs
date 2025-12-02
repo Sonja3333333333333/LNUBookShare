@@ -1,15 +1,15 @@
-﻿using LNUBookShareBLL.Features.Books;
+﻿using LNUBookShareBLL;
+using LNUBookShareBLL.Features.Books;
+using LNUBookShareBLL.Features.Files;
+using LNUBookShareDAL.Models;
+using LNUBookShareUI.Common;
 using LNUBookShareUI.ViewModels;
 using LNUBookShareUI.Views;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using System.Windows;
-using LNUBookShareDAL.Models;
 using System;
-using LNUBookShareUI.Common;
-using LNUBookShareBLL.Features.Files;
-using LNUBookShareBLL; 
+using System.Windows;
 
 namespace LNUBookShareUI
 {
@@ -26,10 +26,35 @@ namespace LNUBookShareUI
             this._serviceProvider = services.BuildServiceProvider();
         }
 
+        protected override void OnStartup(StartupEventArgs e)
+        {
+            base.OnStartup(e);
+
+            //var editProfileView = _serviceProvider.GetService<EditProfileView>();
+            //var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
+            //editProfileView.DataContext = editProfileViewModel;
+            //editProfileView.Show();
+
+            //Щоб показати головне вікно розкоментуй мене
+            //var mainView = this._serviceProvider.GetService<MainView>();
+            //var mainViewModel = this._serviceProvider.GetService<MainViewModel>();
+            //mainView.DataContext = mainViewModel;
+            //mainView.Show();
+
+            //Щоб показати автентифікацію розкоментуй мене
+            var loginView = _serviceProvider.GetService<LoginView>();
+            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
+            loginView.Show();
+
+            //Щоб показати вікно Профіль розкоментуй мене
+            //var profileView = _serviceProvider.GetService<ProfileView>();
+            //var profileViewModel = _serviceProvider.GetService<ProfileViewModel>();
+            //profileView.DataContext = profileViewModel;
+            //profileView.Show();
+        }
+
         private void ConfigureServices(IServiceCollection services)
         {
-
-
             // string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
 
             string connectionString = "Host=ep-wispy-hat-adm0eu4d-pooler.c-2.us-east-1.aws.neon.tech;" +
@@ -40,17 +65,16 @@ namespace LNUBookShareUI
                                       "Trust Server Certificate=true";
 
 
-            _ = services.AddDbContext<LNUBookShareDbContext>(options =>
-      options.UseNpgsql(connectionString),
-      ServiceLifetime.Transient 
-  );
+                    _ = services.AddDbContext<LNUBookShareDbContext>(options =>
+              options.UseNpgsql(connectionString),
+              ServiceLifetime.Transient
+          );
 
             _ = services.AddMediatR(typeof(GetBooksQuery).Assembly);
             _ = services.AddMediatR(typeof(UploadImageCommand).Assembly);
 
-            
-            //_ = services.AddTransient<EmailService>();
-            
+
+            // _ = services.AddTransient<EmailService>();
             _ = services.AddTransient<MainViewModel>();
             _ = services.AddTransient<LoginViewModel>();
             _ = services.AddTransient<ProfileViewModel>();
@@ -89,34 +113,6 @@ namespace LNUBookShareUI
 
             services.AddTransient<EmailService>();
             services.AddTransient<IEmailService, EmailService>();
-        }
-
-        protected override void OnStartup(StartupEventArgs e)
-        {
-            base.OnStartup(e);
-
-
-            //var editProfileView = _serviceProvider.GetService<EditProfileView>();
-            //var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
-            //editProfileView.DataContext = editProfileViewModel;
-            //editProfileView.Show();
-
-            //Щоб показати головне вікно розкоментуй мене
-            //var mainView = this._serviceProvider.GetService<MainView>();
-            //var mainViewModel = this._serviceProvider.GetService<MainViewModel>();
-            //mainView.DataContext = mainViewModel;
-            //mainView.Show();
-
-            //Щоб показати автентифікацію розкоментуй мене
-            var loginView = _serviceProvider.GetService<LoginView>();
-            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
-            loginView.Show();
-
-            //Щоб показати вікно Профіль розкоментуй мене
-            //var profileView = _serviceProvider.GetService<ProfileView>();
-            //var profileViewModel = _serviceProvider.GetService<ProfileViewModel>();
-            //profileView.DataContext = profileViewModel;
-            //profileView.Show();
         }
     }
 }

@@ -1,71 +1,67 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input; 
-using MediatR;
+using System.Windows.Input;
+
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Favorites;
-using LNUBookShareUI.Common; 
+
+using LNUBookShareUI.Common;
+
+using MediatR;
 
 namespace LNUBookShareUI.ViewModels
 {
-    
     public class BookDetailsViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-
         private readonly INavigationService _navigationService;
-
         private readonly IUserSession _userSession;
-
         private BookDetailsDto _book = new();
-        public BookDetailsDto Book
-        {
-            get => this._book;
-            set => this.SetProperty(ref this._book, value);
-        }
-
-        
-        public ICommand GoBackCommand { get; }
-        public ICommand ToggleFavoriteCommand { get; }
-
-        public ICommand ViewOwnerProfileCommand { get; }
 
         public BookDetailsViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
-            this._mediator = mediator;
-            this._navigationService = navigationService;
-            this._userSession = userSession;
+            _mediator = mediator;
+            _navigationService = navigationService;
+            _userSession = userSession;
 
-            this.GoBackCommand = new RelayCommand<object>(this.GoBack);
-            this.ToggleFavoriteCommand = new RelayCommand(async () => await this.ToggleFavorite());
-            this.ViewOwnerProfileCommand = new RelayCommand(this.ViewOwnerProfile);
+            GoBackCommand = new RelayCommand<object>(GoBack);
+            ToggleFavoriteCommand = new RelayCommand(async () => await ToggleFavorite());
+            ViewOwnerProfileCommand = new RelayCommand(ViewOwnerProfile);
         }
 
-        private void ViewOwnerProfile()
+        public BookDetailsDto Book
         {
-            
-            if (this.Book != null && this.Book.OwnerId > 0)
-            {
-                this._navigationService.ShowViewProfile(this.Book.OwnerId);
-            }
+            get => _book;
+            set => SetProperty(ref _book, value);
         }
+
+        public ICommand GoBackCommand { get; }
+        public ICommand ToggleFavoriteCommand { get; }
+        public ICommand ViewOwnerProfileCommand { get; }
 
         public async Task LoadBookDetailsAsync(int bookId)
         {
- 
             try
             {
-                this.Book = await this._mediator.Send(new GetBookDetailsQuery
+                Book = await _mediator.Send(new GetBookDetailsQuery
                 {
                     BookId = bookId,
-                    CurrentUserId = this._userSession.GetUserId()
+                    CurrentUserId = _userSession.GetUserId()
                 });
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Помилка завантаження деталей книги: {ex.Message}");
+            }
+        }
+
+        private void ViewOwnerProfile()
+        {
+            if (Book != null && Book.OwnerId > 0)
+            {
+                _navigationService.ShowViewProfile(Book.OwnerId);
             }
         }
 
@@ -79,7 +75,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ToggleFavorite()
         {
-            if (this.Book == null || this.Book.BookId == 0)
+            if (Book == null || Book.BookId == 0)
             {
                 return;
             }
@@ -88,12 +84,12 @@ namespace LNUBookShareUI.ViewModels
             {
                 var command = new ToggleFavoriteCommand
                 {
-                    BookId = this.Book.BookId,
-                    UserId = this._userSession.GetUserId()
+                    BookId = Book.BookId,
+                    UserId = _userSession.GetUserId()
                 };
 
-                _ = await this._mediator.Send(command);
-                await this.LoadBookDetailsAsync(this.Book.BookId);
+                _ = await _mediator.Send(command);
+                await LoadBookDetailsAsync(Book.BookId);
             }
             catch (Exception ex)
             {

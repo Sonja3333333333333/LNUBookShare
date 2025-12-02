@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LNUBookShareBLL.Features.Profile;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Profile;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShare.Tests.Profile_tests
 {
@@ -32,7 +34,7 @@ namespace LNUBookShare.Tests.Profile_tests
                 LastName = "Дмитришина",
                 Email = "stozhar@lnu.edu.ua",
                 FacultyId = 1,
-                AvatarId = 10, 
+                AvatarId = 10,
                 PasswordHash = "hash"
             });
 
@@ -45,9 +47,10 @@ namespace LNUBookShare.Tests.Profile_tests
                     Title = "Clean Code Book",
                     Author = "R. Martin",
                     Status = "available",
-                    CoverId = 11 
+                    CoverId = 11
                 });
             }
+
             await context.SaveChangesAsync();
         }
 
@@ -55,7 +58,7 @@ namespace LNUBookShare.Tests.Profile_tests
         public async Task Handle_ShouldReturnFullProfileAndOwnedBooks_WhenUserExists()
         {
             await using var context = this.GetInMemoryDbContext();
-            await this.SeedDatabase(context, true); 
+            await this.SeedDatabase(context, true);
 
             var handler = new GetProfileQueryHandler(context);
             var query = new GetProfileQuery { UserId = 101 };

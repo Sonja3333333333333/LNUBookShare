@@ -1,11 +1,12 @@
-﻿using MediatR;
+﻿using System.Text.RegularExpressions;
+
 using LNUBookShareDAL.Models;
+
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
+
 using static BCrypt.Net.BCrypt;
-using System.Text.RegularExpressions;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace LNUBookShareBLL.Features.Auth
 {
@@ -17,7 +18,7 @@ namespace LNUBookShareBLL.Features.Auth
         public RegisterUserCommandHandler(LNUBookShareDbContext dbContext, IEmailService emailService)
         {
             this._dbContext = dbContext;
-            this._emailService = emailService; 
+            this._emailService = emailService;
         }
 
         public async Task<int> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
@@ -30,21 +31,19 @@ namespace LNUBookShareBLL.Features.Auth
             await this._dbContext.Users.AddAsync(newUser, cancellationToken);
             await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
 
-            
+
             string confirmationLink = $"https://localhost:7163/api/auth/confirm?token={tokenEntity.ConfirmationToken}";
             try
             {
-     
                 await this._dbContext.SaveChangesAsync(cancellationToken);
 
                 await this._emailService.SendConfirmationEmailAsync(request.Email, confirmationLink);
             }
             catch (Exception ex)
             {
-               
                 _dbContext.Users.Remove(newUser);
                 _dbContext.Emailconfirmations.Remove(tokenEntity);
-                await this._dbContext.SaveChangesAsync(); 
+                await this._dbContext.SaveChangesAsync();
 
                 throw new Exception($"Не вдалося надіслати лист підтвердження: {ex.Message}");
             }
@@ -52,13 +51,14 @@ namespace LNUBookShareBLL.Features.Auth
             return newUser.UserId;
         }
 
-      
+
         private void ValidateRequest(RegisterUserCommand request)
         {
             if (string.IsNullOrWhiteSpace(request.FirstName))
             {
                 throw new Exception("Ім'я не може бути порожнім.");
             }
+
             if (!Regex.IsMatch(request.FirstName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
             {
                 throw new Exception("Ім'я повинно містити лише літери.");
@@ -68,6 +68,7 @@ namespace LNUBookShareBLL.Features.Auth
             {
                 throw new Exception("Прізвище не може бути порожнім.");
             }
+
             if (!Regex.IsMatch(request.LastName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
             {
                 throw new Exception("Прізвище повинно містити лише літери.");
@@ -82,6 +83,7 @@ namespace LNUBookShareBLL.Features.Auth
             {
                 throw new Exception("Поле не може бути порожнім.");
             }
+
             if (request.Password.Length < 9)
             {
                 throw new Exception("Пароль >= 9 символів.");
@@ -91,6 +93,7 @@ namespace LNUBookShareBLL.Features.Auth
             {
                 throw new Exception("Поле не може бути порожнім.");
             }
+
             if (!request.Email.EndsWith("@lnu.edu.ua"))
             {
                 throw new Exception("Дозволено лише пошту @lnu.edu.ua.");

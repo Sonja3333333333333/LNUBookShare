@@ -1,8 +1,11 @@
-﻿using MediatR;
-using LNUBookShareDAL.Models;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareBLL.Common;
+﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.DTOs;
+
+using LNUBookShareDAL.Models;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareBLL.Features.Books
 {
@@ -17,16 +20,15 @@ namespace LNUBookShareBLL.Features.Books
 
         public async Task<int> Handle(AddBookCommand request, CancellationToken cancellationToken)
         {
-      
             this.ValidateRequest(request.Dto);
 
-            
+
             int? coverId = await this.GetCoverIdAsync(request.Dto.CoverImagePath, cancellationToken);
 
-            
+
             var newBook = this.MapDtoToBook(request, coverId);
 
-            
+
             await this._dbContext.Books.AddAsync(newBook, cancellationToken);
             await this._dbContext.SaveChangesAsync(cancellationToken);
 
@@ -73,8 +75,8 @@ namespace LNUBookShareBLL.Features.Books
                 Year = request.Dto.Year,
                 Publisher = request.Dto.Publisher,
                 Language = request.Dto.Language,
-                CategoryId = request.Dto.CategoryId,    
-                Status = "available", 
+                CategoryId = request.Dto.CategoryId,
+                Status = "available",
                 CreatedAt = DateTime.UtcNow,
                 CoverId = coverId
             };

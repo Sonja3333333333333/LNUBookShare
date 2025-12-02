@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LNUBookShareBLL.Features.Faculties;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Faculties;
+
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LNUBookShareTests.Faculty_tests
@@ -10,7 +12,7 @@ namespace LNUBookShareTests.Faculty_tests
         private LNUBookShareDbContext _dbContext;
         private DbContextOptions<LNUBookShareDbContext> _options;
 
-       
+
         public GetAllFacultiesQueryHandlerTests()
         {
             this._options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
@@ -20,10 +22,9 @@ namespace LNUBookShareTests.Faculty_tests
             this._dbContext = new LNUBookShareDbContext(this._options);
         }
 
-        [Fact] 
+        [Fact]
         public async Task Handle_Should_ReturnAllFaculties_WhenFacultiesExist()
         {
-            
             await this._dbContext.Faculties.AddRangeAsync(new List<Faculty>
             {
                 new Faculty { Name = "Факультет журналістики" },
@@ -32,13 +33,13 @@ namespace LNUBookShareTests.Faculty_tests
             });
             await this._dbContext.SaveChangesAsync();
 
-            
+
             var handler = new GetAllFacultiesQueryHandler(this._dbContext);
             var query = new GetAllFacultiesQuery();
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-        
+
             Assert.NotNull(result);
             Assert.Equal(3, result.Count());
         }
@@ -46,13 +47,12 @@ namespace LNUBookShareTests.Faculty_tests
         [Fact]
         public async Task Handle_Should_ReturnEmptyList_WhenNoFacultiesExist()
         {
-          
             var handler = new GetAllFacultiesQueryHandler(this._dbContext);
             var query = new GetAllFacultiesQuery();
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-           
+
             Assert.NotNull(result);
             Assert.Empty(result);
         }

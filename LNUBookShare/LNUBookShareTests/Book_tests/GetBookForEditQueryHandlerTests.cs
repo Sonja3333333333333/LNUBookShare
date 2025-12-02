@@ -1,16 +1,13 @@
-﻿using Xunit;
-using Microsoft.EntityFrameworkCore;
+﻿using LNUBookShareBLL.Features.Books;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Books;
-using LNUBookShareBLL.DTOs;
-using System.Threading;
-using System.Threading.Tasks;
-using LNUBookShareDAL;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareTests.Book_tests
 {
     public class GetBookForEditQueryHandlerTests
-    { 
+    {
         private readonly LNUBookShareDbContext _dbContext;
         private readonly DbContextOptions<LNUBookShareDbContext> _options;
 
@@ -23,7 +20,7 @@ namespace LNUBookShareTests.Book_tests
             this._dbContext = new LNUBookShareDbContext(this._options);
         }
 
-        
+
         [Fact]
         public async Task Handle_ShouldReturnBookEditDto_WhenUserIsOwner()
         {
@@ -69,7 +66,7 @@ namespace LNUBookShareTests.Book_tests
             Assert.Equal("available", result.Status);
         }
 
-        
+
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenBookNotFound()
@@ -86,7 +83,7 @@ namespace LNUBookShareTests.Book_tests
                 handler.Handle(query, CancellationToken.None));
         }
 
-        
+
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenUserIsNotOwner()
@@ -105,7 +102,7 @@ namespace LNUBookShareTests.Book_tests
                 Author = "Author B",
                 Status = "available",
                 CategoryId = 1,
-                OwnerId = 7,      
+                OwnerId = 7,
                 CoverId = 2
             };
 
@@ -118,7 +115,7 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookForEditQuery
             {
                 BookId = 20,
-                CurrentUserId = 999 
+                CurrentUserId = 999
             };
 
             var ex = await Assert.ThrowsAsync<Exception>(() =>

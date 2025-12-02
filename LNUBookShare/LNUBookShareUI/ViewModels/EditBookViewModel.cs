@@ -1,90 +1,131 @@
-﻿using MediatR;
-using Microsoft.Win32;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Categories;
 using LNUBookShareBLL.Features.Files;
+
 using LNUBookShareUI.Common;
-using System.Linq;
-using System;
+
+using MediatR;
+
+using Microsoft.Win32;
 
 namespace LNUBookShareUI.ViewModels
 {
     public class EditBookViewModel : ViewModelBase
     {
         private readonly IMediator _mediator;
-        private int _currentBookId;
         private readonly IUserSession _userSession;
+        private int _currentBookId;
 
         private string _title = string.Empty;
-        public string Title { get => this._title; set => this.SetProperty(ref this._title, value); }
-
         private string _author;
-        public string Author { get => this._author; set => this.SetProperty(ref this._author, value); }
-
         private string _isbn;
-        public string Isbn { get => this._isbn; set => this.SetProperty(ref this._isbn, value); }
-
         private int? _year;
-        public int? Year { get => this._year; set => this.SetProperty(ref this._year, value); }
-
         private string _publisher;
-        public string Publisher { get => this._publisher; set => this.SetProperty(ref this._publisher, value); }
-
         private string _language;
-        public string Language { get => this._language; set => this.SetProperty(ref this._language, value); }
-
         private string _coverImagePath;
-        public string CoverImagePath { get => this._coverImagePath; set => this.SetProperty(ref this._coverImagePath, value); }
+        private CategoryDto _selectedCategory;
+        private string _status;
+
+        public EditBookViewModel(IMediator mediator, IUserSession userSession)
+        {
+            _mediator = mediator;
+            _userSession = userSession;
+            ChangeCoverCommand = new RelayCommand(async () => await ChangeCover());
+            SaveCommand = new RelayCommand<object>(async (w) => await Save(w));
+            CancelCommand = new RelayCommand<object>(Cancel);
+        }
+
+        public string Title
+        {
+            get => _title;
+            set => SetProperty(ref _title, value);
+        }
+
+        public string Author
+        {
+            get => _author;
+            set => SetProperty(ref _author, value);
+        }
+
+        public string Isbn
+        {
+            get => _isbn;
+            set => SetProperty(ref _isbn, value);
+        }
+
+        public int? Year
+        {
+            get => _year;
+            set => SetProperty(ref _year, value);
+        }
+
+        public string Publisher
+        {
+            get => _publisher;
+            set => SetProperty(ref _publisher, value);
+        }
+
+        public string Language
+        {
+            get => _language;
+            set => SetProperty(ref _language, value);
+        }
+
+        public string CoverImagePath
+        {
+            get => _coverImagePath;
+            set => SetProperty(ref _coverImagePath, value);
+        }
 
         public ObservableCollection<CategoryDto> Categories { get; } = new();
-        private CategoryDto _selectedCategory;
-        public CategoryDto SelectedCategory { get => this._selectedCategory; set => this.SetProperty(ref this._selectedCategory, value); }
 
-        private string _status;
-        public string Status { get => this._status; set => this.SetProperty(ref this._status, value); }
+        public CategoryDto SelectedCategory
+        {
+            get => _selectedCategory;
+            set => SetProperty(ref _selectedCategory, value);
+        }
+
+        public string Status
+        {
+            get => _status;
+            set => SetProperty(ref _status, value);
+        }
 
         public ICommand ChangeCoverCommand { get; }
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
 
-        public EditBookViewModel(IMediator mediator, IUserSession userSession)
-        {
-            this._mediator = mediator;
-            this._userSession = userSession;
-            this.ChangeCoverCommand = new RelayCommand(async () => await this.ChangeCover());
-            this.SaveCommand = new RelayCommand<object>(async (w) => await this.Save(w));
-            this.CancelCommand = new RelayCommand<object>(this.Cancel);
-        }
-
         public async Task LoadDataAsync(int bookId)
         {
-            this._currentBookId = bookId;
+            _currentBookId = bookId;
 
-            var categoryList = await this._mediator.Send(new GetAllCategoriesQuery());
-            this.Categories.Clear();
+            var categoryList = await _mediator.Send(new GetAllCategoriesQuery());
+            Categories.Clear();
             foreach (var category in categoryList)
             {
-                this.Categories.Add(category);
+                Categories.Add(category);
             }
 
+            var dto = await _mediator.Send(new GetBookForEditQuery { BookId = bookId, CurrentUserId = _userSession.GetUserId() });
 
-            var dto = await this._mediator.Send(new GetBookForEditQuery { BookId = bookId, CurrentUserId = this._userSession.GetUserId() });
-
-            this.Title = dto.Title;
-            this.Author = dto.Author;
-            this.Isbn = dto.Isbn;
-            this.Year = dto.Year;
-            this.Publisher = dto.Publisher;
-            this.Language = dto.Language;
-            this.Status = dto.Status;
-            this.CoverImagePath = dto.CoverImagePath;
-            this.SelectedCategory = this.Categories.FirstOrDefault(c => c.CategoryId == dto.CategoryId);
+            Title = dto.Title;
+            Author = dto.Author;
+            Isbn = dto.Isbn;
+            Year = dto.Year;
+            Publisher = dto.Publisher;
+            Language = dto.Language;
+            Status = dto.Status;
+            CoverImagePath = dto.CoverImagePath;
+            SelectedCategory = Categories.FirstOrDefault(c => c.CategoryId == dto.CategoryId);
         }
 
         private async Task ChangeCover()
@@ -105,7 +146,7 @@ namespace LNUBookShareUI.ViewModels
                         ImageData = imageData
                     };
 
-                    this.CoverImagePath = await this._mediator.Send(uploadCommand);
+                    CoverImagePath = await _mediator.Send(uploadCommand);
                 }
                 catch (Exception ex)
                 {
@@ -118,39 +159,38 @@ namespace LNUBookShareUI.ViewModels
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(this.Title) ||
-                    string.IsNullOrWhiteSpace(this.Author) ||
-                    this.SelectedCategory == null)
+                if (string.IsNullOrWhiteSpace(Title) ||
+                    string.IsNullOrWhiteSpace(Author) ||
+                    SelectedCategory == null)
                 {
                     _ = MessageBox.Show("Поля 'Назва', 'Автор' та 'Категорія' є обов'язковими.",
-                                    "Помилка валідації",
-                                    MessageBoxButton.OK,
-                                    MessageBoxImage.Error);
-                    return; 
+                                        "Помилка валідації",
+                                        MessageBoxButton.OK,
+                                        MessageBoxImage.Error);
+                    return;
                 }
-
 
                 var dto = new BookEditDto
                 {
-                    Title = this.Title,
-                    Author = this.Author,
-                    Isbn = this.Isbn,
-                    Year = this.Year,
-                    Publisher = this.Publisher,
-                    Language = this.Language,
-                    CategoryId = this.SelectedCategory.CategoryId,
-                    Status = this.Status,
-                    CoverImagePath = this.CoverImagePath
+                    Title = Title,
+                    Author = Author,
+                    Isbn = Isbn,
+                    Year = Year,
+                    Publisher = Publisher,
+                    Language = Language,
+                    CategoryId = SelectedCategory.CategoryId,
+                    Status = Status,
+                    CoverImagePath = CoverImagePath
                 };
 
                 var command = new UpdateBookCommand
                 {
                     BookId = _currentBookId,
-                    CurrentUserId = this._userSession.GetUserId(),
+                    CurrentUserId = _userSession.GetUserId(),
                     Dto = dto
                 };
 
-                _ = await this._mediator.Send(command);
+                _ = await _mediator.Send(command);
 
                 if (window is Window w) { w.Close(); }
             }

@@ -1,6 +1,5 @@
 ﻿namespace LNUBookShareBLL.DTOs
 {
-
     public class ProfileEditDto
     {
         public string? FirstName { get; set; }

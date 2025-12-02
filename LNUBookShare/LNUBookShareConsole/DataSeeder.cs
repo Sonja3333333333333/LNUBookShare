@@ -1,10 +1,11 @@
-﻿using LNUBookShareDAL.Models;
+﻿using Bogus;
+
+using LNUBookShareDAL.Models;
+
 using Microsoft.EntityFrameworkCore;
-using Bogus;
 
 namespace LNUBookShareConsole
 {
-   
     public class DataSeeder
     {
         private readonly LNUBookShareDbContext _dbContext;
@@ -13,16 +14,15 @@ namespace LNUBookShareConsole
         public DataSeeder(LNUBookShareDbContext dbContext)
         {
             this._dbContext = dbContext;
-            this._faker = new Faker("uk"); 
+            this._faker = new Faker("uk");
         }
 
         public async Task SeedDatabaseAsync(int recordCount)
         {
-          
             Console.WriteLine($"Очищення старих даних... (TRUNCATE RESTART IDENTITY)");
             await this._dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE favorite, book, \"User\", category, faculty, image, emailconfirmation RESTART IDENTITY CASCADE");
 
-           
+
             Console.WriteLine($"Генерація {recordCount} Факультетів...");
             var faculties = await this.SeedFacultiesAsync(recordCount);
 
@@ -40,7 +40,7 @@ namespace LNUBookShareConsole
             await this._dbContext.SaveChangesAsync();
             Console.WriteLine("...Користувачів збережено в БД.");
 
-   
+
             Console.WriteLine($"Генерація {recordCount} Книг...");
             var books = await this.SeedBooksAsync(recordCount, users, categories, images);
             await this._dbContext.SaveChangesAsync();
@@ -155,6 +155,7 @@ namespace LNUBookShareConsole
                 uniqueFavoritePairs.Add((randomUserId, randomBookId));
                 favorites.Add(new Favorite { UserId = randomUserId, BookId = randomBookId });
             }
+
             await this._dbContext.Favorites.AddRangeAsync(favorites);
         }
 
@@ -175,6 +176,7 @@ namespace LNUBookShareConsole
                     ExpiresAt = DateTime.UtcNow.AddHours(24)
                 });
             }
+
             await this._dbContext.Emailconfirmations.AddRangeAsync(confirmations);
         }
     }

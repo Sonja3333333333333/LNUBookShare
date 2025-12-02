@@ -1,8 +1,9 @@
-﻿using MediatR;
-using LNUBookShareBLL.DTOs;
+﻿using LNUBookShareBLL.DTOs;
+
+using MediatR;
 
 namespace LNUBookShareBLL.Features.Auth
-{ 
+{
     public class LoginUserQuery : IRequest<LoginResultDto>
     {
         public string? Email { get; set; }

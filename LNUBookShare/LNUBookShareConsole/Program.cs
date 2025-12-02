@@ -1,11 +1,15 @@
-﻿using LNUBookShareDAL.Models;
+﻿using LNUBookShareBLL.Features.Books;
+
+using LNUBookShareConsole;
+
+using LNUBookShareDAL.Models;
+
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using LNUBookShareConsole;
-using LNUBookShareBLL.Features.Books; 
-using MediatR;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -17,14 +21,14 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddDbContext<LNUBookShareDbContext>(options =>
             options.UseNpgsql(connectionString)
-          
+
             .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
         );
 
- 
+
         services.AddMediatR(typeof(AddBookCommand).Assembly);
 
-    
+
         services.AddTransient<DataSeeder>();
         services.AddTransient<ConsoleController>();
     })

@@ -1,5 +1,6 @@
-using LNUBookShareDAL.Models;     
-using Microsoft.EntityFrameworkCore; 
+using LNUBookShareDAL.Models;
+
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

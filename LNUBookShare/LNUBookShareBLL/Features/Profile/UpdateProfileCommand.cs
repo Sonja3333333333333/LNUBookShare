@@ -1,5 +1,6 @@
-﻿using MediatR;
-using LNUBookShareBLL.DTOs;
+﻿using LNUBookShareBLL.DTOs;
+
+using MediatR;
 
 namespace LNUBookShareBLL.Features.Profile
 {

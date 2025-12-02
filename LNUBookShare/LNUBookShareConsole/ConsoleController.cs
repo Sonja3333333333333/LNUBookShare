@@ -1,11 +1,11 @@
-﻿using MediatR;
-using LNUBookShareBLL.DTOs;
+﻿using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Features.Books;
+
+using MediatR;
 
 
 namespace LNUBookShareConsole
 {
-  
     public class ConsoleController
     {
         private readonly IMediator _mediator;
@@ -77,31 +77,29 @@ namespace LNUBookShareConsole
         {
             try
             {
-     
                 Console.Write("  Назва: ");
                 string title = Console.ReadLine();
                 Console.Write("  Автор: ");
                 string author = Console.ReadLine();
                 Console.Write("  ID Категорії: ");
                 int categoryId = int.Parse(Console.ReadLine());
-             
 
-                
+
+
                 var dto = new AddBookDto
                 {
                     Title = title,
                     Author = author,
                     CategoryId = categoryId
-       
                 };
 
                 var command = new AddBookCommand
                 {
                     Dto = dto,
-                    OwnerUserId = 1 
+                    OwnerUserId = 1
                 };
 
-                
+
                 int newBookId = await this._mediator.Send(command);
 
                 Console.ForegroundColor = ConsoleColor.Yellow;
@@ -126,7 +124,7 @@ namespace LNUBookShareConsole
                 var command = new DeleteBookCommand
                 {
                     BookId = bookId,
-                    CurrentUserId = 1 
+                    CurrentUserId = 1
                 };
 
                 await this._mediator.Send(command);

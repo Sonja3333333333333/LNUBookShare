@@ -1,8 +1,5 @@
 ﻿using LNUBookShareDAL.Models;
-using System;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace LNUBookShareBLL
 {
@@ -10,10 +7,9 @@ namespace LNUBookShareBLL
     {
         private readonly EmailService _emailService;
 
-
         private readonly string _connectionString = "Host=ep-wispy-hat-adm0eu4d-pooler.c-2.us-east-1.aws.neon.tech;" +
                                                     "Database=neondb;" +
-                                                    "Username=neondb_owner;" + 
+                                                    "Username=neondb_owner;" +
                                                     "Password=npg_GqkRolz4rhy6;" +
                                                     "SSL Mode=Require;" +
                                                     "Trust Server Certificate=true";
@@ -21,13 +17,6 @@ namespace LNUBookShareBLL
         public AuthService()
         {
             _emailService = new EmailService();
-        }
-
-        private LNUBookShareDbContext CreateDbContext()
-        {
-            var optionsBuilder = new DbContextOptionsBuilder<LNUBookShareDbContext>();
-            optionsBuilder.UseNpgsql(_connectionString);
-            return new LNUBookShareDbContext(optionsBuilder.Options);
         }
 
         public async Task RegisterUserAsync(string email, string password)
@@ -42,9 +31,7 @@ namespace LNUBookShareBLL
 
             try
             {
-
                 dbContext = CreateDbContext();
-
 
                 newUser = new User
                 {
@@ -60,7 +47,6 @@ namespace LNUBookShareBLL
                 dbContext.Users.Add(newUser);
                 await dbContext.SaveChangesAsync();
 
-           
                 confirmation = new Emailconfirmation
                 {
                     UserId = newUser.UserId,
@@ -69,17 +55,14 @@ namespace LNUBookShareBLL
                 };
 
                 dbContext.Emailconfirmations.Add(confirmation);
-                await dbContext.SaveChangesAsync(); 
-
+                await dbContext.SaveChangesAsync();
 
                 await _emailService.SendConfirmationEmailAsync(email, confirmationLink);
             }
             catch (Exception emailEx)
             {
-             
                 if (newUser != null && confirmation != null && dbContext != null)
                 {
-  
                     dbContext.Emailconfirmations.Remove(confirmation);
                     dbContext.Users.Remove(newUser);
                     await dbContext.SaveChangesAsync();
@@ -89,7 +72,6 @@ namespace LNUBookShareBLL
             }
             finally
             {
- 
                 if (dbContext != null)
                 {
                     await dbContext.DisposeAsync();
@@ -97,9 +79,15 @@ namespace LNUBookShareBLL
             }
         }
 
+        private LNUBookShareDbContext CreateDbContext()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<LNUBookShareDbContext>();
+            optionsBuilder.UseNpgsql(_connectionString);
+            return new LNUBookShareDbContext(optionsBuilder.Options);
+        }
+
         private string HashPassword(string password)
         {
- 
             return password;
         }
     }

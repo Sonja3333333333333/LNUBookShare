@@ -1,9 +1,13 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using System.Text.RegularExpressions;
-using LNUBookShareDAL.Models;
-using LNUBookShareBLL.DTOs;
+﻿using System.Text.RegularExpressions;
+
 using LNUBookShareBLL.Common;
+using LNUBookShareBLL.DTOs;
+
+using LNUBookShareDAL.Models;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LNUBookShareBLL.Features.Profile
@@ -38,10 +42,12 @@ namespace LNUBookShareBLL.Features.Profile
             {
                 throw new Exception("Ім'я повинно містити лише літери.");
             }
+
             if (string.IsNullOrWhiteSpace(dto.LastName) || !Regex.IsMatch(dto.LastName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
             {
                 throw new Exception("Прізвище повинно містити лише літери.");
             }
+
             if (dto.FacultyId <= 0)
             {
                 throw new Exception("Необхідно обрати факультет.");
@@ -56,6 +62,7 @@ namespace LNUBookShareBLL.Features.Profile
             {
                 throw new Exception("Користувача не знайдено.");
             }
+
             return user;
         }
 

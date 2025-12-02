@@ -9,15 +9,14 @@
 //Ми перевіряємо, що код кидає правильні помилки на неправильні FirstName, LastName та FacultyId.
 
 
-using Xunit;
 using FluentAssertions;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Profile;
+
 using LNUBookShareBLL.DTOs;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using LNUBookShareBLL.Features.Profile;
+
+using LNUBookShareDAL.Models;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareTests.Profile_tests
 {
@@ -54,8 +53,8 @@ namespace LNUBookShareTests.Profile_tests
                 LastName = "OldLastName",
                 Email = "test@example.com",
                 PasswordHash = "dummy_hash",
-                FacultyId = 1, 
-                AvatarId = 50  
+                FacultyId = 1,
+                AvatarId = 50
             });
 
             await context.SaveChangesAsync();
@@ -77,8 +76,8 @@ namespace LNUBookShareTests.Profile_tests
                 {
                     FirstName = "NewName",
                     LastName = "NewLastName",
-                    FacultyId = 2, 
-                    ProfileImageUrl = string.Empty 
+                    FacultyId = 2,
+                    ProfileImageUrl = string.Empty
                 }
             };
 
@@ -88,8 +87,8 @@ namespace LNUBookShareTests.Profile_tests
             userInDb.Should().NotBeNull();
             userInDb.FirstName.Should().Be("NewName");
             userInDb.LastName.Should().Be("NewLastName");
-            userInDb.FacultyId.Should().Be(2); 
-            userInDb.AvatarId.Should().Be(50); 
+            userInDb.FacultyId.Should().Be(2);
+            userInDb.AvatarId.Should().Be(50);
             userInDb.UpdatedAt.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
         }
 
@@ -108,7 +107,7 @@ namespace LNUBookShareTests.Profile_tests
                     FirstName = "NewName",
                     LastName = "NewLastName",
                     FacultyId = 2,
-                    ProfileImageUrl = @"uploads\images\test-avatar.png" 
+                    ProfileImageUrl = @"uploads\images\test-avatar.png"
                 }
             };
 
@@ -116,7 +115,7 @@ namespace LNUBookShareTests.Profile_tests
 
             var userInDb = await context.Users.FindAsync(1);
             userInDb.Should().NotBeNull();
-            userInDb.AvatarId.Should().Be(99); 
+            userInDb.AvatarId.Should().Be(99);
         }
 
         // === "Сумні шляхи"  ===
@@ -140,9 +139,9 @@ namespace LNUBookShareTests.Profile_tests
         }
 
         [Theory]
-        [InlineData("Name123")] 
-        [InlineData(" ")]       
-        [InlineData(null)]      
+        [InlineData("Name123")]
+        [InlineData(" ")]
+        [InlineData(null)]
         public async Task Handle_ShouldThrowException_WhenFirstNameIsInvalid(string invalidFirstName)
         {
             await using var context = this.GetInMemoryDbContext();
@@ -159,9 +158,9 @@ namespace LNUBookShareTests.Profile_tests
         }
 
         [Theory]
-        [InlineData("Last123")] 
-        [InlineData(" ")]       
-        [InlineData(null)]      
+        [InlineData("Last123")]
+        [InlineData(" ")]
+        [InlineData(null)]
         public async Task Handle_ShouldThrowException_WhenLastNameIsInvalid(string invalidLastName)
         {
             await using var context = this.GetInMemoryDbContext();

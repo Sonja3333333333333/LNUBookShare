@@ -1,10 +1,8 @@
-﻿using Xunit;
-using Microsoft.EntityFrameworkCore;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using LNUBookShareBLL.Features.Books;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareDAL;
-using LNUBookShareBLL.Features.Books;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareTests.Book_tests
 {
@@ -22,11 +20,10 @@ namespace LNUBookShareTests.Book_tests
             this._dbContext = new LNUBookShareDbContext(this._options);
         }
 
-        
+
         [Fact]
         public async Task Handle_ShouldDeleteBook_WhenUserIsOwner()
         {
-            
             var book = new Book
             {
                 BookId = 1,
@@ -47,45 +44,43 @@ namespace LNUBookShareTests.Book_tests
                 CurrentUserId = 10
             };
 
-            
+
             await handler.Handle(command, CancellationToken.None);
 
-            
+
             var deleted = await this._dbContext.Books.FindAsync(1);
-            Assert.Null(deleted); 
+            Assert.Null(deleted);
         }
 
-        
+
         [Fact]
         public async Task Handle_ShouldThrowException_WhenBookNotFound()
         {
-            
             var handler = new DeleteBookCommandHandler(this._dbContext);
             var command = new DeleteBookCommand
             {
-                BookId = 999,   
+                BookId = 999,
                 CurrentUserId = 5
             };
-            
+
             var ex = await Assert.ThrowsAsync<System.Exception>(() =>
                 handler.Handle(command, CancellationToken.None));
-            
+
             Assert.Equal("Книгу не знайдено.", ex.Message);
         }
 
-        
+
         [Fact]
         public async Task Handle_ShouldThrowException_WhenUserIsNotOwner()
         {
-            
             var book = new Book
             {
                 BookId = 10,
                 Title = "Foreign Book",
-                OwnerId = 7,                
+                OwnerId = 7,
                 Author = "Author",
                 CategoryId = 1,
-                Status = "available"                
+                Status = "available"
             };
 
             this._dbContext.Books.Add(book);
@@ -95,12 +90,12 @@ namespace LNUBookShareTests.Book_tests
             var command = new DeleteBookCommand
             {
                 BookId = 10,
-                CurrentUserId = 5 
+                CurrentUserId = 5
             };
-            
+
             var ex = await Assert.ThrowsAsync<System.Exception>(() =>
                 handler.Handle(command, CancellationToken.None));
-            
+
             Assert.Equal("Ви не можете видалити книгу, яка вам не належить.", ex.Message);
         }
     }

@@ -1,13 +1,10 @@
-﻿using Xunit;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
+﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Features.Books;
-using LNUBookShareDAL;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using LNUBookShareBLL.Common;
+
+using LNUBookShareDAL.Models;
+
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LNUBookShareTests.Book_tests
@@ -53,10 +50,10 @@ namespace LNUBookShareTests.Book_tests
                 }
             };
 
-            
+
             var result = await handler.Handle(command, CancellationToken.None);
 
-            
+
             var addedBook = await this._dbContext.Books.FindAsync(result);
             Assert.NotNull(addedBook);
             Assert.Equal("Test Book", addedBook.Title);
@@ -77,7 +74,7 @@ namespace LNUBookShareTests.Book_tests
                 OwnerUserId = 1,
                 Dto = new AddBookDto
                 {
-                    Title = "", 
+                    Title = "",
                     Author = "Author",
                     CategoryId = 1
                 }

@@ -19,6 +19,7 @@ namespace LNUBookShareUI.Common
             {
                 return false;
             }
+
             field = value;
             this.OnPropertyChanged(propertyName);
             return true;

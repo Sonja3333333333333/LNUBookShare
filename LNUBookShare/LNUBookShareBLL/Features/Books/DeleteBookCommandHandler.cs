@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using LNUBookShareDAL.Models;
+
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
 
 namespace LNUBookShareBLL.Features.Books
 {
@@ -33,6 +35,7 @@ namespace LNUBookShareBLL.Features.Books
             {
                 throw new System.Exception("Книгу не знайдено.");
             }
+
             return book;
         }
 

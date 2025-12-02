@@ -1,14 +1,16 @@
-﻿using LNUBookShareUI.ViewModels;
-using LNUBookShareUI.Views;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection; 
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
 
+using LNUBookShareUI.ViewModels;
+using LNUBookShareUI.Views;
+
+using MediatR;
+
+using Microsoft.Extensions.DependencyInjection;
+
 namespace LNUBookShareUI.Common
 {
-    
     public class NavigationService : INavigationService
     {
         private readonly IServiceProvider _serviceProvider;
@@ -25,7 +27,7 @@ namespace LNUBookShareUI.Common
 
             view.DataContext = viewModel;
 
-            
+
             await viewModel.LoadDataAsync(bookId);
 
             _ = view.ShowDialog();
@@ -38,10 +40,10 @@ namespace LNUBookShareUI.Common
 
             view.DataContext = viewModel;
 
-           
+
             await viewModel.LoadDataAsync();
 
-         
+
             _ = view.ShowDialog();
         }
 
@@ -49,22 +51,21 @@ namespace LNUBookShareUI.Common
         {
             try
             {
-
                 var view = this._serviceProvider.GetService<BookDetailsView>();
 
                 var viewModel = new BookDetailsViewModel(
                     this._serviceProvider.GetService<IMediator>(),
-                    this, 
+                    this,
                     _serviceProvider.GetService<IUserSession>()
                 );
 
-             
+
                 view.DataContext = viewModel;
 
-                
+
                 await viewModel.LoadBookDetailsAsync(bookId);
 
-              
+
                 view.Show();
             }
             catch (Exception ex)
@@ -75,19 +76,18 @@ namespace LNUBookShareUI.Common
 
         public void ShowProfile()
         {
-           
             var profileView = this._serviceProvider.GetService<ProfileView>();
 
-            
+
             var profileViewModel = this._serviceProvider.GetService<ProfileViewModel>();
 
-           
+
             profileView.DataContext = profileViewModel;
 
-         
-            profileView.Show();
 
+            profileView.Show();
         }
+
         public void ShowViewProfile(int id)
         {
             var profileView = this._serviceProvider.GetService<ProfileView>();
@@ -102,6 +102,7 @@ namespace LNUBookShareUI.Common
             profileView.DataContext = viewOtherProfileViewModel;
             profileView.Show();
         }
+
         public void ShowFavorites()
         {
             var favoritesView = this._serviceProvider.GetService<FavoritesView>();
@@ -133,6 +134,7 @@ namespace LNUBookShareUI.Common
             registerView.DataContext = this._serviceProvider.GetService<RegisterViewModel>();
             registerView.Show();
         }
+
         public async Task ShowEditProfile()
         {
             var editProfileView = this._serviceProvider.GetService<EditProfileView>();
@@ -144,6 +146,5 @@ namespace LNUBookShareUI.Common
 
             _ = editProfileView.ShowDialog();
         }
-
     }
 }

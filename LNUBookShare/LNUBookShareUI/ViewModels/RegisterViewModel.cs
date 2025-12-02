@@ -1,14 +1,17 @@
-﻿using LNUBookShareBLL.DTOs;
-using LNUBookShareBLL.Features.Auth;
-using LNUBookShareBLL.Features.Faculties;
-using LNUBookShareUI.Common;
-using MediatR;
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls; 
+using System.Windows.Controls;
 using System.Windows.Input;
+
+using LNUBookShareBLL.DTOs;
+using LNUBookShareBLL.Features.Auth;
+using LNUBookShareBLL.Features.Faculties;
+
+using LNUBookShareUI.Common;
+
+using MediatR;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -17,42 +20,51 @@ namespace LNUBookShareUI.ViewModels
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
 
-        
         private string _firstName;
         private string _lastName;
         private string _email;
         private FacultyDto _selectedFaculty;
         private string _errorMessage;
 
-    
+        public RegisterViewModel(IMediator mediator, INavigationService navigationService)
+        {
+            _mediator = mediator;
+            _navigationService = navigationService;
+
+            RegisterCommand = new RelayCommand<object>(async (param) => await RegisterAsync(param));
+            GoToLoginCommand = new RelayCommand<object>(GoToLogin);
+
+            _ = LoadFacultiesAsync();
+        }
+
         public string FirstName
         {
-            get => this._firstName;
-            set => this.SetProperty(ref this._firstName, value);
+            get => _firstName;
+            set => SetProperty(ref _firstName, value);
         }
 
         public string LastName
         {
-            get => this._lastName;
-            set => this.SetProperty(ref this._lastName, value);
+            get => _lastName;
+            set => SetProperty(ref _lastName, value);
         }
 
         public string Email
         {
-            get => this._email;
-            set => this.SetProperty(ref this._email, value);
+            get => _email;
+            set => SetProperty(ref _email, value);
         }
 
         public FacultyDto SelectedFaculty
         {
-            get => this._selectedFaculty;
-            set => this.SetProperty(ref this._selectedFaculty, value);
+            get => _selectedFaculty;
+            set => SetProperty(ref _selectedFaculty, value);
         }
 
         public string ErrorMessage
         {
-            get => this._errorMessage;
-            set => this.SetProperty(ref this._errorMessage, value);
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
         }
 
         public ObservableCollection<FacultyDto> Faculties { get; } = new();
@@ -60,76 +72,59 @@ namespace LNUBookShareUI.ViewModels
         public ICommand RegisterCommand { get; }
         public ICommand GoToLoginCommand { get; }
 
-       
-        public RegisterViewModel(IMediator mediator, INavigationService navigationService)
-        {
-            this._mediator = mediator;
-            this._navigationService = navigationService;
-
-            this.RegisterCommand = new RelayCommand<object>(async (param) => await this.RegisterAsync(param));
-            this.GoToLoginCommand = new RelayCommand<object>(this.GoToLogin);
-
-            _ = this.LoadFacultiesAsync();
-        }
-
-   
- 
         private async Task RegisterAsync(object parameter)
         {
-         
-    
             if (parameter is not PasswordBox passwordBox)
             {
-                this.ErrorMessage = "Сталася помилка (PasswordBox == null).";
+                ErrorMessage = "Сталася помилка (PasswordBox == null).";
                 return;
             }
-            string password = passwordBox.Password; 
+
+            string password = passwordBox.Password;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(this.FirstName) ||
-                    string.IsNullOrWhiteSpace(this.LastName) ||
-                    string.IsNullOrWhiteSpace(this.Email) ||
+                if (string.IsNullOrWhiteSpace(FirstName) ||
+                    string.IsNullOrWhiteSpace(LastName) ||
+                    string.IsNullOrWhiteSpace(Email) ||
                     string.IsNullOrWhiteSpace(password) ||
-                    this.SelectedFaculty == null)
+                    SelectedFaculty == null)
                 {
-                    this.ErrorMessage = "Будь ласка, заповніть усі поля.";
+                    ErrorMessage = "Будь ласка, заповніть усі поля.";
                     return;
                 }
 
-                if (!this.Email.EndsWith("@lnu.edu.ua"))
+                if (!Email.EndsWith("@lnu.edu.ua"))
                 {
-                    this.ErrorMessage = "Дозволено лише пошту @lnu.edu.ua.";
+                    ErrorMessage = "Дозволено лише пошту @lnu.edu.ua.";
                     return;
                 }
 
                 if (password.Length < 9)
                 {
-                    this.ErrorMessage = "Пароль >= 9 символів.";
+                    ErrorMessage = "Пароль >= 9 символів.";
                     return;
                 }
 
                 var command = new RegisterUserCommand
                 {
-                    FirstName = this.FirstName,
-                    LastName = this.LastName,
-                    Email = this.Email,
+                    FirstName = FirstName,
+                    LastName = LastName,
+                    Email = Email,
                     Password = password,
-                    FacultyId = this.SelectedFaculty.FacultyId
+                    FacultyId = SelectedFaculty.FacultyId
                 };
 
-
-                _ = await this._mediator.Send(command);
+                _ = await _mediator.Send(command);
 
                 _ = MessageBox.Show("Перевірте пошту для підтвердження реєстрації.", "Реєстрація успішна",
                                 MessageBoxButton.OK, MessageBoxImage.Information);
 
-                this.GoToLogin(parameter);
+                GoToLogin(parameter);
             }
             catch (Exception ex)
             {
-
-                this.ErrorMessage = ex.Message;
+                ErrorMessage = ex.Message;
             }
         }
 
@@ -137,26 +132,25 @@ namespace LNUBookShareUI.ViewModels
         {
             try
             {
-                var faculties = await this._mediator.Send(new GetAllFacultiesQuery());
+                var faculties = await _mediator.Send(new GetAllFacultiesQuery());
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    this.Faculties.Clear();
+                    Faculties.Clear();
                     foreach (var f in faculties)
                     {
-                        this.Faculties.Add(f);
+                        Faculties.Add(f);
                     }
                 });
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = "Не вдалося завантажити список факультетів: " + ex.Message;
+                ErrorMessage = "Не вдалося завантажити список факультетів: " + ex.Message;
             }
         }
 
-     
         private void GoToLogin(object parameter)
         {
-            this._navigationService.ShowLogin();
+            _navigationService.ShowLogin();
 
             Window? windowToClose = null;
             if (parameter is Window w)

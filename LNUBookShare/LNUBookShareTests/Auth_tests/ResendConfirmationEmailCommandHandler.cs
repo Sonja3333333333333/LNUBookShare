@@ -1,7 +1,8 @@
-﻿using Xunit;
-using Microsoft.EntityFrameworkCore;
+﻿using LNUBookShareBLL.Features.Auth;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Auth;
+
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LNUBookShareTests.Auth

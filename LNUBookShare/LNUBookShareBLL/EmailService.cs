@@ -3,19 +3,16 @@ using MailKit.Security;
 
 using MimeKit;
 
-using System.Threading.Tasks;
-
 
 namespace LNUBookShareBLL
 {
     public class EmailService : IEmailService
     {
-       
-        public async Task SendConfirmationEmailAsync(string userEmail, string confirmationLink) 
+        public async Task SendConfirmationEmailAsync(string userEmail, string confirmationLink)
         {
             var message = new MimeMessage();
 
-     
+
             message.From.Add(new MailboxAddress("LNU Book Share", "apuhlij66@gmail.com"));
             message.To.Add(new MailboxAddress("Новий Користувач", userEmail));
             message.Subject = "Підтвердження реєстрації LNU Book Share";
@@ -34,7 +31,6 @@ namespace LNUBookShareBLL
 
             using (var client = new SmtpClient())
             {
-        
                 await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
 
                 await client.AuthenticateAsync("apuhlij66@gmail.com", "ljgsgvptewwucrpy");

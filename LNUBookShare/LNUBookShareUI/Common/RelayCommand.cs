@@ -47,6 +47,7 @@ namespace LNUBookShareUI.Common
             {
                 return this._canExecute?.Invoke(param) ?? true;
             }
+
             return false;
         }
 

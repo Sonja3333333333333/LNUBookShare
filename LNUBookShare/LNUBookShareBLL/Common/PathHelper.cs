@@ -1,18 +1,17 @@
-﻿namespace LNUBookShareBLL.Common 
+﻿namespace LNUBookShareBLL.Common
 {
     public static class PathHelper
     {
-        
         private static readonly string _baseDir = AppDomain.CurrentDomain.BaseDirectory;
 
         public static string? ConvertToAbsolutePath(string? dbPath)
         {
             if (string.IsNullOrEmpty(dbPath))
-            { 
-                return null; 
+            {
+                return null;
             }
-               
-            
+
+
             if (dbPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 dbPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
@@ -28,7 +27,7 @@
             {
                 return null;
             }
-               
+
             if (absolutePath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 absolutePath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
