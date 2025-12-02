@@ -8,17 +8,6 @@ namespace LNUBookShareTests.Auth
 {
     public class ConfirmEmailCommandHandlerTests
     {
-        private LNUBookShareDbContext GetInMemoryDbContext()
-        {
-            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
-                .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
-                .Options;
-
-            var context = new LNUBookShareDbContext(options);
-            context.Database.EnsureCreated();
-            return context;
-        }
-
         [Fact]
         public async Task Handle_ValidToken_ConfirmsEmail()
         {
@@ -35,7 +24,7 @@ namespace LNUBookShareTests.Auth
                 FirstName = "Test",
                 LastName = "User",
                 FacultyId = faculty.FacultyId,
-                IsEmailConfirmed = false
+                IsEmailConfirmed = false,
             };
             context.Users.Add(user);
             await context.SaveChangesAsync();
@@ -45,7 +34,7 @@ namespace LNUBookShareTests.Auth
                 UserId = user.UserId,
                 ConfirmationToken = "valid-token",
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddHours(24)
+                ExpiresAt = DateTime.UtcNow.AddHours(24),
             };
             context.Emailconfirmations.Add(token);
             await context.SaveChangesAsync();
@@ -53,7 +42,7 @@ namespace LNUBookShareTests.Auth
             var handler = new ConfirmEmailCommandHandler(context);
             var command = new ConfirmEmailCommand
             {
-                ConfirmationToken = "valid-token"
+                ConfirmationToken = "valid-token",
             };
 
             await handler.Handle(command, CancellationToken.None);
@@ -73,7 +62,7 @@ namespace LNUBookShareTests.Auth
             var handler = new ConfirmEmailCommandHandler(context);
             var command = new ConfirmEmailCommand
             {
-                ConfirmationToken = "invalid-token"
+                ConfirmationToken = "invalid-token",
             };
 
             await Assert.ThrowsAsync<Exception>(() =>
@@ -96,7 +85,7 @@ namespace LNUBookShareTests.Auth
                 FirstName = "Test",
                 LastName = "User",
                 FacultyId = faculty.FacultyId,
-                IsEmailConfirmed = false
+                IsEmailConfirmed = false,
             };
             context.Users.Add(user);
             await context.SaveChangesAsync();
@@ -106,7 +95,7 @@ namespace LNUBookShareTests.Auth
                 UserId = user.UserId,
                 ConfirmationToken = "expired-token",
                 CreatedAt = DateTime.UtcNow.AddDays(-2),
-                ExpiresAt = DateTime.UtcNow.AddDays(-1)
+                ExpiresAt = DateTime.UtcNow.AddDays(-1),
             };
             context.Emailconfirmations.Add(expiredToken);
             await context.SaveChangesAsync();
@@ -114,12 +103,23 @@ namespace LNUBookShareTests.Auth
             var handler = new ConfirmEmailCommandHandler(context);
             var command = new ConfirmEmailCommand
             {
-                ConfirmationToken = "expired-token"
+                ConfirmationToken = "expired-token",
             };
 
             var exception = await Assert.ThrowsAsync<Exception>(() =>
                 handler.Handle(command, CancellationToken.None));
             Assert.Contains("Термін дії токена вийшов", exception.Message);
+        }
+
+        private LNUBookShareDbContext GetInMemoryDbContext()
+        {
+            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
+                .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new LNUBookShareDbContext(options);
+            context.Database.EnsureCreated();
+            return context;
         }
     }
 }

@@ -67,7 +67,7 @@ namespace LNUBookShareUI.ViewModels
             set => SetProperty(ref _errorMessage, value);
         }
 
-        public ObservableCollection<FacultyDto> Faculties { get; } = new();
+        public ObservableCollection<FacultyDto> Faculties { get; } = new ();
 
         public ICommand RegisterCommand { get; }
         public ICommand GoToLoginCommand { get; }
@@ -112,7 +112,7 @@ namespace LNUBookShareUI.ViewModels
                     LastName = LastName,
                     Email = Email,
                     Password = password,
-                    FacultyId = SelectedFaculty.FacultyId
+                    FacultyId = SelectedFaculty.FacultyId,
                 };
 
                 _ = await _mediator.Send(command);

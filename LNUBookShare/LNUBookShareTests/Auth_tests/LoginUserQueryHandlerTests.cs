@@ -11,6 +11,78 @@ namespace LNUBookShareTests.Auth
         private const int TestFacultyId = 1;
         private const string TestFacultyName = "Тестовий факультет";
 
+        [Fact]
+        public async Task Handle_ValidCredentials_ReturnsLoginResult()
+        {
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
+
+            var handler = new LoginUserQueryHandler(context);
+            var query = new LoginUserQuery
+            {
+                Email = "ivan@lnu.edu.ua",
+                Password = "password123",
+            };
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("Іван", result.FirstName);
+            Assert.Equal("ivan@lnu.edu.ua", result.Email);
+        }
+
+        [Fact]
+        public async Task Handle_InvalidPassword_ThrowsException()
+        {
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
+
+            var handler = new LoginUserQueryHandler(context);
+            var query = new LoginUserQuery
+            {
+                Email = "ivan@lnu.edu.ua",
+                Password = "wrong",
+            };
+
+            await Assert.ThrowsAsync<Exception>(() =>
+                handler.Handle(query, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_UserNotFound_ThrowsException()
+        {
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
+
+            var handler = new LoginUserQueryHandler(context);
+            var query = new LoginUserQuery
+            {
+                Email = "nonexistent@lnu.edu.ua",
+                Password = "password123",
+            };
+
+            await Assert.ThrowsAsync<Exception>(() =>
+                handler.Handle(query, CancellationToken.None));
+        }
+
+        [Fact]
+        public async Task Handle_EmailNotConfirmed_ThrowsException()
+        {
+            await using var context = this.GetInMemoryDbContext();
+            await this.SeedDatabase(context);
+
+            var handler = new LoginUserQueryHandler(context);
+            var query = new LoginUserQuery
+            {
+                Email = "unconfirmed@lnu.edu.ua",
+                Password = "password123",
+            };
+
+            var exception = await Assert.ThrowsAsync<Exception>(() =>
+                handler.Handle(query, CancellationToken.None));
+            Assert.Contains("не підтверджено", exception.Message);
+        }
+
         private LNUBookShareDbContext GetInMemoryDbContext()
         {
             var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
@@ -35,7 +107,7 @@ namespace LNUBookShareTests.Auth
                 Email = "ivan@lnu.edu.ua",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
                 FacultyId = TestFacultyId,
-                IsEmailConfirmed = true
+                IsEmailConfirmed = true,
             });
 
             context.Users.Add(new User
@@ -46,81 +118,9 @@ namespace LNUBookShareTests.Auth
                 Email = "unconfirmed@lnu.edu.ua",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
                 FacultyId = TestFacultyId,
-                IsEmailConfirmed = false
+                IsEmailConfirmed = false,
             });
             await context.SaveChangesAsync();
-        }
-
-        [Fact]
-        public async Task Handle_ValidCredentials_ReturnsLoginResult()
-        {
-            await using var context = this.GetInMemoryDbContext();
-            await this.SeedDatabase(context);
-
-            var handler = new LoginUserQueryHandler(context);
-            var query = new LoginUserQuery
-            {
-                Email = "ivan@lnu.edu.ua",
-                Password = "password123"
-            };
-
-            var result = await handler.Handle(query, CancellationToken.None);
-
-            Assert.NotNull(result);
-            Assert.Equal("Іван", result.FirstName);
-            Assert.Equal("ivan@lnu.edu.ua", result.Email);
-        }
-
-        [Fact]
-        public async Task Handle_InvalidPassword_ThrowsException()
-        {
-            await using var context = this.GetInMemoryDbContext();
-            await this.SeedDatabase(context);
-
-            var handler = new LoginUserQueryHandler(context);
-            var query = new LoginUserQuery
-            {
-                Email = "ivan@lnu.edu.ua",
-                Password = "wrong"
-            };
-
-            await Assert.ThrowsAsync<Exception>(() =>
-                handler.Handle(query, CancellationToken.None));
-        }
-
-        [Fact]
-        public async Task Handle_UserNotFound_ThrowsException()
-        {
-            await using var context = this.GetInMemoryDbContext();
-            await this.SeedDatabase(context);
-
-            var handler = new LoginUserQueryHandler(context);
-            var query = new LoginUserQuery
-            {
-                Email = "nonexistent@lnu.edu.ua",
-                Password = "password123"
-            };
-
-            await Assert.ThrowsAsync<Exception>(() =>
-                handler.Handle(query, CancellationToken.None));
-        }
-
-        [Fact]
-        public async Task Handle_EmailNotConfirmed_ThrowsException()
-        {
-            await using var context = this.GetInMemoryDbContext();
-            await this.SeedDatabase(context);
-
-            var handler = new LoginUserQueryHandler(context);
-            var query = new LoginUserQuery
-            {
-                Email = "unconfirmed@lnu.edu.ua",
-                Password = "password123"
-            };
-
-            var exception = await Assert.ThrowsAsync<Exception>(() =>
-                handler.Handle(query, CancellationToken.None));
-            Assert.Contains("не підтверджено", exception.Message);
         }
     }
 }

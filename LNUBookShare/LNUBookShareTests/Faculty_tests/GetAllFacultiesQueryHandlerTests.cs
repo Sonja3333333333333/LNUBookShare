@@ -4,14 +4,12 @@ using LNUBookShareDAL.Models;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareTests.Faculty_tests
 {
     public class GetAllFacultiesQueryHandlerTests
     {
         private LNUBookShareDbContext _dbContext;
         private DbContextOptions<LNUBookShareDbContext> _options;
-
 
         public GetAllFacultiesQueryHandlerTests()
         {
@@ -29,16 +27,14 @@ namespace LNUBookShareTests.Faculty_tests
             {
                 new Faculty { Name = "Факультет журналістики" },
                 new Faculty { Name = "Факультет міжнародних відносин" },
-                new Faculty { Name = "Економічний факультет" }
+                new Faculty { Name = "Економічний факультет" },
             });
             await this._dbContext.SaveChangesAsync();
-
 
             var handler = new GetAllFacultiesQueryHandler(this._dbContext);
             var query = new GetAllFacultiesQuery();
 
             var result = await handler.Handle(query, CancellationToken.None);
-
 
             Assert.NotNull(result);
             Assert.Equal(3, result.Count());
@@ -51,7 +47,6 @@ namespace LNUBookShareTests.Faculty_tests
             var query = new GetAllFacultiesQuery();
 
             var result = await handler.Handle(query, CancellationToken.None);
-
 
             Assert.NotNull(result);
             Assert.Empty(result);

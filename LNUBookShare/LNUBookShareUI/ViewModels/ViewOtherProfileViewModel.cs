@@ -26,7 +26,7 @@ namespace LNUBookShareUI.ViewModels
         private readonly INavigationService _navigationService;
 
         private ProfileDto _profile;
-        private ObservableCollection<OwnedBookDto> _allOwnedBooks = new();
+        private ObservableCollection<OwnedBookDto> _allOwnedBooks = new ();
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
 
@@ -43,7 +43,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 { BookSortCriteria.Title, "Назва" },
                 { BookSortCriteria.Author, "Автор" },
-                { BookSortCriteria.Year, "Рік" }
+                { BookSortCriteria.Year, "Рік" },
             };
 
             LoadDataCommand = new RelayCommand(async () => await LoadProfileAsync());
@@ -143,7 +143,7 @@ namespace LNUBookShareUI.ViewModels
             var command = new DeleteBookCommand
             {
                 BookId = bookId,
-                CurrentUserId = _currentUserId
+                CurrentUserId = _currentUserId,
             };
 
             try

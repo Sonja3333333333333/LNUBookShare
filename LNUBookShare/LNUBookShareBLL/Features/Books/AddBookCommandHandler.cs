@@ -22,19 +22,15 @@ namespace LNUBookShareBLL.Features.Books
         {
             this.ValidateRequest(request.Dto);
 
-
             int? coverId = await this.GetCoverIdAsync(request.Dto.CoverImagePath, cancellationToken);
 
-
             var newBook = this.MapDtoToBook(request, coverId);
-
 
             await this._dbContext.Books.AddAsync(newBook, cancellationToken);
             await this._dbContext.SaveChangesAsync(cancellationToken);
 
             return newBook.BookId;
         }
-
 
         private void ValidateRequest(AddBookDto dto)
         {
@@ -78,7 +74,7 @@ namespace LNUBookShareBLL.Features.Books
                 CategoryId = request.Dto.CategoryId,
                 Status = "available",
                 CreatedAt = DateTime.UtcNow,
-                CoverId = coverId
+                CoverId = coverId,
             };
         }
     }

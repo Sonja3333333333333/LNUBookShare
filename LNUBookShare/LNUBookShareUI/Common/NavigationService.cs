@@ -27,7 +27,6 @@ namespace LNUBookShareUI.Common
 
             view.DataContext = viewModel;
 
-
             await viewModel.LoadDataAsync(bookId);
 
             _ = view.ShowDialog();
@@ -40,9 +39,7 @@ namespace LNUBookShareUI.Common
 
             view.DataContext = viewModel;
 
-
             await viewModel.LoadDataAsync();
-
 
             _ = view.ShowDialog();
         }
@@ -56,15 +53,11 @@ namespace LNUBookShareUI.Common
                 var viewModel = new BookDetailsViewModel(
                     this._serviceProvider.GetService<IMediator>(),
                     this,
-                    _serviceProvider.GetService<IUserSession>()
-                );
-
+                    _serviceProvider.GetService<IUserSession>());
 
                 view.DataContext = viewModel;
 
-
                 await viewModel.LoadBookDetailsAsync(bookId);
-
 
                 view.Show();
             }
@@ -78,12 +71,9 @@ namespace LNUBookShareUI.Common
         {
             var profileView = this._serviceProvider.GetService<ProfileView>();
 
-
             var profileViewModel = this._serviceProvider.GetService<ProfileViewModel>();
 
-
             profileView.DataContext = profileViewModel;
-
 
             profileView.Show();
         }
@@ -92,12 +82,10 @@ namespace LNUBookShareUI.Common
         {
             var profileView = this._serviceProvider.GetService<ProfileView>();
 
-
             var viewOtherProfileViewModel = new ViewOtherProfileViewModel(
                 this._serviceProvider.GetService<IMediator>(),
                 this,
-                id
-            );
+                id);
 
             profileView.DataContext = viewOtherProfileViewModel;
             profileView.Show();

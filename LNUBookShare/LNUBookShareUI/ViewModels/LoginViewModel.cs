@@ -62,14 +62,14 @@ namespace LNUBookShareUI.ViewModels
                 var query = new LoginUserQuery
                 {
                     Email = Email,
-                    Password = password
+                    Password = password,
                 };
 
                 LoginResultDto result = await _mediator.Send(query);
 
                 if (result != null)
                 {
-                    ErrorMessage = "";
+                    ErrorMessage = string.Empty;
                     _userSession.CurrentUser = result;
                     _navigationService.ShowMainView();
 

@@ -30,7 +30,7 @@ namespace LNUBookShareTests.Book_tests
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john@test.com",
-                PasswordHash = "test_hash"
+                PasswordHash = "test_hash",
             };
             var category = new Category { CategoryId = 1, Name = "Fantasy" };
             var image = new Image { ImageId = 5, ImagePath = "covers/test.jpg", ImageType = "cover" };
@@ -47,7 +47,7 @@ namespace LNUBookShareTests.Book_tests
                 Status = "available",
                 OwnerId = 10,
                 CategoryId = 1,
-                CoverId = 5
+                CoverId = 5,
             };
 
             this._dbContext.Users.Add(owner);
@@ -61,12 +61,10 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookDetailsQuery
             {
                 BookId = 1,
-                CurrentUserId = 10
+                CurrentUserId = 10,
             };
 
-
             var result = await handler.Handle(query, CancellationToken.None);
-
 
             Assert.NotNull(result);
             Assert.Equal(1, result.BookId);
@@ -85,9 +83,8 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookDetailsQuery
             {
                 BookId = 999,
-                CurrentUserId = 1
+                CurrentUserId = 1,
             };
-
 
             var ex = await Assert.ThrowsAsync<Exception>(() =>
                 handler.Handle(query, CancellationToken.None));
@@ -110,7 +107,7 @@ namespace LNUBookShareTests.Book_tests
                 Status = "available",
                 OwnerId = 10,
                 CategoryId = 1,
-                CoverId = 5
+                CoverId = 5,
             };
 
             this._dbContext.Users.Add(owner);
@@ -122,7 +119,7 @@ namespace LNUBookShareTests.Book_tests
             {
                 FavoriteId = 1,
                 BookId = 2,
-                UserId = 10
+                UserId = 10,
             });
 
             await this._dbContext.SaveChangesAsync();
@@ -132,12 +129,10 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookDetailsQuery
             {
                 BookId = 2,
-                CurrentUserId = 10
+                CurrentUserId = 10,
             };
 
-
             var result = await handler.Handle(query, CancellationToken.None);
-
 
             Assert.True(result.IsFavoritedByCurrentUser);
         }
@@ -157,7 +152,7 @@ namespace LNUBookShareTests.Book_tests
                 Status = "available",
                 OwnerId = 10,
                 CategoryId = 1,
-                CoverId = 5
+                CoverId = 5,
             };
 
             this._dbContext.Users.Add(owner);
@@ -171,12 +166,10 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookDetailsQuery
             {
                 BookId = 3,
-                CurrentUserId = 99
+                CurrentUserId = 99,
             };
 
-
             var result = await handler.Handle(query, CancellationToken.None);
-
 
             Assert.False(result.IsFavoritedByCurrentUser);
         }

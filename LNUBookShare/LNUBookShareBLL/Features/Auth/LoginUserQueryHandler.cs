@@ -78,7 +78,7 @@ namespace LNUBookShareBLL.Features.Auth
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Email = user.Email,
-                FacultyName = user.Faculty?.Name ?? "Не вказано"
+                FacultyName = user.Faculty?.Name ?? "Не вказано",
             };
         }
     }

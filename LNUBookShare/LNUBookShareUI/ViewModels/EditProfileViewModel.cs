@@ -56,7 +56,7 @@ namespace LNUBookShareUI.ViewModels
             set => SetProperty(ref _profileImageUrl, value);
         }
 
-        public ObservableCollection<FacultyDto> Faculties { get; } = new();
+        public ObservableCollection<FacultyDto> Faculties { get; } = new ();
 
         public FacultyDto SelectedFaculty
         {
@@ -108,7 +108,7 @@ namespace LNUBookShareUI.ViewModels
                     var uploadCommand = new UploadImageCommand
                     {
                         FileName = Path.GetFileName(filePath),
-                        ImageData = imageData
+                        ImageData = imageData,
                     };
 
                     string newProfilePath = await _mediator.Send(uploadCommand);
@@ -131,17 +131,20 @@ namespace LNUBookShareUI.ViewModels
                     FirstName = FirstName,
                     LastName = LastName,
                     FacultyId = SelectedFaculty.FacultyId,
-                    ProfileImageUrl = ProfileImageUrl
+                    ProfileImageUrl = ProfileImageUrl,
                 };
 
                 var command = new UpdateProfileCommand
                 {
                     UserId = _userSession.GetUserId(),
-                    Dto = profileDto
+                    Dto = profileDto,
                 };
                 _ = await _mediator.Send(command);
 
-                if (window is Window w) { w.Close(); }
+                if (window is Window w)
+                {
+                    w.Close();
+                }
             }
             catch (Exception ex)
             {
@@ -151,7 +154,10 @@ namespace LNUBookShareUI.ViewModels
 
         private void Cancel(object window)
         {
-            if (window is Window w) { w.Close(); }
+            if (window is Window w)
+            {
+                w.Close();
+            }
         }
     }
 }

@@ -2,8 +2,6 @@
 
 namespace LNUBookShareDAL.Models;
 
-
-
 public partial class Image
 {
     public int ImageId { get; set; }

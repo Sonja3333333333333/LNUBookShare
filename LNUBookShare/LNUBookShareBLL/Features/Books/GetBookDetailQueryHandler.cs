@@ -7,7 +7,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Books
 {
     public class GetBookDetailsQueryHandler : IRequestHandler<GetBookDetailsQuery, BookDetailsDto>
@@ -55,7 +54,7 @@ namespace LNUBookShareBLL.Features.Books
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "N/A",
                     OwnerEmail = (book.Owner != null) ? book.Owner.Email : "N/A",
                     IsFavoritedByCurrentUser = this._dbContext.Favorites.Any(favorite =>
-                        favorite.BookId == book.BookId && favorite.UserId == request.CurrentUserId)
+                        favorite.BookId == book.BookId && favorite.UserId == request.CurrentUserId),
                 })
                 .FirstOrDefaultAsync(cancellationToken);
         }

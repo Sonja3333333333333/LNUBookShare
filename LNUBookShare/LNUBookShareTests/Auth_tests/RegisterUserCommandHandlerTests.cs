@@ -1,5 +1,4 @@
-﻿
-using LNUBookShareBLL;
+﻿using LNUBookShareBLL;
 using LNUBookShareBLL.Features.Auth;
 
 using LNUBookShareDAL.Models;
@@ -8,31 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 using Moq;
 
-
-
-
 namespace LNUBookShareTests.Auth
 {
     public class RegisterUserCommandHandlerTests
     {
-        private LNUBookShareDbContext GetInMemoryDbContext()
-        {
-            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
-                .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
-                .Options;
-
-            var context = new LNUBookShareDbContext(options);
-            context.Database.EnsureCreated();
-            return context;
-        }
-
-        private async Task SeedFaculty(LNUBookShareDbContext context)
-        {
-            var faculty = new Faculty { FacultyId = 1, Name = "Тестовий факультет" };
-            context.Faculties.Add(faculty);
-            await context.SaveChangesAsync();
-        }
-
         [Fact]
         public async Task Handle_ValidData_CreatesUserAndToken()
         {
@@ -48,7 +26,7 @@ namespace LNUBookShareTests.Auth
                 LastName = "Іваненко",
                 Email = "petro@lnu.edu.ua",
                 Password = "password123",
-                FacultyId = 1
+                FacultyId = 1,
             };
 
             var userId = await handler.Handle(command, CancellationToken.None);
@@ -78,7 +56,7 @@ namespace LNUBookShareTests.Auth
                 FirstName = "Existing",
                 LastName = "User",
                 FacultyId = 1,
-                IsEmailConfirmed = true
+                IsEmailConfirmed = true,
             };
             context.Users.Add(existingUser);
             await context.SaveChangesAsync();
@@ -92,7 +70,7 @@ namespace LNUBookShareTests.Auth
                 LastName = "User",
                 Email = "existing@lnu.edu.ua",
                 Password = "password123",
-                FacultyId = 1
+                FacultyId = 1,
             };
 
             await Assert.ThrowsAsync<Exception>(() =>
@@ -114,7 +92,7 @@ namespace LNUBookShareTests.Auth
                 LastName = "User",
                 Email = "test@gmail.com",
                 Password = "password123",
-                FacultyId = 1
+                FacultyId = 1,
             };
 
             await Assert.ThrowsAsync<Exception>(() =>
@@ -136,11 +114,29 @@ namespace LNUBookShareTests.Auth
                 LastName = "User",
                 Email = "test@lnu.edu.ua",
                 Password = "short",
-                FacultyId = 1
+                FacultyId = 1,
             };
 
             await Assert.ThrowsAsync<Exception>(() =>
                 handler.Handle(command, CancellationToken.None));
+        }
+
+        private LNUBookShareDbContext GetInMemoryDbContext()
+        {
+            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
+                .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new LNUBookShareDbContext(options);
+            context.Database.EnsureCreated();
+            return context;
+        }
+
+        private async Task SeedFaculty(LNUBookShareDbContext context)
+        {
+            var faculty = new Faculty { FacultyId = 1, Name = "Тестовий факультет" };
+            context.Faculties.Add(faculty);
+            await context.SaveChangesAsync();
         }
     }
 }

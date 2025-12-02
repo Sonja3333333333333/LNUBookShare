@@ -26,10 +26,10 @@ namespace LNUBookShareUI.ViewModels
         private bool _isSearchPerformed = false;
         private int _currentPage = 1;
         private int _totalPages = 1;
-        private ObservableCollection<BookCardDto> _books = new();
+        private ObservableCollection<BookCardDto> _books = new ();
         private int _totalResults;
         private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
-        private string _searchTerm = "";
+        private string _searchTerm = string.Empty;
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
 
@@ -44,7 +44,7 @@ namespace LNUBookShareUI.ViewModels
                 { BookSortCriteria.Title, "Назва" },
                 { BookSortCriteria.Author, "Автор" },
                 { BookSortCriteria.Year, "Рік" },
-                { BookSortCriteria.Category, "Категорія"}
+                { BookSortCriteria.Category, "Категорія" },
             };
 
             SearchOptions = new Dictionary<BookSearchCriteria, string>
@@ -52,7 +52,7 @@ namespace LNUBookShareUI.ViewModels
                 { BookSearchCriteria.Title, "Назва" },
                 { BookSearchCriteria.Author, "Автор" },
                 { BookSearchCriteria.ISBN, "ISBN" },
-                { BookSearchCriteria.Category, "Категорія"}
+                { BookSearchCriteria.Category, "Категорія" },
             };
 
             LoadBooksCommand = new RelayCommand(async () => await SearchAsync());
@@ -192,7 +192,7 @@ namespace LNUBookShareUI.ViewModels
                     PageNumber = _currentPage,
                     PageSize = _pageSize,
                     FilterBy = SelectedStatusFilter,
-                    SortBy = SelectedSort
+                    SortBy = SelectedSort,
                 };
 
                 if (string.IsNullOrWhiteSpace(SearchTerm) &&
@@ -237,7 +237,7 @@ namespace LNUBookShareUI.ViewModels
                 var command = new ToggleFavoriteCommand
                 {
                     BookId = bookId,
-                    UserId = _userSession.GetUserId()
+                    UserId = _userSession.GetUserId(),
                 };
 
                 _ = await _mediator.Send(command);

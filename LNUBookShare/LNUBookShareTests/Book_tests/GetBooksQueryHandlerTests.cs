@@ -19,7 +19,6 @@ namespace LNUBookShareTests.Book_tests
 
             this._dbContext = new LNUBookShareDbContext(this._options);
 
-
             var user = new User
             {
                 UserId = 1,
@@ -27,24 +26,23 @@ namespace LNUBookShareTests.Book_tests
                 LastName = "Doe",
                 Email = "john@example.com",
                 PasswordHash = "password hash",
-                FacultyId = 10
+                FacultyId = 10,
             };
             var category = new Category
             {
                 CategoryId = 1,
-                Name = "Programming"
+                Name = "Programming",
             };
 
             this._dbContext.Users.Add(user);
             this._dbContext.Categories.Add(category);
             this._dbContext.SaveChanges();
 
-
             this._dbContext.Books.AddRange(new List<Book>
             {
                 new Book { BookId = 1, Title = "C# Basics", Author = "John Doe", Status = "available", OwnerId = 1, CategoryId = 1 },
                 new Book { BookId = 2, Title = "Advanced C#", Author = "Jane Doe", Status = "issued", OwnerId = 1, CategoryId = 1 },
-                new Book { BookId = 3, Title = "Entity Framework", Author = "John Doe", Status = "available", OwnerId = 1, CategoryId = 1 }
+                new Book { BookId = 3, Title = "Entity Framework", Author = "John Doe", Status = "available", OwnerId = 1, CategoryId = 1 },
             });
             this._dbContext.SaveChanges();
         }
@@ -57,12 +55,10 @@ namespace LNUBookShareTests.Book_tests
             {
                 CurrentUserId = 1,
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
             };
 
-
             var result = await handler.Handle(query, CancellationToken.None);
-
 
             Assert.NotNull(result);
             Assert.Equal(3, result.TotalCount);
@@ -78,7 +74,7 @@ namespace LNUBookShareTests.Book_tests
                 CurrentUserId = 1,
                 FilterBy = BookFilterStatus.Available,
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
             };
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -97,7 +93,7 @@ namespace LNUBookShareTests.Book_tests
                 SearchBy = BookSearchCriteria.Author,
                 SearchTerm = "John Doe",
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
             };
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -114,7 +110,7 @@ namespace LNUBookShareTests.Book_tests
             {
                 CurrentUserId = 1,
                 PageNumber = 2,
-                PageSize = 2
+                PageSize = 2,
             };
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -134,7 +130,7 @@ namespace LNUBookShareTests.Book_tests
                 FirstName = "Same",
                 LastName = "Faculty",
                 Email = "same@faculty.com",
-                PasswordHash = "hash2"
+                PasswordHash = "hash2",
             };
 
             var diffFacultyUser = new User
@@ -144,17 +140,15 @@ namespace LNUBookShareTests.Book_tests
                 FirstName = "Diff",
                 LastName = "Faculty",
                 Email = "diff@faculty.com",
-                PasswordHash = "hash3"
+                PasswordHash = "hash3",
             };
-
 
             this._dbContext.Users.AddRange(sameFacultyUser, diffFacultyUser);
 
             this._dbContext.Books.AddRange(
                 new Book { BookId = 10, Title = "Book A", OwnerId = 2, CategoryId = 1, Status = "available", Author = "Unknown" },
                 new Book { BookId = 11, Title = "Book B", OwnerId = 3, CategoryId = 1, Status = "available", Author = "Unknown" },
-                new Book { BookId = 12, Title = "Book C", OwnerId = 1, CategoryId = 1, Status = "available", Author = "Unknown" }
-            );
+                new Book { BookId = 12, Title = "Book C", OwnerId = 1, CategoryId = 1, Status = "available", Author = "Unknown" });
 
             await this._dbContext.SaveChangesAsync();
 
@@ -165,7 +159,7 @@ namespace LNUBookShareTests.Book_tests
                 CurrentUserId = 1,
                 RecommendForUser = true,
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
             };
 
             // Act
@@ -186,7 +180,7 @@ namespace LNUBookShareTests.Book_tests
                 CurrentUserId = 1,
                 RecommendForUser = false,
                 PageNumber = 1,
-                PageSize = 10
+                PageSize = 10,
             };
 
             var result = await handler.Handle(query, CancellationToken.None);

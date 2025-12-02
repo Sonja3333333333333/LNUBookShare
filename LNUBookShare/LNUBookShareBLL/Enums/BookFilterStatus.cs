@@ -4,6 +4,6 @@
     {
         All,
         Available,
-        Issued
+        Issued,
     }
 }

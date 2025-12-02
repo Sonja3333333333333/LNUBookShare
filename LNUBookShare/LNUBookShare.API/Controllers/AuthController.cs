@@ -16,7 +16,6 @@ namespace LNUBookShare.API.Controllers
             this._context = context;
         }
 
-
         [HttpGet("confirm")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string token)
         {
@@ -38,7 +37,6 @@ namespace LNUBookShare.API.Controllers
                 return this.BadRequest("Token has expired. Please request a new one.");
             }
 
-
             var user = await this._context.Users.FindAsync(confirmation.UserId);
             if (user == null)
             {
@@ -46,7 +44,6 @@ namespace LNUBookShare.API.Controllers
             }
 
             user.IsEmailConfirmed = true;
-
 
             this._context.Emailconfirmations.Remove(confirmation);
 

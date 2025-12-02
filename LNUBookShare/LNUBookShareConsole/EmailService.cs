@@ -4,14 +4,14 @@ using MailKit.Security;
 
 using MimeKit;
 
-// Переконайтеся, що простір імен (namespace) 
+// Переконайтеся, що простір імен (namespace)
 // відповідає вашому проекту
 namespace LNUBookShareBLL
 {
     public class EmailService
     {
         // Наш головний метод для відправки листа
-        // Він асинхронний (async Task), бо відправка пошти 
+        // Він асинхронний (async Task), бо відправка пошти
         // може зайняти час
         public async Task SendConfirmationEmailAsync(string userEmail, string confirmationLink)
         {

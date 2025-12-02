@@ -6,7 +6,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Categories
 {
     public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQuery, IEnumerable<CategoryDto>>
@@ -25,7 +24,7 @@ namespace LNUBookShareBLL.Features.Categories
                 .Select(category => new CategoryDto
                 {
                     CategoryId = category.CategoryId,
-                    Name = category.Name
+                    Name = category.Name,
                 })
                 .OrderBy(c => c.Name)
                 .ToListAsync(cancellationToken);

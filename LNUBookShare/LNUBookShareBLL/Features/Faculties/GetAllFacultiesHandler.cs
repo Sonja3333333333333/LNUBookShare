@@ -24,7 +24,7 @@ namespace LNUBookShareBLL.Features.Faculties
                 .Select(faculty => new FacultyDto
                 {
                     FacultyId = faculty.FacultyId,
-                    Name = faculty.Name
+                    Name = faculty.Name,
                 })
                 .ToListAsync(cancellationToken);
         }

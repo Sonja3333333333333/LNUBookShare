@@ -22,7 +22,6 @@ namespace LNUBookShareConsole
             Console.WriteLine($"Очищення старих даних... (TRUNCATE RESTART IDENTITY)");
             await this._dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE favorite, book, \"User\", category, faculty, image, emailconfirmation RESTART IDENTITY CASCADE");
 
-
             Console.WriteLine($"Генерація {recordCount} Факультетів...");
             var faculties = await this.SeedFacultiesAsync(recordCount);
 
@@ -39,7 +38,6 @@ namespace LNUBookShareConsole
             var users = await this.SeedUsersAsync(recordCount, faculties, images);
             await this._dbContext.SaveChangesAsync();
             Console.WriteLine("...Користувачів збережено в БД.");
-
 
             Console.WriteLine($"Генерація {recordCount} Книг...");
             var books = await this.SeedBooksAsync(recordCount, users, categories, images);
@@ -173,7 +171,7 @@ namespace LNUBookShareConsole
                 {
                     UserId = userId,
                     ConfirmationToken = this._faker.Random.Guid().ToString(),
-                    ExpiresAt = DateTime.UtcNow.AddHours(24)
+                    ExpiresAt = DateTime.UtcNow.AddHours(24),
                 });
             }
 

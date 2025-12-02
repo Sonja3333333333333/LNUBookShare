@@ -41,7 +41,7 @@ namespace LNUBookShareBLL
                     FirstName = "New",
                     LastName = "User",
                     FacultyId = 1,
-                    AvatarId = 1
+                    AvatarId = 1,
                 };
 
                 dbContext.Users.Add(newUser);
@@ -51,7 +51,7 @@ namespace LNUBookShareBLL
                 {
                     UserId = newUser.UserId,
                     ConfirmationToken = token,
-                    ExpiresAt = DateTime.UtcNow.AddHours(24)
+                    ExpiresAt = DateTime.UtcNow.AddHours(24),
                 };
 
                 dbContext.Emailconfirmations.Add(confirmation);

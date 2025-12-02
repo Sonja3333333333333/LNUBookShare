@@ -12,8 +12,7 @@ string connectionString = "Host=ep-wispy-hat-adm0eu4d-pooler.c-2.us-east-1.aws.n
                           "Trust Server Certificate=true";
 
 builder.Services.AddDbContext<LNUBookShareDbContext>(options =>
-    options.UseNpgsql(connectionString)
-);
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

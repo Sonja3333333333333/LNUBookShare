@@ -22,7 +22,7 @@ namespace LNUBookShareUI.ViewModels
         private readonly IUserSession _userSession;
         private readonly int _pageSize = 10;
 
-        private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new();
+        private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new ();
         private int _totalResults;
         private int _currentPage = 1;
         private int _totalPages = 1;
@@ -39,7 +39,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 { BookSortCriteria.Title, "Назва" },
                 { BookSortCriteria.Author, "Автор" },
-                { BookSortCriteria.Year, "Рік" }
+                { BookSortCriteria.Year, "Рік" },
             };
 
             GoBackCommand = new RelayCommand<object>(GoBack);
@@ -140,7 +140,7 @@ namespace LNUBookShareUI.ViewModels
                     FilterBy = SelectedStatusFilter,
                     SortBy = SelectedSort,
                     PageNumber = _currentPage,
-                    PageSize = _pageSize
+                    PageSize = _pageSize,
                 };
 
                 var result = await _mediator.Send(query);
@@ -177,7 +177,7 @@ namespace LNUBookShareUI.ViewModels
                 var command = new ToggleFavoriteCommand
                 {
                     BookId = bookId,
-                    UserId = _userSession.GetUserId()
+                    UserId = _userSession.GetUserId(),
                 };
 
                 _ = await _mediator.Send(command);

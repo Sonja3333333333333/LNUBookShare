@@ -4,7 +4,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Auth
 {
     public class ConfirmEmailCommandHandler : IRequestHandler<ConfirmEmailCommand, Unit>

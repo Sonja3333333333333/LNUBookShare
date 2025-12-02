@@ -11,6 +11,6 @@ namespace LNUBookShareBLL.Enums
         [Description("ISBN")]
         ISBN,
         [Description("Категорія")]
-        Category
+        Category,
     }
 }
