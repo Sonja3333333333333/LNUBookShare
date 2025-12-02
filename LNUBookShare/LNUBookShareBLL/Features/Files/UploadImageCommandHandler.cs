@@ -1,7 +1,9 @@
-﻿using MediatR;
-using LNUBookShareDAL.Models;
-using CloudinaryDotNet; 
+﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+
+using LNUBookShareDAL.Models;
+
+using MediatR;
 
 namespace LNUBookShareBLL.Features.Files
 {
@@ -24,13 +26,12 @@ namespace LNUBookShareBLL.Features.Files
 
         public async Task<string> Handle(UploadImageCommand request, CancellationToken cancellationToken)
         {
-            
             var imageUrl = await this.UploadToCloudinaryAsync(request.ImageData, request.FileName);
 
-      
+
             await this.CreateImageEntityAsync(imageUrl, request.FileName, cancellationToken);
 
-   
+
             return imageUrl;
         }
 

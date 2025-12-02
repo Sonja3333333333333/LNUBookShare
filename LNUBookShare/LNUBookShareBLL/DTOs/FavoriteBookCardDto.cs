@@ -1,6 +1,5 @@
 ﻿namespace LNUBookShareBLL.DTOs
 {
-    
     public class FavoriteBookCardDto
     {
         public int BookId { get; set; }
@@ -13,6 +12,5 @@
         public int OwnerId { get; set; }
 
         public string? OwnerFullName { get; set; }
-        
     }
 }

@@ -1,12 +1,11 @@
-﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Common;
+﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.DTOs;
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+
+using LNUBookShareDAL.Models;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareBLL.Features.Books
 {
@@ -43,6 +42,7 @@ namespace LNUBookShareBLL.Features.Books
             {
                 throw new Exception("Книгу не знайдено.");
             }
+
             return book;
         }
 
@@ -57,7 +57,9 @@ namespace LNUBookShareBLL.Features.Books
         private async Task<int?> GetCoverIdAsync(string? imagePath, CancellationToken token)
         {
             if (string.IsNullOrEmpty(imagePath))
+            {
                 return null;
+            }
 
             string relativePath = PathHelper.ConvertToRelativePath(imagePath);
             var image = await this._dbContext.Images

@@ -1,7 +1,10 @@
-﻿using MediatR;
-using LNUBookShareBLL.DTOs;
-using Microsoft.EntityFrameworkCore;
+﻿using LNUBookShareBLL.DTOs;
+
 using LNUBookShareDAL.Models;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareBLL.Features.Faculties
 {
@@ -16,15 +19,14 @@ namespace LNUBookShareBLL.Features.Faculties
 
         public async Task<List<FacultyDto>> Handle(GetAllFacultiesQuery request, CancellationToken cancellationToken)
         {
-            
             return await this._dbContext.Faculties
-                .OrderBy(faculty => faculty.Name) 
+                .OrderBy(faculty => faculty.Name)
                 .Select(faculty => new FacultyDto
                 {
                     FacultyId = faculty.FacultyId,
                     Name = faculty.Name
                 })
-                .ToListAsync(cancellationToken); 
+                .ToListAsync(cancellationToken);
         }
     }
 }

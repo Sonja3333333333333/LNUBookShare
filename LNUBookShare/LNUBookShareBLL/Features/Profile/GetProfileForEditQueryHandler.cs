@@ -1,7 +1,10 @@
 ﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.DTOs;
+
 using LNUBookShareDAL.Models;
+
 using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 
@@ -36,6 +39,7 @@ namespace LNUBookShareBLL.Features.Profile
             {
                 throw new Exception("Користувача не знайдено.");
             }
+
             return user;
         }
 

@@ -1,6 +1,5 @@
 ﻿namespace LNUBookShareBLL.DTOs
 {
-
     public class BookEditDto
     {
         public string? Title { get; set; }

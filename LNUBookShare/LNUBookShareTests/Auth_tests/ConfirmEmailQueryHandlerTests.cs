@@ -1,5 +1,7 @@
-﻿using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Auth;
+﻿using LNUBookShareBLL.Features.Auth;
+
+using LNUBookShareDAL.Models;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareTests.Auth

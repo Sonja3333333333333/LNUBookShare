@@ -1,5 +1,7 @@
-﻿using MediatR;
-using LNUBookShareDAL.Models;
+﻿using LNUBookShareDAL.Models;
+
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
 
 

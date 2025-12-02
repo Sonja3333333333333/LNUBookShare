@@ -1,13 +1,12 @@
-﻿using Xunit;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
+﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.Features.Books;
-using LNUBookShareBLL.DTOs;
-using LNUBookShareBLL.Common;
+
+using LNUBookShareDAL.Models;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareTests.Book_tests
 {
-
     public class GetBookDetailsQueryHandlerTests
     {
         private readonly LNUBookShareDbContext _dbContext;
@@ -25,7 +24,6 @@ namespace LNUBookShareTests.Book_tests
         [Fact]
         public async Task Handle_ShouldReturnBookDetails_WhenBookExists()
         {
-            
             var owner = new User
             {
                 UserId = 10,
@@ -66,10 +64,10 @@ namespace LNUBookShareTests.Book_tests
                 CurrentUserId = 10
             };
 
-            
+
             var result = await handler.Handle(query, CancellationToken.None);
 
-            
+
             Assert.NotNull(result);
             Assert.Equal(1, result.BookId);
             Assert.Equal("Test Book", result.Title);
@@ -82,7 +80,6 @@ namespace LNUBookShareTests.Book_tests
         [Fact]
         public async Task Handle_ShouldThrowException_WhenBookDoesNotExist()
         {
-           
             var handler = new GetBookDetailsQueryHandler(this._dbContext);
 
             var query = new GetBookDetailsQuery
@@ -91,7 +88,7 @@ namespace LNUBookShareTests.Book_tests
                 CurrentUserId = 1
             };
 
-           
+
             var ex = await Assert.ThrowsAsync<Exception>(() =>
                 handler.Handle(query, CancellationToken.None));
 
@@ -101,8 +98,7 @@ namespace LNUBookShareTests.Book_tests
         [Fact]
         public async Task Handle_ShouldReturnTrue_WhenBookIsFavoritedByUser()
         {
-            
-            var owner = new User { UserId = 10, FirstName = "Test", LastName = "User", Email = "email@test.com" , PasswordHash = "test_hash" };
+            var owner = new User { UserId = 10, FirstName = "Test", LastName = "User", Email = "email@test.com", PasswordHash = "test_hash" };
             var category = new Category { CategoryId = 1, Name = "Sci-fi" };
             var image = new Image { ImageId = 5, ImagePath = "covers/test.jpg", ImageType = "cover" };
 
@@ -139,17 +135,16 @@ namespace LNUBookShareTests.Book_tests
                 CurrentUserId = 10
             };
 
-            
+
             var result = await handler.Handle(query, CancellationToken.None);
 
-            
+
             Assert.True(result.IsFavoritedByCurrentUser);
         }
 
         [Fact]
         public async Task Handle_ShouldReturnFalse_WhenBookIsNotFavoritedByUser()
         {
-            
             var owner = new User { UserId = 10, FirstName = "Test", LastName = "User", Email = "email@test.com", PasswordHash = "test_hash" };
             var category = new Category { CategoryId = 1, Name = "Sci-fi" };
             var image = new Image { ImageId = 5, ImagePath = "covers/test.jpg", ImageType = "cover" };
@@ -176,13 +171,13 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookDetailsQuery
             {
                 BookId = 3,
-                CurrentUserId = 99 
+                CurrentUserId = 99
             };
 
-            
+
             var result = await handler.Handle(query, CancellationToken.None);
 
-            
+
             Assert.False(result.IsFavoritedByCurrentUser);
         }
     }

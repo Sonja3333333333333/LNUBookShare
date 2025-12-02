@@ -1,6 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Windows.Input;
-using System;
 
 public class AsyncRelayCommand<T> : ICommand
 {

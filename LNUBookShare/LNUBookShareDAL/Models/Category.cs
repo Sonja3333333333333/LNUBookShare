@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace LNUBookShareDAL.Models;
+﻿namespace LNUBookShareDAL.Models;
 
 public partial class Category
 {

@@ -1,15 +1,12 @@
-﻿using MediatR;
+﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
-using Microsoft.EntityFrameworkCore;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Common;
-using System;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareBLL.Features.Books
 {
@@ -38,7 +35,7 @@ namespace LNUBookShareBLL.Features.Books
                     .Select(u => u.FacultyId)
                     .FirstOrDefaultAsync(cancellationToken);
 
-                if (currentUserFacultyId > 0) 
+                if (currentUserFacultyId > 0)
                 {
                     query = query.Where(b => b.Owner.FacultyId == currentUserFacultyId);
 
@@ -94,6 +91,7 @@ namespace LNUBookShareBLL.Features.Books
                         break;
                 }
             }
+
             return query;
         }
 

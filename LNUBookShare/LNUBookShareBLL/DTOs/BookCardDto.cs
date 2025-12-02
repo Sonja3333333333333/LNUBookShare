@@ -1,6 +1,5 @@
 ﻿namespace LNUBookShareBLL.DTOs
 {
-   
     public class BookCardDto
     {
         public int BookId { get; set; }
@@ -9,8 +8,8 @@
         public int? Year { get; set; }
         public string? OwnerFullName { get; set; }
         public string? CoverPath { get; set; }
-        public int OwnerId { get; set; } 
-        
+        public int OwnerId { get; set; }
+
         public bool IsFavoritedByCurrentUser { get; set; }
 
         public string? Status { get; set; }

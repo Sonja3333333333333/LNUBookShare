@@ -1,6 +1,8 @@
-﻿using MediatR;
+﻿using LNUBookShareDAL.Models;
+
+using MediatR;
+
 using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
 
 
 namespace LNUBookShareBLL.Features.Auth

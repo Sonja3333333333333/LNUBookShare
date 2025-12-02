@@ -1,8 +1,8 @@
 ﻿// Це початок файлу LNUBookShareBLL/Services/EmailService.cs
 using MailKit.Net.Smtp;
 using MailKit.Security;
+
 using MimeKit;
-using System.Threading.Tasks;
 
 // Переконайтеся, що простір імен (namespace) 
 // відповідає вашому проекту

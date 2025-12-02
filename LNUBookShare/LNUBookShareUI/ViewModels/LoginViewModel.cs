@@ -1,12 +1,15 @@
-﻿using LNUBookShareBLL.DTOs;
-using LNUBookShareBLL.Features.Auth;
-using LNUBookShareUI.Common;
-using MediatR;
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls; 
+using System.Windows.Controls;
 using System.Windows.Input;
+
+using LNUBookShareBLL.DTOs;
+using LNUBookShareBLL.Features.Auth;
+
+using LNUBookShareUI.Common;
+
+using MediatR;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -17,39 +20,38 @@ namespace LNUBookShareUI.ViewModels
         private readonly IUserSession _userSession;
 
         private string _email;
-        public string Email
+        private string _errorMessage;
+
+        public LoginViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
-            get => this._email;
-            set => this.SetProperty(ref this._email, value);
+            _mediator = mediator;
+            _navigationService = navigationService;
+            _userSession = userSession;
+
+            LoginCommand = new RelayCommand<object>(async (param) => await LoginAsync(param));
+            GoToRegisterCommand = new RelayCommand<object>(GoToRegister);
         }
 
+        public string Email
+        {
+            get => _email;
+            set => SetProperty(ref _email, value);
+        }
 
-        private string _errorMessage;
         public string ErrorMessage
         {
-            get => this._errorMessage;
-            set => this.SetProperty(ref this._errorMessage, value);
+            get => _errorMessage;
+            set => SetProperty(ref _errorMessage, value);
         }
 
         public ICommand LoginCommand { get; }
         public ICommand GoToRegisterCommand { get; }
 
-        // --- Конструктор ---
-        public LoginViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
-        {
-            this._mediator = mediator;
-            this._navigationService = navigationService;
-            this._userSession = userSession; 
-
-            this.LoginCommand = new RelayCommand<object>(async (param) => await this.LoginAsync(param));
-            this.GoToRegisterCommand = new RelayCommand<object>(this.GoToRegister);
-        }
-
         private async Task LoginAsync(object parameter)
         {
             if (parameter is not PasswordBox passwordBox)
             {
-                this.ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
+                ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
                 return;
             }
 
@@ -57,35 +59,33 @@ namespace LNUBookShareUI.ViewModels
 
             try
             {
-           
                 var query = new LoginUserQuery
                 {
-                    Email = this.Email,
+                    Email = Email,
                     Password = password
                 };
 
-                LoginResultDto result = await this._mediator.Send(query);
+                LoginResultDto result = await _mediator.Send(query);
 
                 if (result != null)
                 {
-                   
-                    this.ErrorMessage = ""; 
-                    this._userSession.CurrentUser = result;
-                    this._navigationService.ShowMainView();
+                    ErrorMessage = "";
+                    _userSession.CurrentUser = result;
+                    _navigationService.ShowMainView();
 
-                    var window = this.GetWindowFromParameter(parameter);
+                    var window = GetWindowFromParameter(parameter);
                     window?.Close();
                 }
             }
             catch (Exception ex)
             {
-                this.ErrorMessage = ex.Message;
+                ErrorMessage = ex.Message;
             }
         }
 
         private void GoToRegister(object parameter)
         {
-            this._navigationService.ShowRegister();
+            _navigationService.ShowRegister();
 
             if (parameter is Window w)
             {
@@ -99,6 +99,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 return Window.GetWindow(element);
             }
+
             return null;
         }
     }

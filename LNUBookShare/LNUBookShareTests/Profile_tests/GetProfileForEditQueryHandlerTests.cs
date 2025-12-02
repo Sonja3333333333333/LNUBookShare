@@ -1,13 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using LNUBookShareBLL.Features.Profile;
+
 using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Profile;
+
+using Microsoft.EntityFrameworkCore;
 
 
 namespace LNUBookShare.Tests.Profile_tests
 {
     public class GetProfileForEditQueryHandlerTests
     {
-
         private LNUBookShareDbContext GetInMemoryDbContext()
         {
             var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
@@ -19,9 +20,8 @@ namespace LNUBookShare.Tests.Profile_tests
 
         private async Task SeedDatabase(LNUBookShareDbContext context)
         {
- 
             context.Faculties.Add(new Faculty { FacultyId = 1, Name = "Факультет інформатики" });
-            context.Images.Add(new Image { ImageId = 50, ImagePath = "uploads\\avatars\\default.png" , ImageType = "avatar"} );
+            context.Images.Add(new Image { ImageId = 50, ImagePath = "uploads\\avatars\\default.png", ImageType = "avatar" });
 
             context.Users.Add(new User
             {

@@ -1,18 +1,15 @@
-﻿using Xunit;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
-using LNUBookShareBLL.Features.Books;
+﻿using LNUBookShareBLL.Common;
 using LNUBookShareBLL.DTOs;
-using MediatR;
-using System.Threading;
-using System.Threading.Tasks;
-using System;
-using LNUBookShareBLL.Common;
+using LNUBookShareBLL.Features.Books;
+
+using LNUBookShareDAL.Models;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareTests.Book_tests
 {
     public class UpdateBookCommandHandlerTests
-    { 
+    {
         private readonly LNUBookShareDbContext _dbContext;
         private DbContextOptions<LNUBookShareDbContext> _options;
         public UpdateBookCommandHandlerTests()
@@ -23,7 +20,7 @@ namespace LNUBookShareTests.Book_tests
 
             this._dbContext = new LNUBookShareDbContext(this._options);
 
-            
+
             this._dbContext.Users.Add(new User
             {
                 UserId = 1,
@@ -33,7 +30,7 @@ namespace LNUBookShareTests.Book_tests
                 PasswordHash = "hash"
             });
 
-            
+
             this._dbContext.Books.Add(new Book
             {
                 BookId = 1,
@@ -44,7 +41,7 @@ namespace LNUBookShareTests.Book_tests
                 CategoryId = 1
             });
 
-            
+
             this._dbContext.Images.Add(new Image
             {
                 ImageId = 1,
@@ -82,7 +79,7 @@ namespace LNUBookShareTests.Book_tests
             Assert.Equal("Updated Author", updatedBook.Author);
             Assert.Equal("issued", updatedBook.Status);
             Assert.Equal(2, updatedBook.CategoryId);
-            Assert.Equal(1, updatedBook.CoverId); 
+            Assert.Equal(1, updatedBook.CoverId);
         }
 
 
@@ -95,7 +92,7 @@ namespace LNUBookShareTests.Book_tests
             var command = new UpdateBookCommand
             {
                 CurrentUserId = 1,
-                BookId = 999, 
+                BookId = 999,
                 Dto = new BookEditDto { Title = "New Title" }
             };
 
@@ -109,7 +106,7 @@ namespace LNUBookShareTests.Book_tests
 
             var command = new UpdateBookCommand
             {
-                CurrentUserId = 2, 
+                CurrentUserId = 2,
                 BookId = 1,
                 Dto = new BookEditDto { Title = "New Title" }
             };
@@ -143,7 +140,7 @@ namespace LNUBookShareTests.Book_tests
             Assert.Equal("Updated Title 2", updatedBook.Title);
             Assert.Equal("Updated Author 2", updatedBook.Author);
             Assert.Equal(2, updatedBook.CategoryId);
-            Assert.Null(updatedBook.CoverId); 
+            Assert.Null(updatedBook.CoverId);
         }
     }
 }

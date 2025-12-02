@@ -1,8 +1,12 @@
-﻿using MediatR;
-using LNUBookShareBLL.DTOs;
-using Microsoft.EntityFrameworkCore;
-using static BCrypt.Net.BCrypt;
+﻿using LNUBookShareBLL.DTOs;
+
 using LNUBookShareDAL.Models;
+
+using MediatR;
+
+using Microsoft.EntityFrameworkCore;
+
+using static BCrypt.Net.BCrypt;
 
 namespace LNUBookShareBLL.Features.Auth
 {

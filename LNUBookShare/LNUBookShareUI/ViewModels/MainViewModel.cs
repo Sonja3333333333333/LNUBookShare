@@ -1,16 +1,18 @@
-﻿using MediatR;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+
 using LNUBookShareBLL.DTOs;
 using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
 using LNUBookShareBLL.Features.Favorites;
-using LNUBookShareUI.Common;
-using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using System.Windows.Input;
-using System.Collections.Generic;
-using System;
-using System.Windows;
 
+using LNUBookShareUI.Common;
+
+using MediatR;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -19,72 +21,115 @@ namespace LNUBookShareUI.ViewModels
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
         private readonly IUserSession _userSession;
-        private bool _isSearchPerformed = false; 
-
-        private int _currentPage = 1;
-        private int _totalPages = 1;
         private readonly int _pageSize = 10;
 
+        private bool _isSearchPerformed = false;
+        private int _currentPage = 1;
+        private int _totalPages = 1;
         private ObservableCollection<BookCardDto> _books = new();
-        public ObservableCollection<BookCardDto> Books
+        private int _totalResults;
+        private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
+        private string _searchTerm = "";
+        private BookSortCriteria _selectedSort = BookSortCriteria.Title;
+        private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
+
+        public MainViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
-            get => this._books;
-            set => this.SetProperty(ref this._books, value);
+            _mediator = mediator;
+            _navigationService = navigationService;
+            _userSession = userSession;
+
+            SortOptions = new Dictionary<BookSortCriteria, string>
+            {
+                { BookSortCriteria.Title, "Назва" },
+                { BookSortCriteria.Author, "Автор" },
+                { BookSortCriteria.Year, "Рік" },
+                { BookSortCriteria.Category, "Категорія"}
+            };
+
+            SearchOptions = new Dictionary<BookSearchCriteria, string>
+            {
+                { BookSearchCriteria.Title, "Назва" },
+                { BookSearchCriteria.Author, "Автор" },
+                { BookSearchCriteria.ISBN, "ISBN" },
+                { BookSearchCriteria.Category, "Категорія"}
+            };
+
+            LoadBooksCommand = new RelayCommand(async () => await SearchAsync());
+            ToggleFavoriteCommand = new RelayCommand<int>(async (id) => await ToggleFavoriteAsync(id));
+
+            SetFilterAllCommand = new RelayCommand(() => SetFilter(BookFilterStatus.All));
+            SetFilterAvailableCommand = new RelayCommand(() => SetFilter(BookFilterStatus.Available));
+            SetFilterIssuedCommand = new RelayCommand(() => SetFilter(BookFilterStatus.Issued));
+
+            NextPageCommand = new RelayCommand(async () => await GoToNextPageAsync(), CanGoToNextPage);
+            PreviousPageCommand = new RelayCommand(async () => await GoToPreviousPageAsync(), CanGoToPreviousPage);
+
+            OpenProfileCommand = new RelayCommand(OpenProfile);
+            OpenFavoritesCommand = new RelayCommand(OpenFavorites);
+            ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
+            OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+
+            _ = LoadBooksAsync();
         }
 
-        private int _totalResults;
+        public ObservableCollection<BookCardDto> Books
+        {
+            get => _books;
+            set => SetProperty(ref _books, value);
+        }
+
         public int TotalResults
         {
-            get => this._totalResults;
-            set => this.SetProperty(ref this._totalResults, value);
+            get => _totalResults;
+            set => SetProperty(ref _totalResults, value);
         }
 
         public int CurrentPage
         {
-            get => this._currentPage;
-            set => this.SetProperty(ref this._currentPage, value);
-        }
-        public Dictionary<BookSearchCriteria, string> SearchOptions { get; }
-        private BookSearchCriteria _selectedSearchCriteria = BookSearchCriteria.Title;
-        public BookSearchCriteria SelectedSearchCriteria
-        {
-            get => this._selectedSearchCriteria;
-            set => this.SetProperty(ref this._selectedSearchCriteria, value);
+            get => _currentPage;
+            set => SetProperty(ref _currentPage, value);
         }
 
-        private string _searchTerm = "";
+        public Dictionary<BookSearchCriteria, string> SearchOptions { get; }
+
+        public BookSearchCriteria SelectedSearchCriteria
+        {
+            get => _selectedSearchCriteria;
+            set => SetProperty(ref _selectedSearchCriteria, value);
+        }
+
         public string SearchTerm
         {
-            get => this._searchTerm;
-            set => this.SetProperty(ref this._searchTerm, value);
+            get => _searchTerm;
+            set => SetProperty(ref _searchTerm, value);
         }
 
         public Dictionary<BookSortCriteria, string> SortOptions { get; }
-        private BookSortCriteria _selectedSort = BookSortCriteria.Title;
+
         public BookSortCriteria SelectedSort
         {
-            get => this._selectedSort;
+            get => _selectedSort;
             set
             {
-                bool valueChanged = this.SetProperty(ref this._selectedSort, value);
-                if (valueChanged && this._isSearchPerformed)
+                bool valueChanged = SetProperty(ref _selectedSort, value);
+                if (valueChanged && _isSearchPerformed)
                 {
-                    this.CurrentPage = 1;
-                    _ = this.LoadBooksAsync();
+                    CurrentPage = 1;
+                    _ = LoadBooksAsync();
                 }
             }
         }
 
-        private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
         public BookFilterStatus SelectedStatusFilter
         {
-            get => this._selectedStatusFilter;
+            get => _selectedStatusFilter;
             set
             {
-                if (this.SetProperty(ref this._selectedStatusFilter, value) && this._isSearchPerformed)
+                if (SetProperty(ref _selectedStatusFilter, value) && _isSearchPerformed)
                 {
-                    this.CurrentPage = 1;
-                    _ = this.LoadBooksAsync();
+                    CurrentPage = 1;
+                    _ = LoadBooksAsync();
                 }
             }
         }
@@ -99,83 +144,39 @@ namespace LNUBookShareUI.ViewModels
         public ICommand OpenProfileCommand { get; }
         public ICommand ViewOwnerProfileCommand { get; }
         public ICommand OpenFavoritesCommand { get; }
-
         public ICommand OpenBookDetailsCommand { get; }
-
-        public MainViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
-        {
-            this._mediator = mediator;
-            this._navigationService = navigationService;
-            this._userSession = userSession;
-
-            this.SortOptions = new Dictionary<BookSortCriteria, string>
-            {
-                { BookSortCriteria.Title, "Назва" },
-                { BookSortCriteria.Author, "Автор" },
-                { BookSortCriteria.Year, "Рік" },
-                { BookSortCriteria.Category, "Категорія"}
-            };
-
-            this.SearchOptions = new Dictionary<BookSearchCriteria, string>
-            {
-                { BookSearchCriteria.Title, "Назва" },
-                { BookSearchCriteria.Author, "Автор" },
-                { BookSearchCriteria.ISBN, "ISBN" },
-                { BookSearchCriteria.Category, "Категорія"}
-
-            };
-
-
-            this.LoadBooksCommand = new RelayCommand(async () => await this.SearchAsync());
-            this.ToggleFavoriteCommand = new RelayCommand<int>(async (id) => await this.ToggleFavoriteAsync(id));
-
-            this.SetFilterAllCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.All));
-            this.SetFilterAvailableCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Available));
-            this.SetFilterIssuedCommand = new RelayCommand(() => this.SetFilter(BookFilterStatus.Issued));
-
-            this.NextPageCommand = new RelayCommand(async () => await this.GoToNextPageAsync(), this.CanGoToNextPage);
-            this.PreviousPageCommand = new RelayCommand(async () => await this.GoToPreviousPageAsync(), this.CanGoToPreviousPage);
-
-            this.OpenProfileCommand = new RelayCommand(this.OpenProfile);
-            this.OpenFavoritesCommand = new RelayCommand(this.OpenFavorites);
-
-            this.ViewOwnerProfileCommand = new RelayCommand<int>(this.ViewOwnerProfile);
-
-            this.OpenBookDetailsCommand = new RelayCommand<int>(this.OpenBookDetails);
-
-            _ = LoadBooksAsync();
-        }
 
         private void OpenProfile()
         {
-            this._navigationService.ShowProfile();
+            _navigationService.ShowProfile();
         }
+
         private void ViewOwnerProfile(int ownerId)
         {
-
-            this._navigationService.ShowViewProfile(ownerId);
+            _navigationService.ShowViewProfile(ownerId);
         }
+
         private void OpenFavorites()
         {
-            this._navigationService.ShowFavorites();
+            _navigationService.ShowFavorites();
         }
 
         private void SetFilter(BookFilterStatus status)
         {
-            this.SelectedStatusFilter = status;
+            SelectedStatusFilter = status;
         }
 
         private async Task SearchAsync()
         {
-            this.CurrentPage = 1; 
-            await this.LoadBooksAsync();
+            CurrentPage = 1;
+            await LoadBooksAsync();
         }
 
         private void OpenBookDetails(int bookId)
         {
             if (bookId > 0)
             {
-                this._navigationService.ShowBookDetails(bookId);
+                _navigationService.ShowBookDetails(bookId);
             }
         }
 
@@ -186,40 +187,41 @@ namespace LNUBookShareUI.ViewModels
                 var query = new GetBooksQuery
                 {
                     CurrentUserId = _userSession.GetUserId(),
-                    SearchTerm = this.SearchTerm,
-                    SearchBy = this.SelectedSearchCriteria,
-                    PageNumber = this._currentPage,
-                    PageSize = this._pageSize,
-                    FilterBy = this.SelectedStatusFilter,
-                    SortBy = this.SelectedSort
+                    SearchTerm = SearchTerm,
+                    SearchBy = SelectedSearchCriteria,
+                    PageNumber = _currentPage,
+                    PageSize = _pageSize,
+                    FilterBy = SelectedStatusFilter,
+                    SortBy = SelectedSort
                 };
 
-                if (string.IsNullOrWhiteSpace(this.SearchTerm) &&
-                    this.SelectedStatusFilter == BookFilterStatus.All &&
-                    this.SelectedSort == BookSortCriteria.Title) 
+                if (string.IsNullOrWhiteSpace(SearchTerm) &&
+                    SelectedStatusFilter == BookFilterStatus.All &&
+                    SelectedSort == BookSortCriteria.Title)
                 {
                     query.RecommendForUser = true;
                 }
 
-                var result = await this._mediator.Send(query);
+                var result = await _mediator.Send(query);
 
-                this._isSearchPerformed = true; 
+                _isSearchPerformed = true;
 
-                this._totalPages = (int)Math.Ceiling((double)result.TotalCount / this._pageSize);
-                if (this._totalPages == 0)
+                _totalPages = (int)Math.Ceiling((double)result.TotalCount / _pageSize);
+                if (_totalPages == 0)
                 {
-                    this._totalPages = 1;
+                    _totalPages = 1;
                 }
 
                 App.Current.Dispatcher.Invoke(() =>
                 {
-                    this.Books.Clear();
+                    Books.Clear();
                     foreach (var book in result.Items)
                     {
-                        this.Books.Add(book);
+                        Books.Add(book);
                     }
-                    this.TotalResults = result.TotalCount;
-                    CommandManager.InvalidateRequerySuggested(); 
+
+                    TotalResults = result.TotalCount;
+                    CommandManager.InvalidateRequerySuggested();
                 });
             }
             catch (Exception ex)
@@ -238,8 +240,8 @@ namespace LNUBookShareUI.ViewModels
                     UserId = _userSession.GetUserId()
                 };
 
-                _ = await this._mediator.Send(command);
-                await this.LoadBooksAsync();
+                _ = await _mediator.Send(command);
+                await LoadBooksAsync();
             }
             catch (Exception ex)
             {
@@ -250,22 +252,25 @@ namespace LNUBookShareUI.ViewModels
             }
         }
 
-        private bool CanGoToNextPage() => this._isSearchPerformed && this._currentPage < this._totalPages;
+        private bool CanGoToNextPage() => _isSearchPerformed && _currentPage < _totalPages;
+
         private async Task GoToNextPageAsync()
         {
-            if (this.CanGoToNextPage())
+            if (CanGoToNextPage())
             {
-                this.CurrentPage++;
-                await this.LoadBooksAsync();
+                CurrentPage++;
+                await LoadBooksAsync();
             }
         }
-        private bool CanGoToPreviousPage() => this._isSearchPerformed && this._currentPage > 1;
+
+        private bool CanGoToPreviousPage() => _isSearchPerformed && _currentPage > 1;
+
         private async Task GoToPreviousPageAsync()
         {
-            if (this.CanGoToPreviousPage())
+            if (CanGoToPreviousPage())
             {
-                this.CurrentPage--;
-                await this.LoadBooksAsync();
+                CurrentPage--;
+                await LoadBooksAsync();
             }
         }
     }

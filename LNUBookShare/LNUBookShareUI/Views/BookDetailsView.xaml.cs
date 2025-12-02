@@ -1,10 +1,9 @@
-using LNUBookShareUI.ViewModels;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows;
 
-namespace LNUBookShareUI.Views 
+using LNUBookShareUI.ViewModels;
+
+namespace LNUBookShareUI.Views
 {
     public partial class BookDetailsView : Window
     {
@@ -16,6 +15,7 @@ namespace LNUBookShareUI.Views
             this._viewModel = viewModel;
             this.DataContext = this._viewModel;
         }
+
         public async Task LoadBook(int bookId)
         {
             await this._viewModel.LoadBookDetailsAsync(bookId);

@@ -1,6 +1,5 @@
 ﻿namespace LNUBookShareBLL.DTOs
 {
-
     public class OwnedBookDto
     {
         public int BookId { get; set; }

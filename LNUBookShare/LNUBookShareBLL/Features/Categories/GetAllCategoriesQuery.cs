@@ -1,6 +1,6 @@
-﻿using MediatR;
-using LNUBookShareBLL.DTOs;
-using System.Collections.Generic;
+﻿using LNUBookShareBLL.DTOs;
+
+using MediatR;
 
 namespace LNUBookShareBLL.Features.Categories
 {

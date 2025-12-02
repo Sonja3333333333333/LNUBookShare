@@ -1,18 +1,14 @@
-﻿using Xunit;
-using Microsoft.EntityFrameworkCore;
-using LNUBookShareDAL.Models;
+﻿using LNUBookShareBLL.Enums;
 using LNUBookShareBLL.Features.Books;
-using LNUBookShareBLL.DTOs;
-using LNUBookShareBLL.Enums;
-using System.Threading;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+using LNUBookShareDAL.Models;
+
+using Microsoft.EntityFrameworkCore;
 
 namespace LNUBookShareTests.Book_tests
 {
     public class GetBooksQueryHandlerTests
-    { 
+    {
         private readonly LNUBookShareDbContext _dbContext;
         private DbContextOptions<LNUBookShareDbContext> _options;
         public GetBooksQueryHandlerTests()
@@ -23,7 +19,7 @@ namespace LNUBookShareTests.Book_tests
 
             this._dbContext = new LNUBookShareDbContext(this._options);
 
-            
+
             var user = new User
             {
                 UserId = 1,
@@ -43,7 +39,7 @@ namespace LNUBookShareTests.Book_tests
             this._dbContext.Categories.Add(category);
             this._dbContext.SaveChanges();
 
-           
+
             this._dbContext.Books.AddRange(new List<Book>
             {
                 new Book { BookId = 1, Title = "C# Basics", Author = "John Doe", Status = "available", OwnerId = 1, CategoryId = 1 },
@@ -56,7 +52,6 @@ namespace LNUBookShareTests.Book_tests
         [Fact]
         public async Task Handle_ShouldReturnAllBooks_WhenNoFiltersApplied()
         {
-            
             var handler = new GetBooksQueryHandler(this._dbContext);
             var query = new GetBooksQuery
             {
@@ -65,10 +60,10 @@ namespace LNUBookShareTests.Book_tests
                 PageSize = 10
             };
 
-           
+
             var result = await handler.Handle(query, CancellationToken.None);
 
-           
+
             Assert.NotNull(result);
             Assert.Equal(3, result.TotalCount);
             Assert.Equal(3, result.Items.Count);
@@ -77,7 +72,6 @@ namespace LNUBookShareTests.Book_tests
         [Fact]
         public async Task Handle_ShouldFilterByStatus()
         {
-            
             var handler = new GetBooksQueryHandler(this._dbContext);
             var query = new GetBooksQuery
             {
@@ -86,9 +80,9 @@ namespace LNUBookShareTests.Book_tests
                 PageNumber = 1,
                 PageSize = 10
             };
-                      
+
             var result = await handler.Handle(query, CancellationToken.None);
-                        
+
             Assert.Equal(2, result.TotalCount);
             Assert.All(result.Items, book => Assert.Equal("available", book.Status));
         }
@@ -96,7 +90,6 @@ namespace LNUBookShareTests.Book_tests
         [Fact]
         public async Task Handle_ShouldFilterByAuthor()
         {
-            
             var handler = new GetBooksQueryHandler(this._dbContext);
             var query = new GetBooksQuery
             {
@@ -106,9 +99,9 @@ namespace LNUBookShareTests.Book_tests
                 PageNumber = 1,
                 PageSize = 10
             };
-            
+
             var result = await handler.Handle(query, CancellationToken.None);
-            
+
             Assert.Equal(2, result.TotalCount);
             Assert.All(result.Items, book => Assert.Equal("John Doe", book.Author));
         }
@@ -116,7 +109,6 @@ namespace LNUBookShareTests.Book_tests
         [Fact]
         public async Task Handle_ShouldApplyPagination()
         {
-            
             var handler = new GetBooksQueryHandler(this._dbContext);
             var query = new GetBooksQuery
             {
@@ -124,11 +116,11 @@ namespace LNUBookShareTests.Book_tests
                 PageNumber = 2,
                 PageSize = 2
             };
-            
+
             var result = await handler.Handle(query, CancellationToken.None);
-                        
+
             Assert.Equal(3, result.TotalCount);
-            Assert.Single(result.Items); 
+            Assert.Single(result.Items);
         }
 
         [Fact]
@@ -159,9 +151,9 @@ namespace LNUBookShareTests.Book_tests
             this._dbContext.Users.AddRange(sameFacultyUser, diffFacultyUser);
 
             this._dbContext.Books.AddRange(
-                new Book { BookId = 10, Title = "Book A", OwnerId = 2, CategoryId = 1, Status = "available", Author = "Unknown" }, 
-                new Book { BookId = 11, Title = "Book B", OwnerId = 3, CategoryId = 1, Status = "available", Author = "Unknown" }, 
-                new Book { BookId = 12, Title = "Book C", OwnerId = 1, CategoryId = 1, Status = "available", Author = "Unknown" }  
+                new Book { BookId = 10, Title = "Book A", OwnerId = 2, CategoryId = 1, Status = "available", Author = "Unknown" },
+                new Book { BookId = 11, Title = "Book B", OwnerId = 3, CategoryId = 1, Status = "available", Author = "Unknown" },
+                new Book { BookId = 12, Title = "Book C", OwnerId = 1, CategoryId = 1, Status = "available", Author = "Unknown" }
             );
 
             await this._dbContext.SaveChangesAsync();
@@ -199,7 +191,7 @@ namespace LNUBookShareTests.Book_tests
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-            Assert.Equal(3, result.Items.Count); 
+            Assert.Equal(3, result.Items.Count);
         }
     }
 }
