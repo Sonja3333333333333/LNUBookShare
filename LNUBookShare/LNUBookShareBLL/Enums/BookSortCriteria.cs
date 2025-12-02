@@ -11,6 +11,6 @@ namespace LNUBookShareBLL.Enums
         [Description("Рік")]
         Year,
         [Description("Категорія")]
-        Category
+        Category,
     }
 }

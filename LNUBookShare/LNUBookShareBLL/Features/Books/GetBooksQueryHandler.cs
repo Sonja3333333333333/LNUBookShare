@@ -56,7 +56,7 @@ namespace LNUBookShareBLL.Features.Books
             return new PaginatedResultDto<BookCardDto>
             {
                 Items = books,
-                TotalCount = totalCount
+                TotalCount = totalCount,
             };
         }
 
@@ -129,7 +129,7 @@ namespace LNUBookShareBLL.Features.Books
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "Власник невідомий",
                     OwnerId = (book.Owner != null) ? book.Owner.UserId : 0,
                     IsFavoritedByCurrentUser = this._dbContext.Favorites.Any(favorite =>
-                        favorite.BookId == book.BookId && favorite.UserId == currentUserId)
+                        favorite.BookId == book.BookId && favorite.UserId == currentUserId),
                 })
                 .ToListAsync(cancellationToken);
         }

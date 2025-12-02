@@ -7,7 +7,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Profile
 {
     public class GetProfileForEditQueryHandler : IRequestHandler<GetProfileForEditQuery, ProfileEditDto>
@@ -52,7 +51,7 @@ namespace LNUBookShareBLL.Features.Profile
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 FacultyId = user.FacultyId,
-                ProfileImageUrl = finalImagePath
+                ProfileImageUrl = finalImagePath,
             };
         }
     }

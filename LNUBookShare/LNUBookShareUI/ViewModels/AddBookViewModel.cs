@@ -84,7 +84,7 @@ namespace LNUBookShareUI.ViewModels
             set => SetProperty(ref _coverImagePath, value);
         }
 
-        public ObservableCollection<CategoryDto> Categories { get; } = new();
+        public ObservableCollection<CategoryDto> Categories { get; } = new ();
 
         public CategoryDto SelectedCategory
         {
@@ -123,7 +123,7 @@ namespace LNUBookShareUI.ViewModels
                     var uploadCommand = new UploadImageCommand
                     {
                         FileName = Path.GetFileName(filePath),
-                        ImageData = imageData
+                        ImageData = imageData,
                     };
 
                     string newPhysicalPath = await _mediator.Send(uploadCommand);
@@ -154,18 +154,21 @@ namespace LNUBookShareUI.ViewModels
                     Publisher = Publisher,
                     Language = Language,
                     CategoryId = SelectedCategory.CategoryId,
-                    CoverImagePath = CoverImagePath
+                    CoverImagePath = CoverImagePath,
                 };
 
                 var command = new AddBookCommand
                 {
                     Dto = dto,
-                    OwnerUserId = _userSession.GetUserId()
+                    OwnerUserId = _userSession.GetUserId(),
                 };
 
                 _ = await _mediator.Send(command);
 
-                if (window is Window w) { w.Close(); }
+                if (window is Window w)
+                {
+                    w.Close();
+                }
             }
             catch (Exception ex)
             {
@@ -175,7 +178,10 @@ namespace LNUBookShareUI.ViewModels
 
         private void Cancel(object window)
         {
-            if (window is Window w) { w.Close(); }
+            if (window is Window w)
+            {
+                w.Close();
+            }
         }
     }
 }

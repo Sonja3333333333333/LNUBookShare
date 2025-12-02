@@ -18,7 +18,7 @@ namespace LNUBookShareUI.ViewModels
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
         private readonly IUserSession _userSession;
-        private BookDetailsDto _book = new();
+        private BookDetailsDto _book = new ();
 
         public BookDetailsViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
         {
@@ -48,7 +48,7 @@ namespace LNUBookShareUI.ViewModels
                 Book = await _mediator.Send(new GetBookDetailsQuery
                 {
                     BookId = bookId,
-                    CurrentUserId = _userSession.GetUserId()
+                    CurrentUserId = _userSession.GetUserId(),
                 });
             }
             catch (Exception ex)
@@ -85,7 +85,7 @@ namespace LNUBookShareUI.ViewModels
                 var command = new ToggleFavoriteCommand
                 {
                     BookId = Book.BookId,
-                    UserId = _userSession.GetUserId()
+                    UserId = _userSession.GetUserId(),
                 };
 
                 _ = await _mediator.Send(command);

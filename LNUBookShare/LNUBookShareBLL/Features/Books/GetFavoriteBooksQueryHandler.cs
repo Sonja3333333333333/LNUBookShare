@@ -8,7 +8,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Favorites
 {
     public class GetFavoriteBooksQueryHandler : IRequestHandler<GetFavoriteBooksQuery, PaginatedResultDto<FavoriteBookCardDto>>
@@ -37,7 +36,7 @@ namespace LNUBookShareBLL.Features.Favorites
             return new PaginatedResultDto<FavoriteBookCardDto>
             {
                 Items = books,
-                TotalCount = totalCount
+                TotalCount = totalCount,
             };
         }
 
@@ -98,7 +97,7 @@ namespace LNUBookShareBLL.Features.Favorites
                     Status = book.Status,
                     CoverPath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null),
                     OwnerFullName = (book.Owner != null) ? (book.Owner.FirstName + " " + book.Owner.LastName) : "N/A",
-                    OwnerId = book.OwnerId
+                    OwnerId = book.OwnerId,
                 })
                 .ToListAsync(cancellationToken);
         }

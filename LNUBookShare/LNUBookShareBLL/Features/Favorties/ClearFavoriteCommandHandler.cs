@@ -4,7 +4,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Favorites
 {
     public class ClearFavoritesCommandHandler : IRequestHandler<ClearFavoritesCommand>

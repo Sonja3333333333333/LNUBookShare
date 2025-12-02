@@ -20,16 +20,14 @@ namespace LNUBookShareTests.Book_tests
 
             this._dbContext = new LNUBookShareDbContext(this._options);
 
-
             this._dbContext.Users.Add(new User
             {
                 UserId = 1,
                 FirstName = "John",
                 LastName = "Doe",
                 Email = "john@example.com",
-                PasswordHash = "hash"
+                PasswordHash = "hash",
             });
-
 
             this._dbContext.Books.Add(new Book
             {
@@ -38,15 +36,14 @@ namespace LNUBookShareTests.Book_tests
                 Author = "Original Author",
                 Status = "available",
                 OwnerId = 1,
-                CategoryId = 1
+                CategoryId = 1,
             });
-
 
             this._dbContext.Images.Add(new Image
             {
                 ImageId = 1,
                 ImagePath = PathHelper.ConvertToRelativePath("covers/book1.jpg"),
-                ImageType = "cover"
+                ImageType = "cover",
             });
 
             this._dbContext.SaveChanges();
@@ -67,8 +64,8 @@ namespace LNUBookShareTests.Book_tests
                     Author = "Updated Author",
                     CategoryId = 2,
                     Status = "issued",
-                    CoverImagePath = PathHelper.ConvertToRelativePath("covers/book1.jpg")
-                }
+                    CoverImagePath = PathHelper.ConvertToRelativePath("covers/book1.jpg"),
+                },
             };
 
             await handler.Handle(command, CancellationToken.None);
@@ -82,8 +79,6 @@ namespace LNUBookShareTests.Book_tests
             Assert.Equal(1, updatedBook.CoverId);
         }
 
-
-
         [Fact]
         public async Task Handle_ShouldThrowException_WhenBookDoesNotExist()
         {
@@ -93,7 +88,7 @@ namespace LNUBookShareTests.Book_tests
             {
                 CurrentUserId = 1,
                 BookId = 999,
-                Dto = new BookEditDto { Title = "New Title" }
+                Dto = new BookEditDto { Title = "New Title" },
             };
 
             await Assert.ThrowsAsync<Exception>(() => handler.Handle(command, CancellationToken.None));
@@ -108,7 +103,7 @@ namespace LNUBookShareTests.Book_tests
             {
                 CurrentUserId = 2,
                 BookId = 1,
-                Dto = new BookEditDto { Title = "New Title" }
+                Dto = new BookEditDto { Title = "New Title" },
             };
 
             await Assert.ThrowsAsync<Exception>(() => handler.Handle(command, CancellationToken.None));
@@ -129,10 +124,9 @@ namespace LNUBookShareTests.Book_tests
                     Author = "Updated Author 2",
                     CategoryId = 2,
                     Status = "issued",
-                    CoverImagePath = PathHelper.ConvertToAbsolutePath("covers/nonexistent.jpg")
-                }
+                    CoverImagePath = PathHelper.ConvertToAbsolutePath("covers/nonexistent.jpg"),
+                },
             };
-
 
             await handler.Handle(command, CancellationToken.None);
 

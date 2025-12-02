@@ -86,7 +86,7 @@ namespace LNUBookShareUI.ViewModels
             set => SetProperty(ref _coverImagePath, value);
         }
 
-        public ObservableCollection<CategoryDto> Categories { get; } = new();
+        public ObservableCollection<CategoryDto> Categories { get; } = new ();
 
         public CategoryDto SelectedCategory
         {
@@ -143,7 +143,7 @@ namespace LNUBookShareUI.ViewModels
                     var uploadCommand = new UploadImageCommand
                     {
                         FileName = Path.GetFileName(filePath),
-                        ImageData = imageData
+                        ImageData = imageData,
                     };
 
                     CoverImagePath = await _mediator.Send(uploadCommand);
@@ -163,7 +163,8 @@ namespace LNUBookShareUI.ViewModels
                     string.IsNullOrWhiteSpace(Author) ||
                     SelectedCategory == null)
                 {
-                    _ = MessageBox.Show("Поля 'Назва', 'Автор' та 'Категорія' є обов'язковими.",
+                    _ = MessageBox.Show(
+                        "Поля 'Назва', 'Автор' та 'Категорія' є обов'язковими.",
                                         "Помилка валідації",
                                         MessageBoxButton.OK,
                                         MessageBoxImage.Error);
@@ -180,19 +181,22 @@ namespace LNUBookShareUI.ViewModels
                     Language = Language,
                     CategoryId = SelectedCategory.CategoryId,
                     Status = Status,
-                    CoverImagePath = CoverImagePath
+                    CoverImagePath = CoverImagePath,
                 };
 
                 var command = new UpdateBookCommand
                 {
                     BookId = _currentBookId,
                     CurrentUserId = _userSession.GetUserId(),
-                    Dto = dto
+                    Dto = dto,
                 };
 
                 _ = await _mediator.Send(command);
 
-                if (window is Window w) { w.Close(); }
+                if (window is Window w)
+                {
+                    w.Close();
+                }
             }
             catch (Exception ex)
             {
@@ -202,7 +206,10 @@ namespace LNUBookShareUI.ViewModels
 
         private void Cancel(object window)
         {
-            if (window is Window w) { w.Close(); }
+            if (window is Window w)
+            {
+                w.Close();
+            }
         }
     }
 }

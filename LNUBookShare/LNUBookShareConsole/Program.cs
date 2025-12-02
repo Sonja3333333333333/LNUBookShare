@@ -22,24 +22,19 @@ var host = Host.CreateDefaultBuilder(args)
         services.AddDbContext<LNUBookShareDbContext>(options =>
             options.UseNpgsql(connectionString)
 
-            .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
-        );
-
+            .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information));
 
         services.AddMediatR(typeof(AddBookCommand).Assembly);
-
 
         services.AddTransient<DataSeeder>();
         services.AddTransient<ConsoleController>();
     })
     .Build();
 
-
 await RunConsoleApp(host.Services);
 
 Console.WriteLine("Роботу завершено. Натисніть Enter для виходу.");
 Console.ReadLine();
-
 
 static async Task RunConsoleApp(IServiceProvider services)
 {

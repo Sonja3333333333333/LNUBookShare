@@ -6,7 +6,6 @@ using LNUBookShareDAL.Models;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareTests.Book_tests
 {
     public class AddBookCommandHandlerTests
@@ -31,7 +30,7 @@ namespace LNUBookShareTests.Book_tests
             {
                 ImageId = 1,
                 ImagePath = path,
-                ImageType = "cover"
+                ImageType = "cover",
             });
 
             await this._dbContext.SaveChangesAsync();
@@ -46,13 +45,11 @@ namespace LNUBookShareTests.Book_tests
                     Title = "Test Book",
                     Author = "Author",
                     CategoryId = 1,
-                    CoverImagePath = "covers/book1.jpg"
-                }
+                    CoverImagePath = "covers/book1.jpg",
+                },
             };
 
-
             var result = await handler.Handle(command, CancellationToken.None);
-
 
             var addedBook = await this._dbContext.Books.FindAsync(result);
             Assert.NotNull(addedBook);
@@ -74,10 +71,10 @@ namespace LNUBookShareTests.Book_tests
                 OwnerUserId = 1,
                 Dto = new AddBookDto
                 {
-                    Title = "",
+                    Title = string.Empty,
                     Author = "Author",
-                    CategoryId = 1
-                }
+                    CategoryId = 1,
+                },
             };
 
             var ex = await Assert.ThrowsAsync<Exception>(() =>
@@ -85,7 +82,6 @@ namespace LNUBookShareTests.Book_tests
 
             Assert.Equal("Назва, Автор та Категорія є обов'язковими.", ex.Message);
         }
-
 
         [Fact]
         public async Task Handle_ShouldAddBookWithNullCover_WhenImageNotFound()
@@ -100,8 +96,8 @@ namespace LNUBookShareTests.Book_tests
                     Title = "Book Without Cover",
                     Author = "Author",
                     CategoryId = 1,
-                    CoverImagePath = "nonexistent.jpg"
-                }
+                    CoverImagePath = "nonexistent.jpg",
+                },
             };
 
             var result = await handler.Handle(command, CancellationToken.None);

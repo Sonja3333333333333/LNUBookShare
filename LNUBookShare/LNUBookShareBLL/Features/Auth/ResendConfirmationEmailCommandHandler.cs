@@ -4,7 +4,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Auth
 {
     public class ResendConfirmationEmailCommandHandler : IRequestHandler<ResendConfirmationEmailCommand>
@@ -64,7 +63,7 @@ namespace LNUBookShareBLL.Features.Auth
             {
                 tokenEntity = new Emailconfirmation
                 {
-                    UserId = userId
+                    UserId = userId,
                 };
                 await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
             }

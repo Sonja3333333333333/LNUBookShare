@@ -8,7 +8,6 @@ namespace LNUBookShareBLL.Features.Books
     {
         public int BookId { get; set; }
 
-
         public int CurrentUserId { get; set; }
     }
 }

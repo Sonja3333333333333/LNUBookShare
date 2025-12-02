@@ -4,35 +4,10 @@ using LNUBookShareDAL.Models;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareTests.Categories
 {
     public class GetAllCategoriesQueryHandlerTests
     {
-        private LNUBookShareDbContext GetInMemoryDbContext()
-        {
-            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
-                .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
-                .Options;
-
-            var context = new LNUBookShareDbContext(options);
-            context.Database.EnsureCreated();
-            return context;
-        }
-
-        private async Task SeedCategories(LNUBookShareDbContext context)
-        {
-            context.Categories.AddRange(
-                new Category { Name = "Zоологія" },
-                new Category { Name = "Математика" },
-                new Category { Name = "Програмування" },
-                new Category { Name = "Історія" },
-                new Category { Name = "Анатомія" },
-                new Category { Name = "Біологія" }
-            );
-            await context.SaveChangesAsync();
-        }
-
         [Fact]
         public async Task Handle_CategoriesExist_ReturnsAllCategories()
         {
@@ -81,6 +56,29 @@ namespace LNUBookShareTests.Categories
             Assert.Equal("Математика", list[3].Name);
             Assert.Equal("Програмування", list[4].Name);
             Assert.Equal("Zоологія", list[5].Name);
+        }
+
+        private LNUBookShareDbContext GetInMemoryDbContext()
+        {
+            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
+                .UseInMemoryDatabase(databaseName: System.Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new LNUBookShareDbContext(options);
+            context.Database.EnsureCreated();
+            return context;
+        }
+
+        private async Task SeedCategories(LNUBookShareDbContext context)
+        {
+            context.Categories.AddRange(
+                new Category { Name = "Zоологія" },
+                new Category { Name = "Математика" },
+                new Category { Name = "Програмування" },
+                new Category { Name = "Історія" },
+                new Category { Name = "Анатомія" },
+                new Category { Name = "Біологія" });
+            await context.SaveChangesAsync();
         }
     }
 }

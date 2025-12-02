@@ -9,7 +9,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Profile
 {
     public class UpdateProfileCommandHandler : IRequestHandler<UpdateProfileCommand>

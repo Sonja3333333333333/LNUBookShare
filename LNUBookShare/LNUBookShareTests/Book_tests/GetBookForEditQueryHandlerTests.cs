@@ -20,7 +20,6 @@ namespace LNUBookShareTests.Book_tests
             this._dbContext = new LNUBookShareDbContext(this._options);
         }
 
-
         [Fact]
         public async Task Handle_ShouldReturnBookEditDto_WhenUserIsOwner()
         {
@@ -29,7 +28,7 @@ namespace LNUBookShareTests.Book_tests
             {
                 ImageId = 1,
                 ImagePath = "covers/a.jpg",
-                ImageType = "cover"
+                ImageType = "cover",
             };
 
             var book = new Book
@@ -40,7 +39,7 @@ namespace LNUBookShareTests.Book_tests
                 Status = "available",
                 CategoryId = 2,
                 OwnerId = 5,
-                CoverId = 1
+                CoverId = 1,
             };
 
             this._dbContext.Images.Add(image);
@@ -52,7 +51,7 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookForEditQuery
             {
                 BookId = 10,
-                CurrentUserId = 5
+                CurrentUserId = 5,
             };
 
             // Act
@@ -66,8 +65,6 @@ namespace LNUBookShareTests.Book_tests
             Assert.Equal("available", result.Status);
         }
 
-
-
         [Fact]
         public async Task Handle_ShouldThrowException_WhenBookNotFound()
         {
@@ -76,14 +73,12 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookForEditQuery
             {
                 BookId = 999,
-                CurrentUserId = 1
+                CurrentUserId = 1,
             };
 
             await Assert.ThrowsAsync<Exception>(() =>
                 handler.Handle(query, CancellationToken.None));
         }
-
-
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenUserIsNotOwner()
@@ -92,7 +87,7 @@ namespace LNUBookShareTests.Book_tests
             {
                 ImageId = 2,
                 ImagePath = "covers/x.jpg",
-                ImageType = "cover"
+                ImageType = "cover",
             };
 
             var book = new Book
@@ -103,7 +98,7 @@ namespace LNUBookShareTests.Book_tests
                 Status = "available",
                 CategoryId = 1,
                 OwnerId = 7,
-                CoverId = 2
+                CoverId = 2,
             };
 
             this._dbContext.Images.Add(image);
@@ -115,7 +110,7 @@ namespace LNUBookShareTests.Book_tests
             var query = new GetBookForEditQuery
             {
                 BookId = 20,
-                CurrentUserId = 999
+                CurrentUserId = 999,
             };
 
             var ex = await Assert.ThrowsAsync<Exception>(() =>

@@ -1,14 +1,12 @@
-﻿//Handle_ShouldUpdateUserProfile_WhenDataIsValid: "Щасливий шлях" №1.Перевіряє, що ім'я, прізвище та факультет оновлюються, а аватар не змінюється, якщо передати string.Empty.
+﻿// Handle_ShouldUpdateUserProfile_WhenDataIsValid: "Щасливий шлях" №1.Перевіряє, що ім'я, прізвище та факультет оновлюються, а аватар не змінюється, якщо передати string.Empty.
 
-//Handle_ShouldUpdateUserAvatar_WhenProfileImageUrlIsValid: "Щасливий шлях" №2.Перевіряє, що AvatarId користувача оновлюється на 99, коли ми передаємо валідний шлях до зображення з нашої "бази".
+// Handle_ShouldUpdateUserAvatar_WhenProfileImageUrlIsValid: "Щасливий шлях" №2.Перевіряє, що AvatarId користувача оновлюється на 99, коли ми передаємо валідний шлях до зображення з нашої "бази".
 
-//Handle_ShouldThrowException_WhenUserNotFound: "Сумний шлях" №1.Перевіряє, що код кидає помилку, якщо UserId не знайдено.
+// Handle_ShouldThrowException_WhenUserNotFound: "Сумний шлях" №1.Перевіряє, що код кидає помилку, якщо UserId не знайдено.
 
-//[Theory] (Теорії): Це тести, які запускаються кілька разів з різними даними (InlineData). Це дозволяє нам перевірити всю логіку валідації трьома невеликими тестами, замість того, щоб писати 7 окремих тестів.
+// [Theory] (Теорії): Це тести, які запускаються кілька разів з різними даними (InlineData). Це дозволяє нам перевірити всю логіку валідації трьома невеликими тестами, замість того, щоб писати 7 окремих тестів.
 
-//Ми перевіряємо, що код кидає правильні помилки на неправильні FirstName, LastName та FacultyId.
-
-
+// Ми перевіряємо, що код кидає правильні помилки на неправильні FirstName, LastName та FacultyId.
 using FluentAssertions;
 
 using LNUBookShareBLL.DTOs;
@@ -22,46 +20,7 @@ namespace LNUBookShareTests.Profile_tests
 {
     public class UpdateProfileCommandHandlerTests
     {
-        private LNUBookShareDbContext GetInMemoryDbContext()
-        {
-            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
-                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
-                .Options;
-
-            var context = new LNUBookShareDbContext(options);
-            context.Database.EnsureCreated();
-            return context;
-        }
-
-        private async Task SeedDatabase(LNUBookShareDbContext context)
-        {
-            context.Faculties.Add(new Faculty { FacultyId = 1, Name = "Факультет 1" });
-            context.Faculties.Add(new Faculty { FacultyId = 2, Name = "Факультет 2" });
-
-            context.Images.Add(new Image
-            {
-                ImageId = 99,
-                ImagePath = @"uploads\images\test-avatar.png",
-                ImageType = ".png",
-                UploadedAt = DateTime.UtcNow
-            });
-
-            context.Users.Add(new User
-            {
-                UserId = 1,
-                FirstName = "OldFirstName",
-                LastName = "OldLastName",
-                Email = "test@example.com",
-                PasswordHash = "dummy_hash",
-                FacultyId = 1,
-                AvatarId = 50
-            });
-
-            await context.SaveChangesAsync();
-        }
-
         // === "Щасливі шляхи"  ===
-
         [Fact]
         public async Task Handle_ShouldUpdateUserProfile_WhenDataIsValid()
         {
@@ -77,8 +36,8 @@ namespace LNUBookShareTests.Profile_tests
                     FirstName = "NewName",
                     LastName = "NewLastName",
                     FacultyId = 2,
-                    ProfileImageUrl = string.Empty
-                }
+                    ProfileImageUrl = string.Empty,
+                },
             };
 
             await handler.Handle(command, CancellationToken.None);
@@ -107,8 +66,8 @@ namespace LNUBookShareTests.Profile_tests
                     FirstName = "NewName",
                     LastName = "NewLastName",
                     FacultyId = 2,
-                    ProfileImageUrl = @"uploads\images\test-avatar.png"
-                }
+                    ProfileImageUrl = @"uploads\images\test-avatar.png",
+                },
             };
 
             await handler.Handle(command, CancellationToken.None);
@@ -119,7 +78,6 @@ namespace LNUBookShareTests.Profile_tests
         }
 
         // === "Сумні шляхи"  ===
-
         [Fact]
         public async Task Handle_ShouldThrowException_WhenUserNotFound()
         {
@@ -130,7 +88,7 @@ namespace LNUBookShareTests.Profile_tests
             var command = new UpdateProfileCommand
             {
                 UserId = 999,
-                Dto = new ProfileEditDto { FirstName = "Valid", LastName = "Valid", FacultyId = 1 }
+                Dto = new ProfileEditDto { FirstName = "Valid", LastName = "Valid", FacultyId = 1 },
             };
 
             Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);
@@ -149,7 +107,7 @@ namespace LNUBookShareTests.Profile_tests
             var command = new UpdateProfileCommand
             {
                 UserId = 1,
-                Dto = new ProfileEditDto { FirstName = invalidFirstName, LastName = "Valid", FacultyId = 1 }
+                Dto = new ProfileEditDto { FirstName = invalidFirstName, LastName = "Valid", FacultyId = 1 },
             };
 
             Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);
@@ -168,7 +126,7 @@ namespace LNUBookShareTests.Profile_tests
             var command = new UpdateProfileCommand
             {
                 UserId = 1,
-                Dto = new ProfileEditDto { FirstName = "Valid", LastName = invalidLastName, FacultyId = 1 }
+                Dto = new ProfileEditDto { FirstName = "Valid", LastName = invalidLastName, FacultyId = 1 },
             };
 
             Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);
@@ -186,12 +144,50 @@ namespace LNUBookShareTests.Profile_tests
             var command = new UpdateProfileCommand
             {
                 UserId = 1,
-                Dto = new ProfileEditDto { FirstName = "Valid", LastName = "Valid", FacultyId = invalidFacultyId }
+                Dto = new ProfileEditDto { FirstName = "Valid", LastName = "Valid", FacultyId = invalidFacultyId },
             };
 
             Func<Task> act = async () => await handler.Handle(command, CancellationToken.None);
 
             await act.Should().ThrowAsync<Exception>().WithMessage("Необхідно обрати факультет.");
+        }
+
+        private LNUBookShareDbContext GetInMemoryDbContext()
+        {
+            var options = new DbContextOptionsBuilder<LNUBookShareDbContext>()
+                .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .Options;
+
+            var context = new LNUBookShareDbContext(options);
+            context.Database.EnsureCreated();
+            return context;
+        }
+
+        private async Task SeedDatabase(LNUBookShareDbContext context)
+        {
+            context.Faculties.Add(new Faculty { FacultyId = 1, Name = "Факультет 1" });
+            context.Faculties.Add(new Faculty { FacultyId = 2, Name = "Факультет 2" });
+
+            context.Images.Add(new Image
+            {
+                ImageId = 99,
+                ImagePath = @"uploads\images\test-avatar.png",
+                ImageType = ".png",
+                UploadedAt = DateTime.UtcNow,
+            });
+
+            context.Users.Add(new User
+            {
+                UserId = 1,
+                FirstName = "OldFirstName",
+                LastName = "OldLastName",
+                Email = "test@example.com",
+                PasswordHash = "dummy_hash",
+                FacultyId = 1,
+                AvatarId = 50,
+            });
+
+            await context.SaveChangesAsync();
         }
     }
 }

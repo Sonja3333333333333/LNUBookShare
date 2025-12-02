@@ -11,7 +11,6 @@
                 return null;
             }
 
-
             if (dbPath.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 dbPath.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {

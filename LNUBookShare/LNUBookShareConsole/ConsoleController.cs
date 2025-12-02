@@ -3,14 +3,12 @@ using LNUBookShareBLL.Features.Books;
 
 using MediatR;
 
-
 namespace LNUBookShareConsole
 {
     public class ConsoleController
     {
         private readonly IMediator _mediator;
         private readonly DataSeeder _seeder;
-
 
         public ConsoleController(IMediator mediator, DataSeeder seeder)
         {
@@ -72,7 +70,6 @@ namespace LNUBookShareConsole
             Console.WriteLine("  exit         - Вийти з програми");
         }
 
-
         private async Task AddBookAsync()
         {
             try
@@ -84,21 +81,18 @@ namespace LNUBookShareConsole
                 Console.Write("  ID Категорії: ");
                 int categoryId = int.Parse(Console.ReadLine());
 
-
-
                 var dto = new AddBookDto
                 {
                     Title = title,
                     Author = author,
-                    CategoryId = categoryId
+                    CategoryId = categoryId,
                 };
 
                 var command = new AddBookCommand
                 {
                     Dto = dto,
-                    OwnerUserId = 1
+                    OwnerUserId = 1,
                 };
-
 
                 int newBookId = await this._mediator.Send(command);
 
@@ -124,7 +118,7 @@ namespace LNUBookShareConsole
                 var command = new DeleteBookCommand
                 {
                     BookId = bookId,
-                    CurrentUserId = 1
+                    CurrentUserId = 1,
                 };
 
                 await this._mediator.Send(command);

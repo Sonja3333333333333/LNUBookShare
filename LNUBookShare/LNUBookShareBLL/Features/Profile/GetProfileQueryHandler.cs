@@ -7,7 +7,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Profile
 {
     public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, ProfileDto>
@@ -57,7 +56,7 @@ namespace LNUBookShareBLL.Features.Profile
                     Author = book.Author,
                     Year = book.Year,
                     Status = book.Status,
-                    CoverPath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null)
+                    CoverPath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null),
                 })
                 .ToListAsync(cancellationToken);
         }
@@ -73,7 +72,7 @@ namespace LNUBookShareBLL.Features.Profile
                 Email = user.Email,
                 FacultyName = user.Faculty?.Name ?? "Не вказано",
                 AvatarPath = finalAvatarPath,
-                OwnedBooks = ownedBooks
+                OwnedBooks = ownedBooks,
             };
         }
     }

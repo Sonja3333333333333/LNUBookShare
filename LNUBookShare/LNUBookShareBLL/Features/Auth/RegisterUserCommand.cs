@@ -1,6 +1,5 @@
 ﻿using MediatR;
 
-
 namespace LNUBookShareBLL.Features.Auth
 {
     public class RegisterUserCommand : IRequest<int>

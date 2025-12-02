@@ -4,7 +4,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Favorites
 {
     public class ToggleFavoriteCommandHandler : IRequestHandler<ToggleFavoriteCommand, bool>
@@ -35,7 +34,8 @@ namespace LNUBookShareBLL.Features.Favorites
         private async Task<Favorite> GetExistingFavoriteAsync(ToggleFavoriteCommand request, CancellationToken cancellationToken)
         {
             return await this._dbContext.Favorites
-                .FirstOrDefaultAsync(favorite =>
+                .FirstOrDefaultAsync(
+                    favorite =>
                     favorite.UserId == request.UserId && favorite.BookId == request.BookId,
                     cancellationToken);
         }
@@ -54,7 +54,7 @@ namespace LNUBookShareBLL.Features.Favorites
             {
                 UserId = request.UserId,
                 BookId = request.BookId,
-                CreatedAt = System.DateTime.UtcNow
+                CreatedAt = System.DateTime.UtcNow,
             };
 
             await this._dbContext.Favorites.AddAsync(newFavorite, cancellationToken);

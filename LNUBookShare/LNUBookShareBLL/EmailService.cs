@@ -3,7 +3,6 @@ using MailKit.Security;
 
 using MimeKit;
 
-
 namespace LNUBookShareBLL
 {
     public class EmailService : IEmailService
@@ -12,11 +11,9 @@ namespace LNUBookShareBLL
         {
             var message = new MimeMessage();
 
-
             message.From.Add(new MailboxAddress("LNU Book Share", "apuhlij66@gmail.com"));
             message.To.Add(new MailboxAddress("Новий Користувач", userEmail));
             message.Subject = "Підтвердження реєстрації LNU Book Share";
-
 
             var bodyBuilder = new BodyBuilder();
             bodyBuilder.HtmlBody = $@"

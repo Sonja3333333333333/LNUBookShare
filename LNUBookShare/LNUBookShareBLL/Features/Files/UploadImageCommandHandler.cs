@@ -28,13 +28,10 @@ namespace LNUBookShareBLL.Features.Files
         {
             var imageUrl = await this.UploadToCloudinaryAsync(request.ImageData, request.FileName);
 
-
             await this.CreateImageEntityAsync(imageUrl, request.FileName, cancellationToken);
-
 
             return imageUrl;
         }
-
 
         private async Task<string> UploadToCloudinaryAsync(byte[] imageData, string fileName)
         {
@@ -43,7 +40,7 @@ namespace LNUBookShareBLL.Features.Files
                 var uploadParams = new ImageUploadParams()
                 {
                     File = new FileDescription(fileName, stream),
-                    Folder = "lnu_book_share"
+                    Folder = "lnu_book_share",
                 };
 
                 var uploadResult = await this._cloudinary.UploadAsync(uploadParams);
@@ -58,7 +55,7 @@ namespace LNUBookShareBLL.Features.Files
             {
                 ImagePath = imageUrl,
                 UploadedAt = DateTime.UtcNow,
-                ImageType = Path.GetExtension(originalFileName).ToLower()
+                ImageType = Path.GetExtension(originalFileName).ToLower(),
             };
 
             await this._dbContext.Images.AddAsync(newImage, cancellationToken);

@@ -31,7 +31,6 @@ namespace LNUBookShareBLL.Features.Auth
             await this._dbContext.Users.AddAsync(newUser, cancellationToken);
             await this._dbContext.Emailconfirmations.AddAsync(tokenEntity, cancellationToken);
 
-
             string confirmationLink = $"https://localhost:7163/api/auth/confirm?token={tokenEntity.ConfirmationToken}";
             try
             {
@@ -50,7 +49,6 @@ namespace LNUBookShareBLL.Features.Auth
 
             return newUser.UserId;
         }
-
 
         private void ValidateRequest(RegisterUserCommand request)
         {
@@ -121,7 +119,7 @@ namespace LNUBookShareBLL.Features.Auth
                 PasswordHash = passwordHash,
                 FacultyId = request.FacultyId,
                 IsEmailConfirmed = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
             };
 
             var confirmationToken = Guid.NewGuid().ToString();
@@ -130,7 +128,7 @@ namespace LNUBookShareBLL.Features.Auth
                 User = newUser,
                 ConfirmationToken = confirmationToken,
                 CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddHours(24)
+                ExpiresAt = DateTime.UtcNow.AddHours(24),
             };
 
             return (newUser, tokenEntity);

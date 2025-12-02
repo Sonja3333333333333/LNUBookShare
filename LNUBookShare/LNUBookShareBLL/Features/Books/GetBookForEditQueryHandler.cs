@@ -7,7 +7,6 @@ using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 
-
 namespace LNUBookShareBLL.Features.Books
 {
     public class GetBookForEditQueryHandler : IRequestHandler<GetBookForEditQuery, BookEditDto>
@@ -64,7 +63,7 @@ namespace LNUBookShareBLL.Features.Books
                 Language = book.Language,
                 CategoryId = book.CategoryId,
                 Status = book.Status,
-                CoverImagePath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null)
+                CoverImagePath = PathHelper.ConvertToAbsolutePath(book.Cover != null ? book.Cover.ImagePath : null),
             };
         }
     }

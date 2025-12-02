@@ -20,7 +20,6 @@ namespace LNUBookShareTests.Book_tests
             this._dbContext = new LNUBookShareDbContext(this._options);
         }
 
-
         [Fact]
         public async Task Handle_ShouldDeleteBook_WhenUserIsOwner()
         {
@@ -31,7 +30,7 @@ namespace LNUBookShareTests.Book_tests
                 Author = "Author",
                 CategoryId = 1,
                 Status = "available",
-                OwnerId = 10
+                OwnerId = 10,
             };
 
             this._dbContext.Books.Add(book);
@@ -41,17 +40,14 @@ namespace LNUBookShareTests.Book_tests
             var command = new DeleteBookCommand
             {
                 BookId = 1,
-                CurrentUserId = 10
+                CurrentUserId = 10,
             };
 
-
             await handler.Handle(command, CancellationToken.None);
-
 
             var deleted = await this._dbContext.Books.FindAsync(1);
             Assert.Null(deleted);
         }
-
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenBookNotFound()
@@ -60,7 +56,7 @@ namespace LNUBookShareTests.Book_tests
             var command = new DeleteBookCommand
             {
                 BookId = 999,
-                CurrentUserId = 5
+                CurrentUserId = 5,
             };
 
             var ex = await Assert.ThrowsAsync<System.Exception>(() =>
@@ -68,7 +64,6 @@ namespace LNUBookShareTests.Book_tests
 
             Assert.Equal("Книгу не знайдено.", ex.Message);
         }
-
 
         [Fact]
         public async Task Handle_ShouldThrowException_WhenUserIsNotOwner()
@@ -80,7 +75,7 @@ namespace LNUBookShareTests.Book_tests
                 OwnerId = 7,
                 Author = "Author",
                 CategoryId = 1,
-                Status = "available"
+                Status = "available",
             };
 
             this._dbContext.Books.Add(book);
@@ -90,7 +85,7 @@ namespace LNUBookShareTests.Book_tests
             var command = new DeleteBookCommand
             {
                 BookId = 10,
-                CurrentUserId = 5
+                CurrentUserId = 5,
             };
 
             var ex = await Assert.ThrowsAsync<System.Exception>(() =>
