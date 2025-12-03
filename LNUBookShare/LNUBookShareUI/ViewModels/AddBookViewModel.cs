@@ -93,7 +93,9 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand ChangeCoverCommand { get; }
+
         public ICommand SaveCommand { get; }
+
         public ICommand CancelCommand { get; }
 
         public async Task LoadDataAsync()

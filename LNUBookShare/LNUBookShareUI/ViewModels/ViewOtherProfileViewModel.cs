@@ -97,11 +97,17 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand LoadDataCommand { get; }
+
         public ICommand DeleteBookCommand { get; }
+
         public ICommand SetFilterAllCommand { get; }
+
         public ICommand SetFilterAvailableCommand { get; }
+
         public ICommand SetFilterIssuedCommand { get; }
+
         public ICommand GoBackCommand { get; }
+
         public ICommand OpenBookDetailsCommand { get; }
 
         private void OpenBookDetails(int bookId)

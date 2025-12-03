@@ -135,15 +135,25 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand LoadBooksCommand { get; }
+
         public ICommand ToggleFavoriteCommand { get; }
+
         public ICommand SetFilterAllCommand { get; }
+
         public ICommand SetFilterAvailableCommand { get; }
+
         public ICommand SetFilterIssuedCommand { get; }
+
         public ICommand NextPageCommand { get; }
+
         public ICommand PreviousPageCommand { get; }
+
         public ICommand OpenProfileCommand { get; }
+
         public ICommand ViewOwnerProfileCommand { get; }
+
         public ICommand OpenFavoritesCommand { get; }
+
         public ICommand OpenBookDetailsCommand { get; }
 
         private void OpenProfile()

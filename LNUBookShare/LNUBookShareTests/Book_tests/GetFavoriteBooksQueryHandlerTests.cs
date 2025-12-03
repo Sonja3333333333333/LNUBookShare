@@ -11,6 +11,7 @@ namespace LNUBookShareTests.Book_tests
     {
         private readonly LNUBookShareDbContext _dbContext;
         private DbContextOptions<LNUBookShareDbContext> _options;
+
         public GetFavoriteBooksQueryHandlerTests()
         {
             this._options = new DbContextOptionsBuilder<LNUBookShareDbContext>()

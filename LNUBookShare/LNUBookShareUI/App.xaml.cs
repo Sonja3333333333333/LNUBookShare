@@ -66,7 +66,7 @@ namespace LNUBookShareUI
             _ = services.AddDbContext<LNUBookShareDbContext>(
                 options =>
       options.UseNpgsql(connectionString),
-      ServiceLifetime.Transient);
+                ServiceLifetime.Transient);
 
             _ = services.AddMediatR(typeof(GetBooksQuery).Assembly);
             _ = services.AddMediatR(typeof(UploadImageCommand).Assembly);

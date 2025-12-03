@@ -65,7 +65,9 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand SaveCommand { get; }
+
         public ICommand CancelCommand { get; }
+
         public ICommand ChangePhotoCommand { get; }
 
         public async Task LoadDataAsync()

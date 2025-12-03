@@ -18,3 +18,5 @@
 
 // Дозволяє писати usings ЗОВНІ namespace (SA1200 - це стандарт Visual Studio, а StyleCop свариться дарма)
 [assembly: SuppressMessage("StyleCop.CSharp.OrderingRules", "SA1200:Using directive should appear within a namespace declaration", Justification = "Standard convention")]
+
+[assembly: SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1602:Enumeration items should be documented", Justification = "Not needed for the project", Scope = "type", Target = "~T:LNUBookShareBLL.Enums.BookFilterStatus")]

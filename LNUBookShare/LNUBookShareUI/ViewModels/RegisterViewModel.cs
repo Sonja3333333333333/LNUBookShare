@@ -70,6 +70,7 @@ namespace LNUBookShareUI.ViewModels
         public ObservableCollection<FacultyDto> Faculties { get; } = new ();
 
         public ICommand RegisterCommand { get; }
+
         public ICommand GoToLoginCommand { get; }
 
         private async Task RegisterAsync(object parameter)
@@ -117,8 +118,7 @@ namespace LNUBookShareUI.ViewModels
 
                 _ = await _mediator.Send(command);
 
-                _ = MessageBox.Show("Перевірте пошту для підтвердження реєстрації.", "Реєстрація успішна",
-                                MessageBoxButton.OK, MessageBoxImage.Information);
+                _ = MessageBox.Show("Перевірте пошту для підтвердження реєстрації.", "Реєстрація успішна", MessageBoxButton.OK, MessageBoxImage.Information);
 
                 GoToLogin(parameter);
             }
