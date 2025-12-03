@@ -205,9 +205,7 @@ namespace LNUBookShareUI.ViewModels
                     SortBy = SelectedSort,
                 };
 
-                if (string.IsNullOrWhiteSpace(SearchTerm) &&
-                    SelectedStatusFilter == BookFilterStatus.All &&
-                    SelectedSort == BookSortCriteria.Title)
+                if (string.IsNullOrWhiteSpace(SearchTerm))
                 {
                     query.RecommendForUser = true;
                 }
