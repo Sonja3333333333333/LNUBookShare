@@ -1,15 +1,13 @@
 ﻿using LNUBookShareBLL.Features.Books;
-
 using LNUBookShareConsole;
-
 using LNUBookShareDAL.Models;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System;
+using System.Threading.Tasks;
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 Console.OutputEncoding = System.Text.Encoding.UTF8;
@@ -21,12 +19,13 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.AddDbContext<LNUBookShareDbContext>(options =>
             options.UseNpgsql(connectionString)
-
             .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information));
 
         services.AddMediatR(typeof(AddBookCommand).Assembly);
 
-        services.AddTransient<DataSeeder>();
+        // Реєструємо наші нові абстракції
+        services.AddSingleton<IConsoleIO, RealConsoleIO>(); // <-- ВАЖЛИВО!
+        services.AddTransient<IDataSeeder, DataSeeder>();   // <-- ВАЖЛИВО!
         services.AddTransient<ConsoleController>();
     })
     .Build();
@@ -41,7 +40,6 @@ static async Task RunConsoleApp(IServiceProvider services)
     using (var scope = services.CreateScope())
     {
         var controller = scope.ServiceProvider.GetRequiredService<ConsoleController>();
-
         await controller.RunAsync();
     }
 }

@@ -1,12 +1,14 @@
 ﻿using Bogus;
-
 using LNUBookShareDAL.Models;
-
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LNUBookShareConsole
 {
-    public class DataSeeder
+    public class DataSeeder : IDataSeeder // <--- ЗМІНА: Додано інтерфейс
     {
         private readonly LNUBookShareDbContext _dbContext;
         private readonly Faker _faker;
@@ -20,6 +22,7 @@ namespace LNUBookShareConsole
         public async Task SeedDatabaseAsync(int recordCount)
         {
             Console.WriteLine($"Очищення старих даних... (TRUNCATE RESTART IDENTITY)");
+            // Використовуємо Raw SQL для швидкого очищення (обережно з цим на проді!)
             await this._dbContext.Database.ExecuteSqlRawAsync("TRUNCATE TABLE favorite, book, \"User\", category, faculty, image, emailconfirmation RESTART IDENTITY CASCADE");
 
             Console.WriteLine($"Генерація {recordCount} Факультетів...");
@@ -32,17 +35,14 @@ namespace LNUBookShareConsole
             var images = await this.SeedImagesAsync(recordCount);
 
             await this._dbContext.SaveChangesAsync();
-            Console.WriteLine("...Факультети, Категорії та Зображення збережено в БД.");
 
             Console.WriteLine($"Генерація {recordCount} Користувачів...");
             var users = await this.SeedUsersAsync(recordCount, faculties, images);
             await this._dbContext.SaveChangesAsync();
-            Console.WriteLine("...Користувачів збережено в БД.");
 
             Console.WriteLine($"Генерація {recordCount} Книг...");
             var books = await this.SeedBooksAsync(recordCount, users, categories, images);
             await this._dbContext.SaveChangesAsync();
-            Console.WriteLine("...Книги збережено в БД.");
 
             Console.WriteLine($"Генерація {recordCount} записів 'Уподобане'...");
             await this.SeedFavoritesAsync(recordCount, users, books);
@@ -86,10 +86,7 @@ namespace LNUBookShareConsole
         {
             var facultyIds = faculties.Select(f => f.FacultyId).ToList();
             var avatarIds = images.Where(i => i.ImageType == "avatar").Select(i => i.ImageId).ToList();
-            if (avatarIds.Count == 0)
-            {
-                avatarIds = images.Select(i => i.ImageId).ToList();
-            }
+            if (avatarIds.Count == 0) avatarIds = images.Select(i => i.ImageId).ToList();
 
             var userFaker = new Faker<User>("uk")
                 .RuleFor(u => u.FirstName, f => f.Name.FirstName())
@@ -109,10 +106,7 @@ namespace LNUBookShareConsole
             var userIds = users.Select(u => u.UserId).ToList();
             var categoryIds = categories.Select(c => c.CategoryId).ToList();
             var coverIds = images.Where(i => i.ImageType == "book_cover").Select(i => i.ImageId).ToList();
-            if (coverIds.Count == 0)
-            {
-                coverIds = images.Select(i => i.ImageId).ToList();
-            }
+            if (coverIds.Count == 0) coverIds = images.Select(i => i.ImageId).ToList();
 
             var bookFaker = new Faker<Book>("uk")
                 .RuleFor(b => b.Title, f => f.Commerce.ProductName())
