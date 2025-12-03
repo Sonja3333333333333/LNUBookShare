@@ -20,7 +20,7 @@ namespace LNUBookShareTests.Categories
             var result = await handler.Handle(query, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal(6, result.Count());
+            Assert.Equal(5, result.Count());
             Assert.Contains(result, category => category.Name == "Програмування");
         }
 
@@ -55,7 +55,6 @@ namespace LNUBookShareTests.Categories
             Assert.Equal("Історія", list[2].Name);
             Assert.Equal("Математика", list[3].Name);
             Assert.Equal("Програмування", list[4].Name);
-            Assert.Equal("Zоологія", list[5].Name);
         }
 
         private LNUBookShareDbContext GetInMemoryDbContext()
@@ -72,7 +71,6 @@ namespace LNUBookShareTests.Categories
         private async Task SeedCategories(LNUBookShareDbContext context)
         {
             context.Categories.AddRange(
-                new Category { Name = "Zоологія" },
                 new Category { Name = "Математика" },
                 new Category { Name = "Програмування" },
                 new Category { Name = "Історія" },
