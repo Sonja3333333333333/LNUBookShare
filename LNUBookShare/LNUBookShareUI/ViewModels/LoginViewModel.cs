@@ -45,6 +45,7 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand LoginCommand { get; }
+
         public ICommand GoToRegisterCommand { get; }
 
         private async Task LoginAsync(object parameter)

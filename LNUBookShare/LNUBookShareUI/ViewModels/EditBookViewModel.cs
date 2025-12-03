@@ -101,7 +101,9 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand ChangeCoverCommand { get; }
+
         public ICommand SaveCommand { get; }
+
         public ICommand CancelCommand { get; }
 
         public async Task LoadDataAsync(int bookId)
@@ -165,9 +167,9 @@ namespace LNUBookShareUI.ViewModels
                 {
                     _ = MessageBox.Show(
                         "Поля 'Назва', 'Автор' та 'Категорія' є обов'язковими.",
-                                        "Помилка валідації",
-                                        MessageBoxButton.OK,
-                                        MessageBoxImage.Error);
+                        "Помилка валідації",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
                     return;
                 }
 

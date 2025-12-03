@@ -110,14 +110,23 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand LoadDataCommand { get; }
+
         public ICommand DeleteBookCommand { get; }
+
         public ICommand SetFilterAllCommand { get; }
+
         public ICommand SetFilterAvailableCommand { get; }
+
         public ICommand SetFilterIssuedCommand { get; }
+
         public ICommand GoBackCommand { get; }
+
         public ICommand OpenEditProfileCommand { get; }
+
         public ICommand OpenBookDetailsCommand { get; }
+
         public ICommand OpenAddBookCommand { get; }
+
         public ICommand OpenEditBookCommand { get; }
 
         private async Task OpenEditBook(int bookId)

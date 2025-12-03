@@ -104,14 +104,23 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand GoBackCommand { get; }
+
         public ICommand RemoveFromFavoritesCommand { get; }
+
         public ICommand ClearFavoritesCommand { get; }
+
         public ICommand SetFilterAllCommand { get; }
+
         public ICommand SetFilterAvailableCommand { get; }
+
         public ICommand SetFilterIssuedCommand { get; }
+
         public ICommand NextPageCommand { get; }
+
         public ICommand PreviousPageCommand { get; }
+
         public ICommand OpenBookDetailsCommand { get; }
+
         public ICommand ViewOwnerProfileCommand { get; }
 
         private void OpenBookDetails(int bookId)

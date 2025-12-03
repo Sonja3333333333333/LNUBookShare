@@ -12,6 +12,7 @@ namespace LNUBookShareTests.Book_tests
     {
         private LNUBookShareDbContext _dbContext;
         private DbContextOptions<LNUBookShareDbContext> _options;
+
         public AddBookCommandHandlerTests()
         {
             this._options = new DbContextOptionsBuilder<LNUBookShareDbContext>()

@@ -38,7 +38,9 @@ namespace LNUBookShareUI.ViewModels
         }
 
         public ICommand GoBackCommand { get; }
+
         public ICommand ToggleFavoriteCommand { get; }
+
         public ICommand ViewOwnerProfileCommand { get; }
 
         public async Task LoadBookDetailsAsync(int bookId)
