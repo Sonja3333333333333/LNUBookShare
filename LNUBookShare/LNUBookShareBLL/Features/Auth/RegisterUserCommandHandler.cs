@@ -1,11 +1,7 @@
 ﻿using System.Text.RegularExpressions;
-
 using LNUBookShareDAL.Models;
-
 using MediatR;
-
 using Microsoft.EntityFrameworkCore;
-
 using static BCrypt.Net.BCrypt;
 
 namespace LNUBookShareBLL.Features.Auth
@@ -52,14 +48,16 @@ namespace LNUBookShareBLL.Features.Auth
 
         private void ValidateRequest(RegisterUserCommand request)
         {
+            string namePattern = @"^[a-zA-Zа-яА-ЯіІїЇєЄґҐ'’\-]+$";
+
             if (string.IsNullOrWhiteSpace(request.FirstName))
             {
                 throw new Exception("Ім'я не може бути порожнім.");
             }
 
-            if (!Regex.IsMatch(request.FirstName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
+            if (!Regex.IsMatch(request.FirstName, namePattern))
             {
-                throw new Exception("Ім'я повинно містити лише літери.");
+                throw new Exception("Ім'я містить недопустимі символи (дозволено літери, апостроф, дефіс).");
             }
 
             if (string.IsNullOrWhiteSpace(request.LastName))
@@ -67,9 +65,9 @@ namespace LNUBookShareBLL.Features.Auth
                 throw new Exception("Прізвище не може бути порожнім.");
             }
 
-            if (!Regex.IsMatch(request.LastName, @"^[a-zA-Zа-яА-ЯіІїЇєЄ']+$"))
+            if (!Regex.IsMatch(request.LastName, namePattern))
             {
-                throw new Exception("Прізвище повинно містити лише літери.");
+                throw new Exception("Прізвище містить недопустимі символи (дозволено літери, апостроф, дефіс).");
             }
 
             if (request.FacultyId <= 0)

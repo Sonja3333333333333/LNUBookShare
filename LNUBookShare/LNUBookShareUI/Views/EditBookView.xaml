@@ -4,81 +4,148 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:LNUBookShareUI.ViewModels"
-        
         xmlns:common="clr-namespace:LNUBookShareUI.Common" 
-        
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=vm:EditBookViewModel}"
-        Title="Редагувати книгу" Height="800" Width="450"
-        WindowStartupLocation="CenterOwner">
+        Title="Редагувати книгу" 
+        Height="800" Width="500"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{StaticResource BackgroundColor}">
 
     <Window.Resources>
         <common:StringToBooleanConverter x:Key="StringToBooleanConverter"/>
+
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
+
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EEE"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryColor}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Border Style="{StaticResource CardStyle}" Margin="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" HorizontalAlignment="Center" Margin="0,0,0,20">
-            <Border Width="150" Height="220" BorderBrush="Gray" BorderThickness="1" Background="Gainsboro" ClipToBounds="True">
-                <Image Source="{Binding CoverImagePath}" Stretch="UniformToFill"/>
-            </Border>
-            <Button Content="Змінити обкладинку" Margin="0,10,0,0" Command="{Binding ChangeCoverCommand}"/>
-        </StackPanel>
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,10,0">
+                <StackPanel>
 
-        <TextBlock Grid.Row="1" Text="Назва книги*"/>
-        <TextBox Grid.Row="1" Text="{Binding Title}" Margin="0,20,0,10"/>
+                    <StackPanel HorizontalAlignment="Center" Margin="0,0,0,25">
+                        <Border Width="160" Height="240" 
+                                BorderBrush="{StaticResource BorderColor}" 
+                                BorderThickness="1" 
+                                CornerRadius="8"
+                                Background="#FAFAFA" 
+                                ClipToBounds="True">
+                            <Image Source="{Binding CoverImagePath}" Stretch="UniformToFill"/>
+                        </Border>
+                        <Button Content="📸 Змінити обкладинку" 
+                                Margin="0,15,0,0" 
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Command="{Binding ChangeCoverCommand}"
+                                Width="200"/>
+                    </StackPanel>
 
-        <TextBlock Grid.Row="2" Text="Автор*"/>
-        <TextBox Grid.Row="2" Text="{Binding Author}" Margin="0,20,0,10"/>
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Назва книги *" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding Title}"/>
+                    </StackPanel>
 
-        <TextBlock Grid.Row="3" Text="Категорія*"/>
-        <ComboBox Grid.Row="3" Margin="0,20,0,10"
-                  ItemsSource="{Binding Categories}"
-                  SelectedItem="{Binding SelectedCategory}"
-                  DisplayMemberPath="Name" />
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Автор *" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding Author}"/>
+                    </StackPanel>
 
-        <TextBlock Grid.Row="4" Text="Рік видання"/>
-        <TextBox Grid.Row="4" Text="{Binding Year}" Margin="0,20,0,10"/>
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Категорія *" Style="{StaticResource LabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding Categories}"
+                                  SelectedItem="{Binding SelectedCategory}"
+                                  DisplayMemberPath="Name"
+                                  Height="35"
+                                  VerticalContentAlignment="Center"
+                                  Padding="5"/>
+                    </StackPanel>
 
-        <TextBlock Grid.Row="5" Text="Видавництво"/>
-        <TextBox Grid.Row="5" Text="{Binding Publisher}" Margin="0,20,0,10"/>
+                    <Grid Margin="0,0,0,15">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="6" Text="Мова"/>
-        <TextBox Grid.Row="6" Text="{Binding Language}" Margin="0,20,0,10"/>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Рік видання" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="{Binding Year}"/>
+                        </StackPanel>
 
-        <TextBlock Grid.Row="7" Text="ISBN"/>
-        <TextBox Grid.Row="7" Text="{Binding Isbn}" Margin="0,20,0,10"/>
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Мова" Style="{StaticResource LabelStyle}"/>
+                            <TextBox Text="{Binding Language}"/>
+                        </StackPanel>
+                    </Grid>
 
-        <TextBlock Grid.Row="8" Text="Статус*"/>
-        <StackPanel Grid.Row="8" Orientation="Horizontal" Margin="0,20,0,10">
-            <RadioButton Content="Доступна" GroupName="Status" 
-                         IsChecked="{Binding Status, Converter={StaticResource StringToBooleanConverter}, ConverterParameter=available}"/>
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Видавництво" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding Publisher}"/>
+                    </StackPanel>
 
-            <RadioButton Content="Видана" GroupName="Status" Margin="10,0,0,0" 
-                         IsChecked="{Binding Status, Converter={StaticResource StringToBooleanConverter}, ConverterParameter=issued}"/>
-        </StackPanel>
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="ISBN" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding Isbn}"/>
+                    </StackPanel>
 
-        <StackPanel Grid.Row="10" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Скасувати" Width="100" Margin="0,0,10,0" IsCancel="True"
-                    Command="{Binding CancelCommand}"
-                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    <StackPanel Margin="0,0,0,10">
+                        <TextBlock Text="Статус *" Style="{StaticResource LabelStyle}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                            <RadioButton Content="Доступна" GroupName="Status" 
+                                         VerticalContentAlignment="Center"
+                                         FontSize="14"
+                                         Margin="0,0,20,0"
+                                         IsChecked="{Binding Status, Converter={StaticResource StringToBooleanConverter}, ConverterParameter=available}"/>
 
-            <Button Content="Зберегти" Width="100" IsDefault="True"
-                    Command="{Binding SaveCommand}"
-                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
-        </StackPanel>
-    </Grid>
+                            <RadioButton Content="Видана" GroupName="Status" 
+                                         VerticalContentAlignment="Center"
+                                         FontSize="14"
+                                         IsChecked="{Binding Status, Converter={StaticResource StringToBooleanConverter}, ConverterParameter=issued}"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Скасувати" 
+                        Width="120" 
+                        Margin="0,0,15,0" 
+                        IsCancel="True"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding CancelCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+
+                <Button Content="Зберегти" 
+                        Width="120" 
+                        IsDefault="True"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding SaveCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+            </StackPanel>
+        </Grid>
+    </Border>
 </Window>
