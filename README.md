@@ -20,9 +20,10 @@ LNUBookShare — це десктопний застосунок для обмі�
 ## Технології
 
 - **Мова програмування** - C#
-- **UI** - WPF / WinUI 3 / .NET MAUI / Blazor Desktop
-- **Доступ до даних** - Entity Framework Core / Dapper / ADO.NET
-- **База даних** - PostgreSQL
+- **UI** - WPF
+- **Доступ до даних** - Entity Framework Core 
+- **База даних** - PostgreSQ
+- **Тестування** - XUnit
  
 ## Наша команда
 - Богданович Софія
