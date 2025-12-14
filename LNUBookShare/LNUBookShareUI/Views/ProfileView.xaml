@@ -12,7 +12,6 @@
         Background="{StaticResource BackgroundColor}">
 
     <Window.Resources>
-        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
 
         <Style x:Key="LinkButtonStyle" TargetType="Button">
             <Setter Property="Template">

@@ -13,24 +13,6 @@
         Background="{StaticResource BackgroundColor}">
 
     <Window.Resources>
-        <Style x:Key="LinkButtonStyle" TargetType="Button">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <TextBlock Text="{TemplateBinding Content}" 
-                                   TextDecorations="Underline" 
-                                   Cursor="Hand"/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Foreground" Value="{StaticResource PrimaryDarkColor}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
 
         <Style x:Key="HeaderButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
             <Setter Property="Background" Value="Transparent"/>
