@@ -50,22 +50,25 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoginAsync(object parameter)
         {
-            if (parameter is not PasswordBox passwordBox)
-            {
-                ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
-                return;
-            }
-
-            string password = passwordBox.Password;
-
+            IsLoading = true;
+            
             try
             {
+                if (parameter is not PasswordBox passwordBox)
+                {
+                    ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
+                    return;
+                }
+
+                string password = passwordBox.Password;
+
                 var query = new LoginUserQuery
                 {
                     Email = Email,
                     Password = password,
                 };
 
+                //await Task.Delay(3000);
                 LoginResultDto result = await _mediator.Send(query);
 
                 if (result != null)
@@ -81,6 +84,10 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = ex.Message;
+            }
+            finally
+            {
+                IsLoading = false; 
             }
         }
 

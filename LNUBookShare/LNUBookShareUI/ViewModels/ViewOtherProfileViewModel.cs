@@ -120,6 +120,8 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadProfileAsync()
         {
+            IsLoading = true;
+
             try
             {
                 var query = new GetProfileQuery { UserId = _currentUserId };
@@ -141,6 +143,10 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 _ = MessageBox.Show($"Помилка завантаження профілю: {ex.Message}\n\n{ex.StackTrace}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

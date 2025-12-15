@@ -141,6 +141,8 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadFavoritesAsync()
         {
+            IsLoading = true;
+
             try
             {
                 var query = new GetFavoriteBooksQuery
@@ -177,6 +179,10 @@ namespace LNUBookShareUI.ViewModels
             {
                 _ = MessageBox.Show($"Помилка завантаження вподобаних: {ex.Message}", "Помилка");
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task RemoveFavoriteAsync(int bookId)
@@ -201,19 +207,21 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ClearFavoritesAsync()
         {
-            var result = MessageBox.Show(
+            IsLoading = true;            
+
+            try
+            {
+                var result = MessageBox.Show(
                 "Ви впевнені, що хочете видалити ВСІ книги з вподобань?",
                 "Підтвердження",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
 
-            if (result != MessageBoxResult.Yes)
-            {
-                return;
-            }
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
 
-            try
-            {
                 var command = new ClearFavoritesCommand { UserId = _userSession.GetUserId() };
                 _ = await _mediator.Send(command);
                 await LoadFavoritesAsync();
@@ -221,6 +229,10 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 _ = MessageBox.Show($"Помилка очищення: {ex.Message}", "Помилка");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

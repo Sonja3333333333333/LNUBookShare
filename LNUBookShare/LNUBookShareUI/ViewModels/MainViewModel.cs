@@ -192,6 +192,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadBooksAsync()
         {
+            IsLoading = true;
             try
             {
                 var query = new GetBooksQuery
@@ -210,6 +211,7 @@ namespace LNUBookShareUI.ViewModels
                     query.RecommendForUser = true;
                 }
 
+                //await Task.Delay(3000);
                 var result = await _mediator.Send(query);
 
                 _isSearchPerformed = true;
@@ -235,6 +237,10 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 _ = MessageBox.Show($"Сталася помилка: {ex.Message}", "Помилка завантаження");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

@@ -176,6 +176,8 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadProfileAsync()
         {
+            IsLoading = true;
+
             try
             {
                 int userId = _userSession.GetUserId();
@@ -200,18 +202,25 @@ namespace LNUBookShareUI.ViewModels
             {
                 _ = MessageBox.Show($"Помилка завантаження профілю: {ex.Message}");
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task DeleteBookAsync(int bookId)
         {
-            var command = new DeleteBookCommand
-            {
-                BookId = bookId,
-                CurrentUserId = _userSession.GetUserId(),
-            };
+            
+            IsLoading = true;
+            
 
             try
             {
+                var command = new DeleteBookCommand
+                {
+                    BookId = bookId,
+                    CurrentUserId = _userSession.GetUserId(),
+                };
                 _ = await _mediator.Send(command);
 
                 var bookToRemove = _allOwnedBooks.FirstOrDefault(b => b.BookId == bookId);
@@ -223,6 +232,10 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 _ = MessageBox.Show($"Помилка видалення: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

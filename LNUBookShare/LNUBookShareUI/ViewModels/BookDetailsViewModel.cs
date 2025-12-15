@@ -45,6 +45,8 @@ namespace LNUBookShareUI.ViewModels
 
         public async Task LoadBookDetailsAsync(int bookId)
         {
+            IsLoading = true;
+
             try
             {
                 Book = await _mediator.Send(new GetBookDetailsQuery
@@ -56,6 +58,10 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 Console.WriteLine($"Помилка завантаження деталей книги: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
