@@ -54,6 +54,13 @@ namespace LNUBookShareUI
             }
         }
 
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Log.Information("=== Додаток завершує роботу ===");
+            Log.CloseAndFlush();
+            base.OnExit(e);
+        }
+
         private void ConfigureServices(IServiceCollection services)
         {
             services.AddLogging(loggingBuilder =>
@@ -118,13 +125,6 @@ namespace LNUBookShareUI
 
             services.AddTransient<EmailService>();
             services.AddTransient<IEmailService, EmailService>();
-        }
-
-        protected override void OnExit(ExitEventArgs e)
-        {
-            Log.Information("=== Додаток завершує роботу ===");
-            Log.CloseAndFlush();
-            base.OnExit(e);
         }
     }
 }

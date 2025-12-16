@@ -203,6 +203,7 @@ namespace LNUBookShareUI.ViewModels
                 {
                     _ = _allOwnedBooks.Remove(bookToRemove);
                 }
+
                 _logger.LogInformation("Книгу ID: {BookId} видалено з профілю ID: {TargetId} (ініціатор: {ViewerId}).", bookId, _targetProfileId, viewerId);
             }
             catch (Exception ex)
