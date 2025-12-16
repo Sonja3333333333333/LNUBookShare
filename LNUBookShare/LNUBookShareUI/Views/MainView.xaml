@@ -99,15 +99,7 @@
 
     </Window.Resources>
 
-    <Grid Margin="15" RenderTransformOrigin="0.5,0.5">
-        <Grid.RenderTransform>
-            <TransformGroup>
-                <ScaleTransform/>
-                <SkewTransform/>
-                <RotateTransform Angle="0.127"/>
-                <TranslateTransform/>
-            </TransformGroup>
-        </Grid.RenderTransform>
+    <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>

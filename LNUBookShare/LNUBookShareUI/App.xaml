@@ -3,6 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:LNUBookShareUI">
     <Application.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
         <Style x:Key="CardStyle" TargetType="Border">
             <Setter Property="BorderBrush" Value="LightGray"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -14,12 +17,9 @@
                     <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
                 </Setter.Value>
             </Setter>
+            <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled"/>
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect BlurRadius="0" ShadowDepth="0" Opacity="0"/>
-                </Setter.Value>
-            </Setter>
             <Style.Triggers>
                 <EventTrigger RoutedEvent="MouseEnter">
                     <BeginStoryboard>
@@ -33,9 +33,9 @@
                             <DoubleAnimation 
                                 Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.BlurRadius)"
                                 To="10" Duration="0:0:0.2"/>
-                            <DoubleAnimation 
+                            <!--<DoubleAnimation 
                                 Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.Opacity)"
-                                To="0.3" Duration="0:0:0.2"/>
+                                To="0.3" Duration="0:0:0.2"/>-->
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
@@ -51,13 +51,14 @@
                             <DoubleAnimation 
                                 Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.BlurRadius)"
                                 To="0" Duration="0:0:0.2"/>
-                            <DoubleAnimation 
+                            <!--<DoubleAnimation 
                                 Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.Opacity)"
-                                To="0" Duration="0:0:0.2"/>
-             xmlns:local="clr-namespace:LNUBookShareUI"
-             >
-    <Application.Resources>        
-        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+                                To="0" Duration="0:0:0.2"/>-->
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
 
         <Style x:Key="LoadingSpinnerStyle" TargetType="Path">
             <Setter Property="Stroke" Value="#3498db"/>
@@ -69,7 +70,6 @@
                     <RotateTransform/>
                 </Setter.Value>
             </Setter>
-
             <Style.Triggers>
                 <EventTrigger RoutedEvent="Loaded">
                     <BeginStoryboard>
@@ -84,10 +84,6 @@
                 </EventTrigger>
             </Style.Triggers>
         </Style>
-    </Application.Resources>
-</Application>
-
 
     </Application.Resources>
-
 </Application>
