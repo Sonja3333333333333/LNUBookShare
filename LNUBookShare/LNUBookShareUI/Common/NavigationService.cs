@@ -108,6 +108,7 @@ namespace LNUBookShareUI.Common
         {
             var loginView = this._serviceProvider.GetService<LoginView>();
             loginView.DataContext = this._serviceProvider.GetService<LoginViewModel>();
+            Application.Current.MainWindow = loginView;
             loginView.Show();
         }
 

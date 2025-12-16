@@ -9,5 +9,7 @@ namespace LNUBookShareUI.Common
         int GetUserId();
 
         bool IsLoggedIn();
+
+        void ClearSession();
     }
 }
