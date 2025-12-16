@@ -25,7 +25,7 @@ namespace LNUBookShareUI.ViewModels
         private readonly int _pageSize = 10;
         private readonly ILogger<FavoritesViewModel> _logger;
 
-        private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new ();
+        private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new();
         private int _totalResults;
         private int _currentPage = 1;
         private int _totalPages = 1;
@@ -232,39 +232,33 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ClearFavoritesAsync()
         {
-            IsLoading = true;            
+            IsLoading = true;
+            int userId = _userSession.GetUserId();
+
+            // Логуємо намір
+            _logger.LogWarning("Користувач ID: {UserId} натиснув кнопку 'Очистити все'. Очікування підтвердження.", userId);
 
             try
             {
                 var result = MessageBox.Show(
-            int userId = _userSession.GetUserId();
-            _logger.LogWarning("Користувач ID: {UserId} натиснув кнопку 'Очистити все'. Очікування підтвердження.", userId);
-
-            var result = MessageBox.Show(
-                "Ви впевнені, що хочете видалити ВСІ книги з вподобань?",
-                "Підтвердження",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+                    "Ви впевнені, що хочете видалити ВСІ книги з вподобань?",
+                    "Підтвердження",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
 
                 if (result != MessageBoxResult.Yes)
                 {
-                    return;
+                    _logger.LogInformation("Користувач ID: {UserId} скасував очищення списку улюблених.", userId);
+                    return; // Тут ми виходимо, finally спрацює і вимкне лоадер
                 }
 
-            if (result != MessageBoxResult.Yes)
-            {
-                _logger.LogInformation("Користувач ID: {UserId} скасував очищення списку улюблених.", userId);
-                return;
-            }
-
-            try
-            {
                 _logger.LogInformation("Користувач ID: {UserId} підтвердив очищення. Виконується видалення...", userId);
 
-                var command = new ClearFavoritesCommand { UserId = _userSession.GetUserId() };
+                var command = new ClearFavoritesCommand { UserId = userId };
                 _ = await _mediator.Send(command);
 
                 _logger.LogInformation("Список улюблених для користувача ID: {UserId} успішно очищено.", userId);
+
                 await LoadFavoritesAsync();
             }
             catch (Exception ex)

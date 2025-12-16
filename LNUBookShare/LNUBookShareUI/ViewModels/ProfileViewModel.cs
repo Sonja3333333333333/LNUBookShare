@@ -232,17 +232,10 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task DeleteBookAsync(int bookId)
         {
-            
             IsLoading = true;
-            
+
             int userId = _userSession.GetUserId();
             _logger.LogInformation("Користувач ID: {UserId} ініціював видалення своєї книги ID: {BookId}.", userId, bookId);
-
-            var command = new DeleteBookCommand
-            {
-                BookId = bookId,
-                CurrentUserId = userId,
-            };
 
             try
             {
