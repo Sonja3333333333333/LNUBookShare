@@ -196,6 +196,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadProfileAsync()
         {
+            IsLoading = true;
             int userId = _userSession.GetUserId();
             _logger.LogInformation("Завантаження даних особистого профілю для користувача ID: {UserId}.", userId);
 
@@ -223,10 +224,17 @@ namespace LNUBookShareUI.ViewModels
                 _logger.LogError(ex, "Помилка завантаження профілю для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Помилка завантаження профілю: {ex.Message}");
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task DeleteBookAsync(int bookId)
         {
+            
+            IsLoading = true;
+            
             int userId = _userSession.GetUserId();
             _logger.LogInformation("Користувач ID: {UserId} ініціював видалення своєї книги ID: {BookId}.", userId, bookId);
 
@@ -238,6 +246,11 @@ namespace LNUBookShareUI.ViewModels
 
             try
             {
+                var command = new DeleteBookCommand
+                {
+                    BookId = bookId,
+                    CurrentUserId = _userSession.GetUserId(),
+                };
                 _ = await _mediator.Send(command);
 
                 var bookToRemove = _allOwnedBooks.FirstOrDefault(b => b.BookId == bookId);
@@ -252,6 +265,10 @@ namespace LNUBookShareUI.ViewModels
             {
                 _logger.LogError(ex, "Помилка видалення книги ID: {BookId} користувачем ID: {UserId}.", bookId, userId);
                 _ = MessageBox.Show($"Помилка видалення: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

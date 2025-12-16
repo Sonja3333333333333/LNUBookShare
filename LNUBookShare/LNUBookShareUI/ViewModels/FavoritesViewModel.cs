@@ -151,6 +151,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadFavoritesAsync()
         {
+            IsLoading = true;
             int userId = _userSession.GetUserId();
             _logger.LogInformation(
                 "Завантаження улюблених для користувача ID: {UserId}. Сторінка: {Page}, Фільтр: {Filter}, Сортування: {Sort}",
@@ -198,6 +199,10 @@ namespace LNUBookShareUI.ViewModels
                 _logger.LogError(ex, "Помилка завантаження улюблених для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Помилка завантаження вподобаних: {ex.Message}", "Помилка");
             }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         private async Task RemoveFavoriteAsync(int bookId)
@@ -227,6 +232,11 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ClearFavoritesAsync()
         {
+            IsLoading = true;            
+
+            try
+            {
+                var result = MessageBox.Show(
             int userId = _userSession.GetUserId();
             _logger.LogWarning("Користувач ID: {UserId} натиснув кнопку 'Очистити все'. Очікування підтвердження.", userId);
 
@@ -235,6 +245,11 @@ namespace LNUBookShareUI.ViewModels
                 "Підтвердження",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes)
+                {
+                    return;
+                }
 
             if (result != MessageBoxResult.Yes)
             {
@@ -256,6 +271,10 @@ namespace LNUBookShareUI.ViewModels
             {
                 _logger.LogError(ex, "Помилка очищення списку улюблених для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Помилка очищення: {ex.Message}", "Помилка");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

@@ -52,6 +52,7 @@ namespace LNUBookShareUI.ViewModels
 
         public async Task LoadBookDetailsAsync(int bookId)
         {
+            IsLoading = true;
             _logger.LogInformation("Запит на завантаження деталей книги ID: {BookId}", bookId);
 
             try
@@ -74,6 +75,10 @@ namespace LNUBookShareUI.ViewModels
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Помилка завантаження деталей книги ID: {BookId}", bookId);
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

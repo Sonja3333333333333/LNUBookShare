@@ -145,6 +145,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadProfileAsync()
         {
+            IsLoading = true;
             int viewerId = _userSession.GetUserId();
             _logger.LogInformation("Завантаження даних профілю ID: {TargetId} для переглядача ID: {ViewerId}...", _targetProfileId, viewerId);
 
@@ -171,6 +172,10 @@ namespace LNUBookShareUI.ViewModels
             {
                 _logger.LogError(ex, "Помилка завантаження профілю ID: {TargetId} для переглядача ID: {ViewerId}.", _targetProfileId, viewerId);
                 _ = MessageBox.Show($"Помилка завантаження профілю: {ex.Message}\n\n{ex.StackTrace}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

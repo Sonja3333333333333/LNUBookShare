@@ -39,11 +39,19 @@
             </Style.Triggers>
         </Style>
 
-     
+
 
     </Window.Resources>
 
-    <Grid Margin="15">
+    <Grid Margin="15" RenderTransformOrigin="0.5,0.5">
+        <Grid.RenderTransform>
+            <TransformGroup>
+                <ScaleTransform/>
+                <SkewTransform/>
+                <RotateTransform Angle="0.127"/>
+                <TranslateTransform/>
+            </TransformGroup>
+        </Grid.RenderTransform>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -196,11 +204,11 @@
                                 Margin="0,0,15,0" VerticalAlignment="Center"
                                 Background="Gainsboro" 
                                 ClipToBounds="True">
-                                                    
+
 
                                 <Image Source="{Binding CoverPath}"
                                    Stretch="UniformToFill" />
-                                                      
+
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
@@ -261,5 +269,23 @@
             </ListView.ItemTemplate>
         </ListView>
 
+        <Grid
+            Background="#80000000"
+            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"
+            Panel.ZIndex="100"
+            Grid.RowSpan="5">
+
+
+            <Path
+                Style="{StaticResource LoadingSpinnerStyle}"
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"/>
+        </Grid>
+
+
     </Grid>
+
+
 </Window>

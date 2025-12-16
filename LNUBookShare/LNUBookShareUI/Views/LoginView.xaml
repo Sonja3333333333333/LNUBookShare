@@ -16,7 +16,7 @@
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
 
-       
+
             <TextBlock Text="LNUBookShare"
                        FontSize="20"
                        FontWeight="Bold"
@@ -43,7 +43,7 @@
                                  Margin="0,0,0,10"
                                  VerticalContentAlignment="Center"/>
 
-            
+
                     <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,0,0,10"/>
                     <Button Content="Увійти"
                             Command="{Binding LoginCommand}"
@@ -63,5 +63,21 @@
                 </StackPanel>
             </Border>
         </StackPanel>
+
+        <Grid
+            Background="#80000000"
+            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"
+            Panel.ZIndex="100"
+            Grid.RowSpan="5">
+
+
+            <Path
+                Style="{StaticResource LoadingSpinnerStyle}"
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"/>
+        </Grid>
+
     </Grid>
 </Window>

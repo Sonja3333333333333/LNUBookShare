@@ -217,6 +217,7 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task LoadBooksAsync()
         {
+            IsLoading = true;
             int userId = _userSession.GetUserId();
 
             try
@@ -242,6 +243,7 @@ namespace LNUBookShareUI.ViewModels
                     _logger.LogInformation("Завантаження результатів пошуку для користувача ID: {UserId}. Сторінка: {Page}.", userId, _currentPage);
                 }
 
+                //await Task.Delay(3000);
                 var result = await _mediator.Send(query);
 
                 _isSearchPerformed = true;
@@ -270,6 +272,10 @@ namespace LNUBookShareUI.ViewModels
             {
                 _logger.LogError(ex, "Помилка завантаження книг для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Сталася помилка: {ex.Message}", "Помилка завантаження");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
