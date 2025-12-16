@@ -11,6 +11,8 @@ using LNUBookShareUI.Common;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
+
 namespace LNUBookShareUI.ViewModels
 {
     public class LoginViewModel : ViewModelBase
@@ -18,18 +20,21 @@ namespace LNUBookShareUI.ViewModels
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
         private readonly IUserSession _userSession;
+        private readonly ILogger<LoginViewModel> _logger;
 
         private string _email;
         private string _errorMessage;
 
-        public LoginViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
+        public LoginViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession, ILogger<LoginViewModel> logger)
         {
             _mediator = mediator;
             _navigationService = navigationService;
             _userSession = userSession;
+            _logger = logger;
 
             LoginCommand = new RelayCommand<object>(async (param) => await LoginAsync(param));
             GoToRegisterCommand = new RelayCommand<object>(GoToRegister);
+            _logger.LogInformation("LoginViewModel ініціалізовано.");
         }
 
         public string Email
@@ -59,6 +64,14 @@ namespace LNUBookShareUI.ViewModels
                     ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
                     return;
                 }
+            _logger.LogInformation("Користувач {Email} намагається увійти в систему.", Email);
+
+            if (parameter is not PasswordBox passwordBox)
+            {
+                _logger.LogWarning("Помилка UI: Не вдалося отримати PasswordBox з параметрів команди.");
+                ErrorMessage = "Сталася помилка. Не вдалося отримати пароль.";
+                return;
+            }
 
                 string password = passwordBox.Password;
 
@@ -73,6 +86,7 @@ namespace LNUBookShareUI.ViewModels
 
                 if (result != null)
                 {
+                    _logger.LogInformation("Вхід успішний для користувача ID: {UserId}.", result.UserId);
                     ErrorMessage = string.Empty;
                     _userSession.CurrentUser = result;
                     _navigationService.ShowMainView();
@@ -80,9 +94,14 @@ namespace LNUBookShareUI.ViewModels
                     var window = GetWindowFromParameter(parameter);
                     window?.Close();
                 }
+                else
+                {
+                    _logger.LogWarning("Спроба входу не вдалася: результат null (невірні дані?).");
+                }
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка під час спроби входу користувача {Email}.", Email);
                 ErrorMessage = ex.Message;
             }
             finally
@@ -93,6 +112,7 @@ namespace LNUBookShareUI.ViewModels
 
         private void GoToRegister(object parameter)
         {
+            _logger.LogInformation("Перехід на сторінку реєстрації.");
             _navigationService.ShowRegister();
 
             if (parameter is Window w)

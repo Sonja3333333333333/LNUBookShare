@@ -10,6 +10,8 @@ using LNUBookShareUI.Views;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace LNUBookShareUI
 {
@@ -19,6 +21,13 @@ namespace LNUBookShareUI
 
         public App()
         {
+            Log.Logger = new LoggerConfiguration()
+               .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+               .WriteTo.File("logs/app_log.txt", rollingInterval: RollingInterval.Day)
+               .CreateLogger();
+
+            Log.Information("=== Додаток запускається ===");
+
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             var services = new ServiceCollection();
@@ -30,31 +39,29 @@ namespace LNUBookShareUI
         {
             base.OnStartup(e);
 
-            // var editProfileView = _serviceProvider.GetService<EditProfileView>();
-            // var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
-            // editProfileView.DataContext = editProfileViewModel;
-            // editProfileView.Show();
+            try
+            {
+                Log.Information("Відкриття логіну");
 
-            // Щоб показати головне вікно розкоментуй мене
-            // var mainView = this._serviceProvider.GetService<MainView>();
-            // var mainViewModel = this._serviceProvider.GetService<MainViewModel>();
-            // mainView.DataContext = mainViewModel;
-            // mainView.Show();
-
-            // Щоб показати автентифікацію розкоментуй мене
-            var loginView = _serviceProvider.GetService<LoginView>();
-            loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
-            loginView.Show();
-
-            // Щоб показати вікно Профіль розкоментуй мене
-            // var profileView = _serviceProvider.GetService<ProfileView>();
-            // var profileViewModel = _serviceProvider.GetService<ProfileViewModel>();
-            // profileView.DataContext = profileViewModel;
-            // profileView.Show();
+                var loginView = _serviceProvider.GetService<LoginView>();
+                loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
+                loginView.Show();
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "Критична помилка при запуску додатку!");
+                MessageBox.Show("Критична помилка. Перевірте логи.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void ConfigureServices(IServiceCollection services)
         {
+            services.AddLogging(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddSerilog(dispose: true);
+            });
+
             // string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
             string connectionString = "Host=ep-wispy-hat-adm0eu4d-pooler.c-2.us-east-1.aws.neon.tech;" +
                                       "Database=neondb;" +
@@ -105,10 +112,19 @@ namespace LNUBookShareUI
                 new ViewOtherProfileViewModel(
                     provider.GetService<IMediator>(),
                     provider.GetService<INavigationService>(),
+                    provider.GetService<IUserSession>(),
+                    provider.GetService<ILogger<ViewOtherProfileViewModel>>(),
                     userId));
 
             services.AddTransient<EmailService>();
             services.AddTransient<IEmailService, EmailService>();
+        }
+
+        protected override void OnExit(ExitEventArgs e)
+        {
+            Log.Information("=== Додаток завершує роботу ===");
+            Log.CloseAndFlush();
+            base.OnExit(e);
         }
     }
 }

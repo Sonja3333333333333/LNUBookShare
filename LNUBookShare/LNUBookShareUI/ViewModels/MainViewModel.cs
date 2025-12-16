@@ -14,6 +14,8 @@ using LNUBookShareUI.Common;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
+
 namespace LNUBookShareUI.ViewModels
 {
     public class MainViewModel : ViewModelBase
@@ -21,6 +23,9 @@ namespace LNUBookShareUI.ViewModels
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
         private readonly IUserSession _userSession;
+
+        private readonly ILogger<MainViewModel> _logger;
+
         private readonly int _pageSize = 10;
 
         private bool _isSearchPerformed = false;
@@ -33,11 +38,12 @@ namespace LNUBookShareUI.ViewModels
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
 
-        public MainViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
+        public MainViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession, ILogger<MainViewModel> logger)
         {
             _mediator = mediator;
             _navigationService = navigationService;
             _userSession = userSession;
+            _logger = logger;
 
             SortOptions = new Dictionary<BookSortCriteria, string>
             {
@@ -69,6 +75,8 @@ namespace LNUBookShareUI.ViewModels
             OpenFavoritesCommand = new RelayCommand(OpenFavorites);
             ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
             OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+
+            _logger.LogInformation("MainViewModel ініціалізовано для користувача ID: {UserId}.", _userSession.GetUserId());
 
             _ = LoadBooksAsync();
         }
@@ -115,6 +123,7 @@ namespace LNUBookShareUI.ViewModels
                 bool valueChanged = SetProperty(ref _selectedSort, value);
                 if (valueChanged && _isSearchPerformed)
                 {
+                    _logger.LogInformation("Користувач ID: {UserId} змінив сортування на: {Sort}.", _userSession.GetUserId(), value);
                     CurrentPage = 1;
                     _ = LoadBooksAsync();
                 }
@@ -128,6 +137,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (SetProperty(ref _selectedStatusFilter, value) && _isSearchPerformed)
                 {
+                    _logger.LogInformation("Користувач ID: {UserId} змінив фільтр статусу на: {Filter}.", _userSession.GetUserId(), value);
                     CurrentPage = 1;
                     _ = LoadBooksAsync();
                 }
@@ -158,26 +168,40 @@ namespace LNUBookShareUI.ViewModels
 
         private void OpenProfile()
         {
+            _logger.LogInformation("Користувач ID: {UserId} переходить у свій профіль.", _userSession.GetUserId());
             _navigationService.ShowProfile();
         }
 
         private void ViewOwnerProfile(int ownerId)
         {
+            _logger.LogInformation("Користувач ID: {UserId} переглядає профіль власника книги ID: {OwnerId}.", _userSession.GetUserId(), ownerId);
             _navigationService.ShowViewProfile(ownerId);
         }
 
         private void OpenFavorites()
         {
+            _logger.LogInformation("Користувач ID: {UserId} переходить у список улюблених.", _userSession.GetUserId());
             _navigationService.ShowFavorites();
         }
 
         private void SetFilter(BookFilterStatus status)
         {
+            if (!_isSearchPerformed)
+            {
+                _logger.LogInformation("Користувач ID: {UserId} встановив фільтр статусу (до пошуку): {Filter}.", _userSession.GetUserId(), status);
+            }
+
             SelectedStatusFilter = status;
         }
 
         private async Task SearchAsync()
         {
+            _logger.LogInformation(
+                "Користувач ID: {UserId} виконує пошук. Запит: '{Term}', Критерій: {Criteria}.",
+                _userSession.GetUserId(),
+                SearchTerm,
+                SelectedSearchCriteria);
+
             CurrentPage = 1;
             await LoadBooksAsync();
         }
@@ -186,6 +210,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (bookId > 0)
             {
+                _logger.LogInformation("Користувач ID: {UserId} відкриває деталі книги ID: {BookId}.", _userSession.GetUserId(), bookId);
                 _navigationService.ShowBookDetails(bookId);
             }
         }
@@ -193,6 +218,8 @@ namespace LNUBookShareUI.ViewModels
         private async Task LoadBooksAsync()
         {
             IsLoading = true;
+            int userId = _userSession.GetUserId();
+
             try
             {
                 var query = new GetBooksQuery
@@ -209,6 +236,11 @@ namespace LNUBookShareUI.ViewModels
                 if (string.IsNullOrWhiteSpace(SearchTerm))
                 {
                     query.RecommendForUser = true;
+                    _logger.LogInformation("Завантаження рекомендованих книг для користувача ID: {UserId}. Сторінка: {Page}.", userId, _currentPage);
+                }
+                else
+                {
+                    _logger.LogInformation("Завантаження результатів пошуку для користувача ID: {UserId}. Сторінка: {Page}.", userId, _currentPage);
                 }
 
                 //await Task.Delay(3000);
@@ -233,9 +265,12 @@ namespace LNUBookShareUI.ViewModels
                     TotalResults = result.TotalCount;
                     CommandManager.InvalidateRequerySuggested();
                 });
+
+                _logger.LogInformation("Книги завантажено для користувача ID: {UserId}. Знайдено: {Count}.", userId, result.TotalCount);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка завантаження книг для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Сталася помилка: {ex.Message}", "Помилка завантаження");
             }
             finally
@@ -246,12 +281,15 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task ToggleFavoriteAsync(int bookId)
         {
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Користувач ID: {UserId} змінює статус 'Вподобане' для книги ID: {BookId}.", userId, bookId);
+
             try
             {
                 var command = new ToggleFavoriteCommand
                 {
                     BookId = bookId,
-                    UserId = _userSession.GetUserId(),
+                    UserId = userId,
                 };
 
                 _ = await _mediator.Send(command);
@@ -259,6 +297,8 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка при зміні статусу 'Вподобане' книги ID: {BookId} для користувача ID: {UserId}.", bookId, userId);
+
                 string errorMessage = $"Помилка: {ex.Message}\n\n" +
                                       $"Деталі (InnerException): {ex.InnerException?.Message}";
 
@@ -272,6 +312,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (CanGoToNextPage())
             {
+                _logger.LogInformation("Користувач ID: {UserId} переходить на наступну сторінку пошуку/рекомендацій.", _userSession.GetUserId());
                 CurrentPage++;
                 await LoadBooksAsync();
             }
@@ -283,6 +324,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (CanGoToPreviousPage())
             {
+                _logger.LogInformation("Користувач ID: {UserId} переходить на попередню сторінку пошуку/рекомендацій.", _userSession.GetUserId());
                 CurrentPage--;
                 await LoadBooksAsync();
             }
