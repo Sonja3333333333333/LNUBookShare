@@ -15,6 +15,7 @@ using LNUBookShareUI.Common;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 
 namespace LNUBookShareUI.ViewModels
@@ -23,19 +24,24 @@ namespace LNUBookShareUI.ViewModels
     {
         private readonly IMediator _mediator;
         private readonly IUserSession _userSession;
+        private readonly ILogger<EditProfileViewModel> _logger;
 
         private string _lastName = string.Empty;
         private string _firstName = string.Empty;
         private string _profileImageUrl = string.Empty;
         private FacultyDto _selectedFaculty;
 
-        public EditProfileViewModel(IMediator mediator, IUserSession userSession)
+        public EditProfileViewModel(IMediator mediator, IUserSession userSession, ILogger<EditProfileViewModel> logger)
         {
             _mediator = mediator;
             _userSession = userSession;
+            _logger = logger;
+
             SaveCommand = new RelayCommand<object>(async (w) => await Save(w));
             CancelCommand = new RelayCommand<object>(Cancel);
             ChangePhotoCommand = new RelayCommand(async () => await ChangePhoto());
+
+            _logger.LogInformation("EditProfileViewModel ініціалізовано.");
         }
 
         public string LastName
@@ -72,9 +78,12 @@ namespace LNUBookShareUI.ViewModels
 
         public async Task LoadDataAsync()
         {
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Користувач ID: {UserId} почав редагування профілю. Завантаження даних...", userId);
+
             try
             {
-                var profileDto = await _mediator.Send(new GetProfileForEditQuery { UserId = _userSession.GetUserId() });
+                var profileDto = await _mediator.Send(new GetProfileForEditQuery { UserId = userId });
 
                 LastName = profileDto.LastName;
                 FirstName = profileDto.FirstName;
@@ -88,15 +97,19 @@ namespace LNUBookShareUI.ViewModels
                 }
 
                 SelectedFaculty = Faculties.FirstOrDefault(f => f.FacultyId == profileDto.FacultyId);
+                _logger.LogInformation("Дані профілю для користувача ID: {UserId} успішно завантажено.", userId);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка завантаження даних профілю для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Не вдалося завантажити дані профілю: {ex.Message}");
             }
         }
 
         private async Task ChangePhoto()
         {
+            int userId = _userSession.GetUserId();
+
             OpenFileDialog openFileDialog = new OpenFileDialog();
             openFileDialog.Filter = "Image files (*.jpg;*.jpeg;*.png;*.gif)|*.jpg;*.jpeg;*.png;*.gif|All files (*.*)|*.*";
 
@@ -105,6 +118,8 @@ namespace LNUBookShareUI.ViewModels
                 try
                 {
                     string filePath = openFileDialog.FileName;
+                    _logger.LogInformation("Користувач ID: {UserId} обрав нове фото: {FilePath}", userId, filePath);
+
                     byte[] imageData = File.ReadAllBytes(filePath);
 
                     var uploadCommand = new UploadImageCommand
@@ -116,16 +131,25 @@ namespace LNUBookShareUI.ViewModels
                     string newProfilePath = await _mediator.Send(uploadCommand);
 
                     ProfileImageUrl = newProfilePath;
+                    _logger.LogInformation("Нове фото профілю завантажено для користувача ID: {UserId}. Шлях: {Path}", userId, newProfilePath);
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Помилка завантаження фото для користувача ID: {UserId}.", userId);
                     _ = MessageBox.Show($"Не вдалося завантажити фото: {ex.Message}", "Помилка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+            else
+            {
+                _logger.LogInformation("Користувач ID: {UserId} скасував вибір фото.", userId);
             }
         }
 
         private async Task Save(object window)
         {
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Спроба збереження змін профілю для користувача ID: {UserId}.", userId);
+
             try
             {
                 var profileDto = new ProfileEditDto
@@ -138,10 +162,12 @@ namespace LNUBookShareUI.ViewModels
 
                 var command = new UpdateProfileCommand
                 {
-                    UserId = _userSession.GetUserId(),
+                    UserId = userId,
                     Dto = profileDto,
                 };
                 _ = await _mediator.Send(command);
+
+                _logger.LogInformation("Профіль користувача ID: {UserId} успішно оновлено.", userId);
 
                 if (window is Window w)
                 {
@@ -150,12 +176,14 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка збереження профілю користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Не вдалося зберегти профіль: {ex.Message}");
             }
         }
 
         private void Cancel(object window)
         {
+            _logger.LogInformation("Користувач ID: {UserId} скасував редагування профілю.", _userSession.GetUserId());
             if (window is Window w)
             {
                 w.Close();

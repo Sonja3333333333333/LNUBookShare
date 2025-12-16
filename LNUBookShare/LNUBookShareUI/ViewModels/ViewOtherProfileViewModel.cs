@@ -16,6 +16,7 @@ using LNUBookShareBLL.Features.Profile;
 using LNUBookShareUI.Common;
 
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -24,17 +25,23 @@ namespace LNUBookShareUI.ViewModels
         private readonly IMediator _mediator;
         private readonly int _currentUserId;
         private readonly INavigationService _navigationService;
+        private readonly IUserSession _userSession;
+        private readonly ILogger<ViewOtherProfileViewModel> _logger;
+
+        private readonly int _targetProfileId;
 
         private ProfileDto _profile;
         private ObservableCollection<OwnedBookDto> _allOwnedBooks = new ();
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
 
-        public ViewOtherProfileViewModel(IMediator mediator, INavigationService navigationService, int userId)
+        public ViewOtherProfileViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession, ILogger<ViewOtherProfileViewModel> logger, int targetUserId)
         {
             _mediator = mediator;
-            _currentUserId = userId;
             _navigationService = navigationService;
+            _userSession = userSession;
+            _logger = logger;
+            _targetProfileId = targetUserId;
 
             OwnedBooksView = CollectionViewSource.GetDefaultView(_allOwnedBooks);
             OwnedBooksView.Filter = FilterBooks;
@@ -56,6 +63,11 @@ namespace LNUBookShareUI.ViewModels
             GoBackCommand = new RelayCommand<object>(GoBack);
 
             OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
+
+            _logger.LogInformation(
+                "ViewOtherProfileViewModel створено. Користувач ID: {ViewerId} відкриває профіль ID: {TargetId}.",
+                _userSession.GetUserId(),
+                _targetProfileId);
 
             _ = LoadProfileAsync();
         }
@@ -79,6 +91,10 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (SetProperty(ref _selectedSort, value))
                 {
+                    _logger.LogInformation(
+                        "Користувач ID: {ViewerId} сортує книги у чужому профілі (TargetId: {TargetId}) за критерієм: {Sort}.",
+                        _userSession.GetUserId(),
+                        _targetProfileId, value);
                     ApplySort();
                 }
             }
@@ -91,6 +107,10 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (SetProperty(ref _selectedStatusFilter, value))
                 {
+                    _logger.LogInformation(
+                        "Користувач ID: {ViewerId} фільтрує книги у чужому профілі (TargetId: {TargetId}) за статусом: {Filter}.",
+                        _userSession.GetUserId(),
+                        _targetProfileId, value);
                     ApplyFilter();
                 }
             }
@@ -114,15 +134,23 @@ namespace LNUBookShareUI.ViewModels
         {
             if (bookId > 0)
             {
+                _logger.LogInformation(
+                    "Користувач ID: {ViewerId} відкриває деталі книги ID: {BookId} з профілю користувача ID: {TargetId}.",
+                    _userSession.GetUserId(),
+                    bookId,
+                    _targetProfileId);
                 _navigationService.ShowBookDetails(bookId);
             }
         }
 
         private async Task LoadProfileAsync()
         {
+            int viewerId = _userSession.GetUserId();
+            _logger.LogInformation("Завантаження даних профілю ID: {TargetId} для переглядача ID: {ViewerId}...", _targetProfileId, viewerId);
+
             try
             {
-                var query = new GetProfileQuery { UserId = _currentUserId };
+                var query = new GetProfileQuery { UserId = _targetProfileId };
                 var result = await _mediator.Send(query);
 
                 Profile = result;
@@ -137,19 +165,28 @@ namespace LNUBookShareUI.ViewModels
                 });
 
                 ApplySort();
+                _logger.LogInformation("Профіль ID: {TargetId} завантажено. Знайдено {Count} книг.", _targetProfileId, result.OwnedBooks.Count);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка завантаження профілю ID: {TargetId} для переглядача ID: {ViewerId}.", _targetProfileId, viewerId);
                 _ = MessageBox.Show($"Помилка завантаження профілю: {ex.Message}\n\n{ex.StackTrace}");
             }
         }
 
         private async Task DeleteBookAsync(int bookId)
         {
+            int viewerId = _userSession.GetUserId();
+            _logger.LogWarning(
+                "Користувач ID: {ViewerId} намагається видалити книгу ID: {BookId} з чужого профілю (TargetId: {TargetId}).",
+                viewerId,
+                bookId,
+                _targetProfileId);
+
             var command = new DeleteBookCommand
             {
                 BookId = bookId,
-                CurrentUserId = _currentUserId,
+                CurrentUserId = _targetProfileId,
             };
 
             try
@@ -161,9 +198,11 @@ namespace LNUBookShareUI.ViewModels
                 {
                     _ = _allOwnedBooks.Remove(bookToRemove);
                 }
+                _logger.LogInformation("Книгу ID: {BookId} видалено з профілю ID: {TargetId} (ініціатор: {ViewerId}).", bookId, _targetProfileId, viewerId);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка видалення книги ID: {BookId} з чужого профілю.", bookId);
                 _ = MessageBox.Show($"Помилка видалення: {ex.Message}");
             }
         }
@@ -197,6 +236,7 @@ namespace LNUBookShareUI.ViewModels
 
         private void GoBack(object window)
         {
+            _logger.LogInformation("Користувач ID: {ViewerId} закриває перегляд профілю ID: {TargetId}.", _userSession.GetUserId(), _targetProfileId);
             if (window is Window w)
             {
                 w.Close();
