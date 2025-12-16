@@ -22,7 +22,7 @@ namespace LNUBookShareUI
         public App()
         {
             Log.Logger = new LoggerConfiguration()
-               .MinimumLevel.Debug()
+               .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
                .WriteTo.File("logs/app_log.txt", rollingInterval: RollingInterval.Day)
                .CreateLogger();
 
@@ -58,8 +58,8 @@ namespace LNUBookShareUI
         {
             services.AddLogging(loggingBuilder =>
             {
-                loggingBuilder.ClearProviders(); 
-                loggingBuilder.AddSerilog(dispose: true); 
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddSerilog(dispose: true);
             });
 
             // string connectionString = "Host=localhost;Database=LNUBookShare;Username=postgres;Password=135798852";
@@ -112,6 +112,8 @@ namespace LNUBookShareUI
                 new ViewOtherProfileViewModel(
                     provider.GetService<IMediator>(),
                     provider.GetService<INavigationService>(),
+                    provider.GetService<IUserSession>(),
+                    provider.GetService<ILogger<ViewOtherProfileViewModel>>(),
                     userId));
 
             services.AddTransient<EmailService>();

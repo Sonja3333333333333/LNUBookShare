@@ -14,7 +14,7 @@ using LNUBookShareBLL.Features.Files;
 using LNUBookShareUI.Common;
 
 using MediatR;
-
+using Microsoft.Extensions.Logging;
 using Microsoft.Win32;
 
 namespace LNUBookShareUI.ViewModels
@@ -23,6 +23,7 @@ namespace LNUBookShareUI.ViewModels
     {
         private readonly IMediator _mediator;
         private readonly IUserSession _userSession;
+        private readonly ILogger<AddBookViewModel> _logger;
 
         private string _title = string.Empty;
         private string _author = string.Empty;
@@ -33,13 +34,17 @@ namespace LNUBookShareUI.ViewModels
         private string _coverImagePath;
         private CategoryDto _selectedCategory;
 
-        public AddBookViewModel(IMediator mediator, IUserSession userSession)
+        public AddBookViewModel(IMediator mediator, IUserSession userSession, ILogger<AddBookViewModel> logger)
         {
             _mediator = mediator;
             _userSession = userSession;
+            _logger = logger;
+
             ChangeCoverCommand = new RelayCommand(async () => await ChangeCover());
             SaveCommand = new RelayCommand<object>(async (w) => await Save(w));
             CancelCommand = new RelayCommand<object>(Cancel);
+
+            _logger.LogInformation("AddBookViewModel ініціалізовано.");
         }
 
         public string Title
@@ -100,14 +105,23 @@ namespace LNUBookShareUI.ViewModels
 
         public async Task LoadDataAsync()
         {
-            var categoryList = await _mediator.Send(new GetAllCategoriesQuery());
-            Categories.Clear();
-            foreach (var category in categoryList)
+            try
             {
-                Categories.Add(category);
-            }
+                _logger.LogInformation("Завантаження списку категорій...");
+                var categoryList = await _mediator.Send(new GetAllCategoriesQuery());
+                Categories.Clear();
+                foreach (var category in categoryList)
+                {
+                    Categories.Add(category);
+                }
 
-            SelectedCategory = Categories.FirstOrDefault();
+                SelectedCategory = Categories.FirstOrDefault();
+                _logger.LogInformation("Успішно завантажено {Count} категорій.", Categories.Count);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Помилка при завантаженні категорій.");
+            }
         }
 
         private async Task ChangeCover()
@@ -120,6 +134,8 @@ namespace LNUBookShareUI.ViewModels
                 try
                 {
                     string filePath = openFileDialog.FileName;
+                    _logger.LogInformation("Користувач обрав файл для обкладинки: {FilePath}", filePath);
+
                     byte[] imageData = File.ReadAllBytes(filePath);
 
                     var uploadCommand = new UploadImageCommand
@@ -130,20 +146,29 @@ namespace LNUBookShareUI.ViewModels
 
                     string newPhysicalPath = await _mediator.Send(uploadCommand);
                     CoverImagePath = newPhysicalPath;
+                    _logger.LogInformation("Обкладинку успішно завантажено на сервер: {NewPath}", newPhysicalPath);
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError(ex, "Не вдалося завантажити фото обкладинки.");
                     _ = MessageBox.Show($"Не вдалося завантажити фото: {ex.Message}", "Помилка");
                 }
+            }
+            else
+            {
+                _logger.LogInformation("Користувач скасував вибір фото.");
             }
         }
 
         private async Task Save(object window)
         {
+            _logger.LogInformation("Спроба збереження книги: '{Title}' (Автор: {Author})", Title, Author);
+
             try
             {
                 if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Author) || SelectedCategory == null)
                 {
+                    _logger.LogWarning("Валідація не пройшла: відсутні обов'язкові поля.");
                     throw new Exception("Назва, Автор та Категорія є обов'язковими.");
                 }
 
@@ -167,6 +192,8 @@ namespace LNUBookShareUI.ViewModels
 
                 _ = await _mediator.Send(command);
 
+                _logger.LogInformation("Книгу '{Title}' успішно додано до бази даних.", Title);
+
                 if (window is Window w)
                 {
                     w.Close();
@@ -174,12 +201,14 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка при збереженні книги '{Title}'.", Title);
                 _ = MessageBox.Show($"Не вдалося зберегти книгу: {ex.Message}", "Помилка");
             }
         }
 
         private void Cancel(object window)
         {
+            _logger.LogInformation("Користувач скасував додавання книги.");
             if (window is Window w)
             {
                 w.Close();
