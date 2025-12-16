@@ -50,10 +50,7 @@ namespace LNUBookShareUI.Common
             {
                 var view = this._serviceProvider.GetService<BookDetailsView>();
 
-                var viewModel = new BookDetailsViewModel(
-                    this._serviceProvider.GetService<IMediator>(),
-                    this,
-                    _serviceProvider.GetService<IUserSession>());
+                var viewModel = this._serviceProvider.GetService<BookDetailsViewModel>();
 
                 view.DataContext = viewModel;
 
@@ -82,10 +79,8 @@ namespace LNUBookShareUI.Common
         {
             var profileView = this._serviceProvider.GetService<ProfileView>();
 
-            var viewOtherProfileViewModel = new ViewOtherProfileViewModel(
-                this._serviceProvider.GetService<IMediator>(),
-                this,
-                id);
+            var factory = _serviceProvider.GetService<Func<int, ViewOtherProfileViewModel>>();
+            var viewOtherProfileViewModel = factory(id);
 
             profileView.DataContext = viewOtherProfileViewModel;
             profileView.Show();

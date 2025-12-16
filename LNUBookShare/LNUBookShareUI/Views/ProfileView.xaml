@@ -255,5 +255,22 @@
                 ToolTip="Додати нову книгу"
                 Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"
                 Command="{Binding OpenAddBookCommand}"/>
+
+
+        <Grid
+            Background="#80000000"
+            Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"
+            Panel.ZIndex="100"
+            Grid.RowSpan="5">
+
+
+            <Path
+                Style="{StaticResource LoadingSpinnerStyle}"
+                Width="20"
+                Height="20"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"/>
+        </Grid>
+
     </Grid>
 </Window>

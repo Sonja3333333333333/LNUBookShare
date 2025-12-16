@@ -13,6 +13,8 @@ using LNUBookShareUI.Common;
 
 using MediatR;
 
+using Microsoft.Extensions.Logging;
+
 namespace LNUBookShareUI.ViewModels
 {
     public class FavoritesViewModel : ViewModelBase
@@ -21,19 +23,21 @@ namespace LNUBookShareUI.ViewModels
         private readonly INavigationService _navigationService;
         private readonly IUserSession _userSession;
         private readonly int _pageSize = 10;
+        private readonly ILogger<FavoritesViewModel> _logger;
 
-        private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new ();
+        private ObservableCollection<FavoriteBookCardDto> _favoriteBooks = new();
         private int _totalResults;
         private int _currentPage = 1;
         private int _totalPages = 1;
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
 
-        public FavoritesViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
+        public FavoritesViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession, ILogger<FavoritesViewModel> logger)
         {
             _mediator = mediator;
             _userSession = userSession;
             _navigationService = navigationService;
+            _logger = logger;
 
             SortOptions = new Dictionary<BookSortCriteria, string>
             {
@@ -55,6 +59,8 @@ namespace LNUBookShareUI.ViewModels
 
             OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
             ViewOwnerProfileCommand = new RelayCommand<int>(ViewOwnerProfile);
+
+            _logger.LogInformation("FavoritesViewModel ініціалізовано для користувача ID: {UserId}.", _userSession.GetUserId());
 
             _ = LoadFavoritesAsync();
         }
@@ -86,6 +92,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (SetProperty(ref _selectedSort, value))
                 {
+                    _logger.LogInformation("Користувач ID: {UserId} змінив сортування на: {Sort}.", _userSession.GetUserId(), value);
                     _ = LoadFavoritesAsync();
                 }
             }
@@ -98,6 +105,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (SetProperty(ref _selectedStatusFilter, value))
                 {
+                    _logger.LogInformation("Користувач ID: {UserId} змінив фільтр статусу на: {Filter}.", _userSession.GetUserId(), value);
                     _ = LoadFavoritesAsync();
                 }
             }
@@ -127,6 +135,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (bookId > 0)
             {
+                _logger.LogInformation("Користувач ID: {UserId} переглядає деталі книги ID: {BookId} зі списку улюблених.", _userSession.GetUserId(), bookId);
                 _navigationService.ShowBookDetails(bookId);
             }
         }
@@ -135,12 +144,22 @@ namespace LNUBookShareUI.ViewModels
         {
             if (ownerId > 0)
             {
+                _logger.LogInformation("Користувач ID: {UserId} переглядає профіль власника ID: {OwnerId} зі списку улюблених.", _userSession.GetUserId(), ownerId);
                 _navigationService.ShowViewProfile(ownerId);
             }
         }
 
         private async Task LoadFavoritesAsync()
         {
+            IsLoading = true;
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation(
+                "Завантаження улюблених для користувача ID: {UserId}. Сторінка: {Page}, Фільтр: {Filter}, Сортування: {Sort}",
+                userId,
+                _currentPage,
+                _selectedStatusFilter,
+                _selectedSort);
+
             try
             {
                 var query = new GetFavoriteBooksQuery
@@ -172,15 +191,25 @@ namespace LNUBookShareUI.ViewModels
                     TotalResults = result.TotalCount;
                     CommandManager.InvalidateRequerySuggested();
                 });
+
+                _logger.LogInformation("Улюблені завантажено для користувача ID: {UserId}. Знайдено {Count} книг.", userId, result.TotalCount);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка завантаження улюблених для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Помилка завантаження вподобаних: {ex.Message}", "Помилка");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
         private async Task RemoveFavoriteAsync(int bookId)
         {
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Користувач ID: {UserId} ініціював видалення книги ID: {BookId} з улюблених.", userId, bookId);
+
             try
             {
                 var command = new ToggleFavoriteCommand
@@ -191,36 +220,55 @@ namespace LNUBookShareUI.ViewModels
 
                 _ = await _mediator.Send(command);
 
+                _logger.LogInformation("Книгу ID: {BookId} успішно видалено зі списку улюблених користувача ID: {UserId}.", bookId, userId);
                 await LoadFavoritesAsync();
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка при видаленні книги ID: {BookId} з улюблених для користувача ID: {UserId}.", bookId, userId);
                 _ = MessageBox.Show($"Помилка видалення з вподобаних: {ex.Message}", "Помилка");
             }
         }
 
         private async Task ClearFavoritesAsync()
         {
-            var result = MessageBox.Show(
-                "Ви впевнені, що хочете видалити ВСІ книги з вподобань?",
-                "Підтвердження",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
+            IsLoading = true;
+            int userId = _userSession.GetUserId();
 
-            if (result != MessageBoxResult.Yes)
-            {
-                return;
-            }
+            // Логуємо намір
+            _logger.LogWarning("Користувач ID: {UserId} натиснув кнопку 'Очистити все'. Очікування підтвердження.", userId);
 
             try
             {
-                var command = new ClearFavoritesCommand { UserId = _userSession.GetUserId() };
+                var result = MessageBox.Show(
+                    "Ви впевнені, що хочете видалити ВСІ книги з вподобань?",
+                    "Підтвердження",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result != MessageBoxResult.Yes)
+                {
+                    _logger.LogInformation("Користувач ID: {UserId} скасував очищення списку улюблених.", userId);
+                    return; // Тут ми виходимо, finally спрацює і вимкне лоадер
+                }
+
+                _logger.LogInformation("Користувач ID: {UserId} підтвердив очищення. Виконується видалення...", userId);
+
+                var command = new ClearFavoritesCommand { UserId = userId };
                 _ = await _mediator.Send(command);
+
+                _logger.LogInformation("Список улюблених для користувача ID: {UserId} успішно очищено.", userId);
+
                 await LoadFavoritesAsync();
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка очищення списку улюблених для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Помилка очищення: {ex.Message}", "Помилка");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
@@ -230,6 +278,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (CanGoToNextPage())
             {
+                _logger.LogInformation("Користувач ID: {UserId} переходить на наступну сторінку улюблених.", _userSession.GetUserId());
                 CurrentPage++;
                 await LoadFavoritesAsync();
             }
@@ -241,6 +290,7 @@ namespace LNUBookShareUI.ViewModels
         {
             if (CanGoToPreviousPage())
             {
+                _logger.LogInformation("Користувач ID: {UserId} переходить на попередню сторінку улюблених.", _userSession.GetUserId());
                 CurrentPage--;
                 await LoadFavoritesAsync();
             }
@@ -248,6 +298,7 @@ namespace LNUBookShareUI.ViewModels
 
         private void GoBack(object parameter)
         {
+            _logger.LogInformation("Користувач ID: {UserId} виходить зі списку улюблених.", _userSession.GetUserId());
             if (parameter is Window w)
             {
                 w.Close();

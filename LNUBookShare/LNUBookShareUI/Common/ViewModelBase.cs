@@ -24,5 +24,19 @@ namespace LNUBookShareUI.Common
             this.OnPropertyChanged(propertyName);
             return true;
         }
+
+        private bool _isLoading;
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set
+            {
+                if (_isLoading != value)
+                {
+                    _isLoading = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
     }
 }

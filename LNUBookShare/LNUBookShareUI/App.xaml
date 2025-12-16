@@ -54,10 +54,40 @@
                             <DoubleAnimation 
                                 Storyboard.TargetProperty="(Border.Effect).(DropShadowEffect.Opacity)"
                                 To="0" Duration="0:0:0.2"/>
+             xmlns:local="clr-namespace:LNUBookShareUI"
+             >
+    <Application.Resources>        
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+        <Style x:Key="LoadingSpinnerStyle" TargetType="Path">
+            <Setter Property="Stroke" Value="#3498db"/>
+            <Setter Property="StrokeThickness" Value="4"/>
+            <Setter Property="Data" Value="M 10,50 A 20,20 0 1 1 50,10"/>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <RotateTransform/>
+                </Setter.Value>
+            </Setter>
+
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Loaded">
+                    <BeginStoryboard>
+                        <Storyboard RepeatBehavior="Forever">
+                            <DoubleAnimation
+                                Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                From="0"
+                                To="360"
+                                Duration="0:0:1"/>
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
             </Style.Triggers>
         </Style>
     </Application.Resources>
+</Application>
+
+
+    </Application.Resources>
+
 </Application>
