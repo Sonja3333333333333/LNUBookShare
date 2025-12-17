@@ -3,58 +3,105 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-        
         xmlns:vm="clr-namespace:LNUBookShareUI.ViewModels"
-        
         mc:Ignorable="d" 
         d:DataContext="{d:DesignInstance Type=vm:EditProfileViewModel}"
-        
         Title="Редагувати профіль" 
-        Height="450" 
-        Width="350"
-        WindowStartupLocation="CenterOwner">
+        Height="600" Width="400"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="{StaticResource BackgroundColor}">
 
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+    <Window.Resources>
+        <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,5"/>
+        </Style>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,30">
-            <Ellipse Width="100" Height="100" Stroke="Gray" StrokeThickness="2">
-                <Ellipse.Fill>
-                    <ImageBrush ImageSource="{Binding ProfileImageUrl}" 
-                        Stretch="UniformToFill"/>
-                </Ellipse.Fill>
-            </Ellipse>
-            <Button Content="Додати (Змінити) фото" VerticalAlignment="Center" Margin="15,0,0,0"
-                    Command="{Binding ChangePhotoCommand}"
-            />
-        </StackPanel>
+        <Style x:Key="SecondaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EEE"/>
+                    <Setter Property="Foreground" Value="{StaticResource TextPrimaryColor}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
-        <TextBlock Grid.Row="1" Text="Прізвище"/>
-        <TextBox Grid.Row="1" Text="{Binding LastName}" Margin="0,20,0,10"/>
+    <Border Style="{StaticResource CardStyle}" Margin="20">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <TextBlock Grid.Row="2" Text="Ім'я" Margin="0,10,0,0"/>
-        <TextBox Grid.Row="2" Text="{Binding FirstName}" Margin="0,30,0,10"/>
+            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Auto" Padding="0,0,5,0">
+                <StackPanel>
 
-        <TextBlock Grid.Row="3" Text="Факультет" Margin="0,10,0,0"/>
-        <ComboBox Grid.Row="3" Margin="0,30,0,10"
-                  ItemsSource="{Binding Faculties}"
-                  SelectedItem="{Binding SelectedFaculty}"
-                  DisplayMemberPath="Name" />
-        <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="Скасувати" Width="100" Margin="0,0,10,0" IsCancel="True"
-                    Command="{Binding CancelCommand}"
-                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+                    <StackPanel HorizontalAlignment="Center" Margin="0,0,0,30">
+                        <Ellipse Width="120" Height="120" 
+                                 Stroke="{StaticResource PrimaryColor}" 
+                                 StrokeThickness="2"
+                                 Effect="{StaticResource {x:Static DropShadowEffect.ShadowDepthProperty}}">
+                            <Ellipse.Fill>
+                                <ImageBrush ImageSource="{Binding ProfileImageUrl}" Stretch="UniformToFill"/>
+                            </Ellipse.Fill>
+                        </Ellipse>
 
-            <Button Content="Зберегти" Width="100" IsDefault="True"
-                    Command="{Binding SaveCommand}"
-                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
-        </StackPanel>
-    </Grid>
+                        <Button Content="📸 Змінити фото" 
+                                Margin="0,15,0,0" 
+                                HorizontalAlignment="Center"
+                                Style="{StaticResource PrimaryButtonStyle}"
+                                Padding="15,5"
+                                FontSize="12"
+                                Command="{Binding ChangePhotoCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Прізвище" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding LastName}"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Ім'я" Style="{StaticResource LabelStyle}"/>
+                        <TextBox Text="{Binding FirstName}"/>
+                    </StackPanel>
+
+                    <StackPanel Margin="0,0,0,15">
+                        <TextBlock Text="Факультет" Style="{StaticResource LabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding Faculties}"
+                                  SelectedItem="{Binding SelectedFaculty}"
+                                  DisplayMemberPath="Name"
+                                  Height="35"
+                                  Padding="5"
+                                  VerticalContentAlignment="Center"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Скасувати" 
+                        Width="100" 
+                        Margin="0,0,10,0" 
+                        IsCancel="True"
+                        Style="{StaticResource SecondaryButtonStyle}"
+                        Command="{Binding CancelCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+
+                <Button Content="Зберегти" 
+                        Width="100" 
+                        IsDefault="True"
+                        Style="{StaticResource PrimaryButtonStyle}"
+                        Command="{Binding SaveCommand}"
+                        CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}" />
+            </StackPanel>
+        </Grid>
+    </Border>
 </Window>
