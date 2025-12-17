@@ -30,7 +30,7 @@ namespace LNUBookShareUI.ViewModels
 
         private ProfileDto _profile;
         private bool _isMyProfile;
-        private ObservableCollection<OwnedBookDto> _allOwnedBooks = new ();
+        private ObservableCollection<OwnedBookDto> _allOwnedBooks = new();
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
 
@@ -60,6 +60,8 @@ namespace LNUBookShareUI.ViewModels
             SetFilterIssuedCommand = new RelayCommand(() => SelectedStatusFilter = BookFilterStatus.Issued);
 
             GoBackCommand = new RelayCommand<object>(GoBack);
+
+            LogoutCommand = new RelayCommand<object>(OnLogout);
 
             OpenBookDetailsCommand = new RelayCommand<int>(OpenBookDetails);
             OpenEditProfileCommand = new RelayCommand(async () => await OpenEditProfile());
@@ -128,6 +130,8 @@ namespace LNUBookShareUI.ViewModels
         public ICommand SetFilterIssuedCommand { get; }
 
         public ICommand GoBackCommand { get; }
+
+        public ICommand LogoutCommand { get; }
 
         public ICommand OpenEditProfileCommand { get; }
 
@@ -298,6 +302,47 @@ namespace LNUBookShareUI.ViewModels
             if (window is Window w)
             {
                 w.Close();
+            }
+        }
+
+        private void OnLogout(object parameter)
+        {
+            int userId = _userSession.GetUserId();
+            MessageBoxResult result = MessageBox.Show(
+                "Ви впевнені, що хочете вийти з облікового запису?",
+                "Підтвердження виходу",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                try
+                {
+                    _userSession.ClearSession();
+
+                    _navigationService.ShowLogin();
+
+                    List<Window> windowsToClose = Application.Current.Windows.Cast<Window>().ToList();
+
+                    foreach (Window w in windowsToClose)
+                    {
+                        if (w != Application.Current.MainWindow)
+                        {
+                            w.Close();
+                        }
+                    }
+
+                    _logger.LogInformation("Програма успішно перенаправлена на Login/Registration.", userId);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Помилка під час виходу користувача ID: {UserId}.", userId);
+                    _ = MessageBox.Show($"Помилка виходу: {ex.Message}", "Помилка");
+                }
+            }
+            else
+            {
+                _logger.LogInformation("Користувач ID: {UserId} скасував вихід.", userId);
             }
         }
 
