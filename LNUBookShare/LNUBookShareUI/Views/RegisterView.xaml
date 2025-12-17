@@ -10,12 +10,19 @@
         d:DataContext="{d:DesignInstance Type=vm:RegisterViewModel}"
         
         Title="Реєстрація"
-        Height="600" Width="400"
+        Height="700" Width="400"
         WindowStartupLocation="CenterScreen"
         Background="White">
 
     <Grid>
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+            <Image Source="/Images/book.png" 
+               Width="80" 
+               Height="80" 
+               HorizontalAlignment="Center" 
+               Margin="0,0,0,20"
+               RenderOptions.BitmapScalingMode="HighQuality"/>
+            
             <TextBlock Text="Реєстрація"
                        FontSize="20"
                        FontWeight="Bold"
