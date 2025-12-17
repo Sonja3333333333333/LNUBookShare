@@ -15,10 +15,5 @@ namespace LNUBookShareUI.Common
         {
             return CurrentUser != null;
         }
-
-        public void ClearSession()
-        {
-            CurrentUser = null;
-        }
     }
 }
