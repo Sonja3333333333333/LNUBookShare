@@ -39,27 +39,6 @@ namespace LNUBookShareUI
         {
             base.OnStartup(e);
 
-            // var editProfileView = _serviceProvider.GetService<EditProfileView>();
-            // var editProfileViewModel = _serviceProvider.GetService<EditProfileViewModel>();
-            // editProfileView.DataContext = editProfileViewModel;
-            // editProfileView.Show();
-
-            // Щоб показати головне вікно розкоментуй мене
-            var mainView = this._serviceProvider.GetService<MainView>();
-            var mainViewModel = this._serviceProvider.GetService<MainViewModel>();
-            mainView.DataContext = mainViewModel;
-            mainView.Show();
-
-            // Щоб показати автентифікацію розкоментуй мене
-            //var loginView = _serviceProvider.GetService<LoginView>();
-            //loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
-            //loginView.Show();
-
-            // Щоб показати вікно Профіль розкоментуй мене
-            // var profileView = _serviceProvider.GetService<ProfileView>();
-            // var profileViewModel = _serviceProvider.GetService<ProfileViewModel>();
-            // profileView.DataContext = profileViewModel;
-            // profileView.Show();
             try
             {
                 Log.Information("Відкриття логіну");

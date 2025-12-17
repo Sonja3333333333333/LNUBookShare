@@ -5,142 +5,80 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:LNUBookShareUI.ViewModels"
         mc:Ignorable="d"
+        
+        
         d:DataContext="{d:DesignInstance Type=vm:RegisterViewModel}"
+        
         Title="Реєстрація"
-        Height="750" Width="450"
+        Height="600" Width="400"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="NoResize"
-        Background="{StaticResource BackgroundColor}">
-
-    <Window.Resources>
-        <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="{StaticResource TextSecondaryColor}"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Margin" Value="0,0,0,5"/>
-        </Style>
-
-        <Style TargetType="PasswordBox">
-            <Setter Property="Padding" Value="5"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Height" Value="35"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderColor}"/>
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="false" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsEnabled" Value="false">
-                                <Setter Property="Opacity" TargetName="border" Value="0.56"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="true">
-                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource PrimaryColor}"/>
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocused" Value="true">
-                                <Setter Property="BorderBrush" TargetName="border" Value="{StaticResource PrimaryColor}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </Window.Resources>
+        Background="White">
 
     <Grid>
-        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="380">
+        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="300">
+            <TextBlock Text="Реєстрація"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       TextAlignment="Center"
+                       Margin="0,0,0,20"/>
 
-            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,20">
-                <TextBlock Text="📚" FontSize="50" HorizontalAlignment="Center" Margin="0,0,0,5"/>
-                <TextBlock Text="Реєстрація"
-                           FontSize="24"
-                           FontWeight="Bold"
-                           Foreground="{StaticResource PrimaryColor}"
-                           TextAlignment="Center"/>
-                <TextBlock Text="Створіть новий обліковий запис"
-                           FontSize="14"
-                           Foreground="{StaticResource TextSecondaryColor}"
-                           TextAlignment="Center"
-                           Margin="0,5,0,0"/>
-            </StackPanel>
+         
+            <Border BorderBrush="Gray" BorderThickness="1" Padding="20" CornerRadius="5">
+                <StackPanel>
 
-            <Border Style="{StaticResource CardStyle}">
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,5,0" MaxHeight="550">
-                    <StackPanel>
+                
+                    <Label Content="Прізвище" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
+                   
+                    <TextBox Height="30"
+                             Margin="0,0,0,10"
+                             VerticalContentAlignment="Center"
+                             Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="Прізвище" Style="{StaticResource LabelStyle}"/>
-                            <TextBox Text="{Binding LastName, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
+                    <Label Content="Ім’я" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
+                    <TextBox Height="30"
+                             Margin="0,0,0,10"
+                             VerticalContentAlignment="Center"
+                             Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="Ім'я" Style="{StaticResource LabelStyle}"/>
-                            <TextBox Text="{Binding FirstName, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
+                    <Label Content="Факультет" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
+                   
+                    <ComboBox Height="30"
+                              Margin="0,0,0,10"
+                              ItemsSource="{Binding Faculties}"
+                              SelectedItem="{Binding SelectedFaculty}"
+                              DisplayMemberPath="Name"/>
 
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="Факультет" Style="{StaticResource LabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding Faculties}"
-                                      SelectedItem="{Binding SelectedFaculty}"
-                                      DisplayMemberPath="Name"
-                                      Height="35"
-                                      Padding="5"
-                                      VerticalContentAlignment="Center"/>
-                        </StackPanel>
+                    <Label Content="Email (університетська пошта)" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
+                    <TextBox Height="30"
+                             Margin="0,0,0,10"
+                             VerticalContentAlignment="Center"
+                             Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
 
-                        <StackPanel Margin="0,0,0,15">
-                            <TextBlock Text="Email (університетська пошта)" Style="{StaticResource LabelStyle}"/>
-                            <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"/>
-                        </StackPanel>
+                    <Label Content="Password" FontSize="12" Foreground="Gray" Margin="0,0,0,2"/>
+                  
+                    <PasswordBox x:Name="UserPasswordBox"
+                                 Height="30"
+                                 Margin="0,0,0,10"
+                                 VerticalContentAlignment="Center"/>
 
-                        <StackPanel Margin="0,0,0,20">
-                            <TextBlock Text="Пароль" Style="{StaticResource LabelStyle}"/>
-                            <PasswordBox x:Name="UserPasswordBox"/>
-                        </StackPanel>
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="Red" TextWrapping="Wrap" Margin="0,0,0,10"/>
+                    <Button Content="Надіслати підтвердження"
+                            Margin="0,0,0,10" Height="35" 
+                            FontWeight="Bold" IsDefault="True"
+                            Command="{Binding RegisterCommand}"
+                            CommandParameter="{Binding ElementName=UserPasswordBox}"/>
 
-                        <TextBlock Text="{Binding ErrorMessage}" 
-                                   TextWrapping="Wrap" 
-                                   TextAlignment="Center"
-                                   Margin="0,0,0,15"
-                                   FontSize="13">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="#DC3545"/>
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding ErrorMessage}" Value="">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding ErrorMessage}" Value="{x:Null}">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+               
+                    <TextBlock TextAlignment="Center">
+                        <Hyperlink Foreground="Blue" TextDecorations="None"
+       
+                                   Command="{Binding GoToLoginCommand}"
+                                   CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
+                            Уже маєте акаунт? Увійти
+                        </Hyperlink>
+                    </TextBlock>
 
-                        <Button Content="Надіслати підтвердження"
-                                Command="{Binding RegisterCommand}"
-                                CommandParameter="{Binding ElementName=UserPasswordBox}"
-                                Style="{StaticResource PrimaryButtonStyle}"
-                                IsDefault="True"
-                                Height="40"
-                                Margin="0,0,0,15"/>
-
-                        <TextBlock TextAlignment="Center" FontSize="13">
-                            <Run Text="Вже маєте акаунт?" Foreground="{StaticResource TextSecondaryColor}"/>
-                            <Hyperlink Command="{Binding GoToLoginCommand}"
-                                       CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"
-                                       Foreground="{StaticResource PrimaryColor}"
-                                       TextDecorations="None">
-                                <Run Text="Увійти" FontWeight="Bold"/>
-                            </Hyperlink>
-                        </TextBlock>
-
-                    </StackPanel>
-                </ScrollViewer>
+                </StackPanel>
             </Border>
         </StackPanel>
     </Grid>
