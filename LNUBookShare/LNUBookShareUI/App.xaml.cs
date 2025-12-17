@@ -45,9 +45,6 @@ namespace LNUBookShareUI
 
                 var loginView = _serviceProvider.GetService<LoginView>();
                 loginView.DataContext = _serviceProvider.GetService<LoginViewModel>();
-
-                this.MainWindow = loginView;
-
                 loginView.Show();
             }
             catch (Exception ex)
