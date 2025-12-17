@@ -105,7 +105,39 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Button Grid.Row="0" Content="← Назад" HorizontalAlignment="Left" Margin="0,0,0,10" Padding="10,5" Command="{Binding GoBackCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+        <Grid Grid.Row="0" Margin="0,0,0,10">
+            <Button Content="← Назад" 
+                    HorizontalAlignment="Left" 
+                    Padding="10,5" 
+                    Command="{Binding GoBackCommand}" 
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
+
+            <Button Content="Вихід" 
+                    HorizontalAlignment="Right" 
+                    Padding="10,5"
+                    Style="{StaticResource LinkButton}"
+                    Foreground="Crimson"
+                    Visibility="{Binding IsMyProfile, Converter={StaticResource BoolToVis}}"
+                    Command="{Binding LogoutCommand}" 
+                    CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" To="Red" Duration="0:0:0.1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetProperty="(Button.Foreground).(SolidColorBrush.Color)" To="Crimson" Duration="0:0:0.1"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
+            </Button>
+        </Grid>
 
         <Border Grid.Row="1" BorderBrush="LightGray" BorderThickness="1" Padding="15">
             <Grid>
