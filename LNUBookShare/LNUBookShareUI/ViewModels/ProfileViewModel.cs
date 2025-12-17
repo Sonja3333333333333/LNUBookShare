@@ -66,6 +66,8 @@ namespace LNUBookShareUI.ViewModels
             OpenAddBookCommand = new RelayCommand(async () => await OpenAddBook());
             OpenEditBookCommand = new RelayCommand<int>(async (id) => await OpenEditBook(id));
 
+            LogoutCommand = new RelayCommand<object>(Logout);
+
             _logger.LogInformation("ProfileViewModel ініціалізовано для користувача ID: {UserId}.", _userSession.GetUserId());
 
             _ = LoadProfileAsync();
@@ -136,6 +138,8 @@ namespace LNUBookShareUI.ViewModels
         public ICommand OpenAddBookCommand { get; }
 
         public ICommand OpenEditBookCommand { get; }
+
+        public ICommand LogoutCommand { get; }
 
         private async Task OpenEditBook(int bookId)
         {
@@ -316,6 +320,43 @@ namespace LNUBookShareUI.ViewModels
                 case BookSortCriteria.Year:
                     OwnedBooksView.SortDescriptions.Add(new SortDescription("Year", ListSortDirection.Ascending));
                     break;
+            }
+        }
+
+        private void Logout(object parameter)
+        {
+            _logger.LogInformation("Користувач ID: {UserId} натиснув 'Вихід'.", _userSession.GetUserId());
+
+            var result = MessageBox.Show(
+                "Ви дійсно хочете вийти з облікового запису?",
+                "Підтвердження виходу",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
+
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            _logger.LogInformation("Користувач ID: {UserId} підтвердив вихід із системи.", _userSession.GetUserId());
+
+            _userSession.CurrentUser = null;
+
+            _navigationService.ShowLogin();
+
+            var windowsToClose = new List<Window>();
+
+            foreach (Window w in Application.Current.Windows)
+            {
+                if (w.Title != "Вхід" && w.GetType().Name != "LoginView")
+                {
+                    windowsToClose.Add(w);
+                }
+            }
+
+            foreach (var w in windowsToClose)
+            {
+                w.Close();
             }
         }
     }
