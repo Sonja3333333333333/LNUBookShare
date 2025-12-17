@@ -16,6 +16,7 @@ using LNUBookShareBLL.Features.Profile;
 using LNUBookShareUI.Common;
 
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -25,18 +26,21 @@ namespace LNUBookShareUI.ViewModels
         private readonly IUserSession _userSession;
         private readonly INavigationService _navigationService;
 
+        private readonly ILogger<ProfileViewModel> _logger;
+
         private ProfileDto _profile;
         private bool _isMyProfile;
         private ObservableCollection<OwnedBookDto> _allOwnedBooks = new ();
         private BookSortCriteria _selectedSort = BookSortCriteria.Title;
         private BookFilterStatus _selectedStatusFilter = BookFilterStatus.All;
 
-        public ProfileViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession)
+        public ProfileViewModel(IMediator mediator, INavigationService navigationService, IUserSession userSession, ILogger<ProfileViewModel> logger)
         {
             _mediator = mediator;
             IsMyProfile = true;
             _navigationService = navigationService;
             _userSession = userSession;
+            _logger = logger;
 
             OwnedBooksView = CollectionViewSource.GetDefaultView(_allOwnedBooks);
             OwnedBooksView.Filter = FilterBooks;
@@ -61,6 +65,8 @@ namespace LNUBookShareUI.ViewModels
             OpenEditProfileCommand = new RelayCommand(async () => await OpenEditProfile());
             OpenAddBookCommand = new RelayCommand(async () => await OpenAddBook());
             OpenEditBookCommand = new RelayCommand<int>(async (id) => await OpenEditBook(id));
+
+            _logger.LogInformation("ProfileViewModel ініціалізовано для користувача ID: {UserId}.", _userSession.GetUserId());
 
             _ = LoadProfileAsync();
         }
@@ -92,6 +98,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (SetProperty(ref _selectedSort, value))
                 {
+                    _logger.LogInformation("Користувач ID: {UserId} змінив сортування своїх книг на: {Sort}.", _userSession.GetUserId(), value);
                     ApplySort();
                 }
             }
@@ -104,6 +111,7 @@ namespace LNUBookShareUI.ViewModels
             {
                 if (SetProperty(ref _selectedStatusFilter, value))
                 {
+                    _logger.LogInformation("Користувач ID: {UserId} змінив фільтр своїх книг на: {Filter}.", _userSession.GetUserId(), value);
                     ApplyFilter();
                 }
             }
@@ -131,6 +139,9 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task OpenEditBook(int bookId)
         {
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Користувач ID: {UserId} відкриває редагування своєї книги ID: {BookId}.", userId, bookId);
+
             if (bookId == 0)
             {
                 return;
@@ -143,18 +154,25 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка при спробі відкрити редагування книги ID: {BookId} для користувача ID: {UserId}.", bookId, userId);
                 _ = MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}", "Помилка");
             }
         }
 
         private async Task OpenAddBook()
         {
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Користувач ID: {UserId} натиснув 'Додати книгу'.", userId);
+
             await _navigationService.ShowAddBookAsync();
             await LoadProfileAsync();
         }
 
         private async Task OpenEditProfile()
         {
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Користувач ID: {UserId} переходить до редагування профілю.", userId);
+
             try
             {
                 await _navigationService.ShowEditProfile();
@@ -162,6 +180,7 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка переходу до редагування профілю користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Не вдалося відкрити редактор: {ex.Message}");
             }
         }
@@ -170,16 +189,19 @@ namespace LNUBookShareUI.ViewModels
         {
             if (bookId > 0)
             {
+                _logger.LogInformation("Користувач ID: {UserId} переглядає деталі своєї книги ID: {BookId}.", _userSession.GetUserId(), bookId);
                 _navigationService.ShowBookDetails(bookId);
             }
         }
 
         private async Task LoadProfileAsync()
         {
+            IsLoading = true;
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Завантаження даних особистого профілю для користувача ID: {UserId}.", userId);
+
             try
             {
-                int userId = _userSession.GetUserId();
-
                 var query = new GetProfileQuery { UserId = userId };
                 var result = await _mediator.Send(query);
 
@@ -195,23 +217,33 @@ namespace LNUBookShareUI.ViewModels
                 });
 
                 ApplySort();
+                _logger.LogInformation("Профіль завантажено. Користувач ID: {UserId} має {Count} книг.", userId, result.OwnedBooks.Count);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка завантаження профілю для користувача ID: {UserId}.", userId);
                 _ = MessageBox.Show($"Помилка завантаження профілю: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
         private async Task DeleteBookAsync(int bookId)
         {
-            var command = new DeleteBookCommand
-            {
-                BookId = bookId,
-                CurrentUserId = _userSession.GetUserId(),
-            };
+            IsLoading = true;
+
+            int userId = _userSession.GetUserId();
+            _logger.LogInformation("Користувач ID: {UserId} ініціював видалення своєї книги ID: {BookId}.", userId, bookId);
 
             try
             {
+                var command = new DeleteBookCommand
+                {
+                    BookId = bookId,
+                    CurrentUserId = _userSession.GetUserId(),
+                };
                 _ = await _mediator.Send(command);
 
                 var bookToRemove = _allOwnedBooks.FirstOrDefault(b => b.BookId == bookId);
@@ -219,10 +251,17 @@ namespace LNUBookShareUI.ViewModels
                 {
                     _ = _allOwnedBooks.Remove(bookToRemove);
                 }
+
+                _logger.LogInformation("Книгу ID: {BookId} успішно видалено з профілю користувача ID: {UserId}.", bookId, userId);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Помилка видалення книги ID: {BookId} користувачем ID: {UserId}.", bookId, userId);
                 _ = MessageBox.Show($"Помилка видалення: {ex.Message}");
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 
@@ -255,6 +294,7 @@ namespace LNUBookShareUI.ViewModels
 
         private void GoBack(object window)
         {
+            _logger.LogInformation("Користувач ID: {UserId} виходить з профілю.", _userSession.GetUserId());
             if (window is Window w)
             {
                 w.Close();

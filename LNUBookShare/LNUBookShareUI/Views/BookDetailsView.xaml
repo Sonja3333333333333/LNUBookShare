@@ -11,18 +11,6 @@
         WindowStartupLocation="CenterOwner"
         Background="{StaticResource BackgroundColor}">
 
-    <Window.Resources>
-
-        <Style x:Key="FavoriteButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding Book.IsFavoritedByCurrentUser}" Value="True">
-                    <Setter Property="Background" Value="#DC3545"/>
-                    <Setter Property="ToolTip" Value="Видалити з улюбленого"/>
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>
-    </Window.Resources>
-
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -38,27 +26,11 @@
                 Foreground="{StaticResource TextSecondaryColor}"
                 BorderThickness="0"
                 Cursor="Hand"
+                FontSize="14"
                 Command="{Binding GoBackCommand}"
-                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}">
-            <Button.Style>
-                <Style TargetType="Button">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="Button">
-                                <ContentPresenter/>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Button.Style>
-        </Button>
+                CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Window}}"/>
 
-        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}" Padding="20">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -123,12 +95,12 @@
                             </StackPanel>
 
                             <StackPanel Grid.Column="1">
-                                <TextBlock Text="{Binding Book.Status}"/>
-                                <TextBlock Text="{Binding Book.CategoryName}"/>
-                                <TextBlock Text="{Binding Book.Year}"/>
-                                <TextBlock Text="{Binding Book.Publisher}"/>
-                                <TextBlock Text="{Binding Book.Language}"/>
-                                <TextBlock Text="{Binding Book.Isbn}"/>
+                                <TextBlock Text="{Binding Book.Status}" Foreground="{StaticResource TextPrimaryColor}"/>
+                                <TextBlock Text="{Binding Book.CategoryName}" Foreground="{StaticResource TextPrimaryColor}"/>
+                                <TextBlock Text="{Binding Book.Year}" Foreground="{StaticResource TextPrimaryColor}"/>
+                                <TextBlock Text="{Binding Book.Publisher}" Foreground="{StaticResource TextPrimaryColor}"/>
+                                <TextBlock Text="{Binding Book.Language}" Foreground="{StaticResource TextPrimaryColor}"/>
+                                <TextBlock Text="{Binding Book.Isbn}" Foreground="{StaticResource TextPrimaryColor}"/>
                             </StackPanel>
                         </Grid>
 
@@ -138,6 +110,7 @@
                             <TextBlock Text="Власник книги" FontSize="14" Foreground="{StaticResource TextSecondaryColor}" Margin="0,0,0,5"/>
                             <Button Content="{Binding Book.OwnerFullName}"
                                     Style="{StaticResource LinkButtonStyle}"
+                                    FontSize="16"
                                     HorizontalAlignment="Left"
                                     Command="{Binding ViewOwnerProfileCommand}"/>
                             <TextBlock Text="{Binding Book.OwnerEmail}" FontSize="14" Foreground="#888" Margin="0,2,0,0"/>
@@ -146,10 +119,11 @@
                 </ScrollViewer>
 
                 <StackPanel Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="0,20,0,0">
-                    <Button Style="{StaticResource FavoriteButtonStyle}"
+                    <Button Style="{StaticResource FavoriteToggleButtonStyle}"
                             Command="{Binding ToggleFavoriteCommand}"
                             HorizontalAlignment="Left"
-                            MinWidth="200">
+                            MinWidth="200"
+                            Height="40">
                         <TextBlock>
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -169,5 +143,17 @@
 
             </Grid>
         </Border>
+
+        <Grid Background="#80000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"
+              Panel.ZIndex="100"
+              Grid.RowSpan="2">
+            <Path Style="{StaticResource LoadingSpinnerStyle}"
+                  Width="20"
+                  Height="20"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"/>
+        </Grid>
+
     </Grid>
 </Window>

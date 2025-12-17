@@ -12,6 +12,7 @@ using LNUBookShareBLL.Features.Faculties;
 using LNUBookShareUI.Common;
 
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace LNUBookShareUI.ViewModels
 {
@@ -19,6 +20,7 @@ namespace LNUBookShareUI.ViewModels
     {
         private readonly IMediator _mediator;
         private readonly INavigationService _navigationService;
+        private readonly ILogger<RegisterViewModel> _logger;
 
         private string _firstName;
         private string _lastName;
@@ -26,13 +28,16 @@ namespace LNUBookShareUI.ViewModels
         private FacultyDto _selectedFaculty;
         private string _errorMessage;
 
-        public RegisterViewModel(IMediator mediator, INavigationService navigationService)
+        public RegisterViewModel(IMediator mediator, INavigationService navigationService, ILogger<RegisterViewModel> logger)
         {
             _mediator = mediator;
             _navigationService = navigationService;
+            _logger = logger;
 
             RegisterCommand = new RelayCommand<object>(async (param) => await RegisterAsync(param));
             GoToLoginCommand = new RelayCommand<object>(GoToLogin);
+
+            _logger.LogInformation("RegisterViewModel ініціалізовано. Відкрито форму реєстрації.");
 
             _ = LoadFacultiesAsync();
         }
@@ -75,8 +80,11 @@ namespace LNUBookShareUI.ViewModels
 
         private async Task RegisterAsync(object parameter)
         {
+            _logger.LogInformation("Користувач ініціював спробу реєстрації. Email: {Email}", Email);
+
             if (parameter is not PasswordBox passwordBox)
             {
+                _logger.LogWarning("Помилка UI: Не вдалося отримати доступ до PasswordBox.");
                 ErrorMessage = "Сталася помилка (PasswordBox == null).";
                 return;
             }
@@ -91,18 +99,21 @@ namespace LNUBookShareUI.ViewModels
                     string.IsNullOrWhiteSpace(password) ||
                     SelectedFaculty == null)
                 {
+                    _logger.LogWarning("Невдала спроба реєстрації (Email: {Email}): Не всі поля заповнені.", Email);
                     ErrorMessage = "Будь ласка, заповніть усі поля.";
                     return;
                 }
 
                 if (!Email.EndsWith("@lnu.edu.ua"))
                 {
+                    _logger.LogWarning("Невдала спроба реєстрації: Недопустимий домен пошти ({Email}).", Email);
                     ErrorMessage = "Дозволено лише пошту @lnu.edu.ua.";
                     return;
                 }
 
                 if (password.Length < 9)
                 {
+                    _logger.LogWarning("Невдала спроба реєстрації (Email: {Email}): Пароль занадто короткий.", Email);
                     ErrorMessage = "Пароль >= 9 символів.";
                     return;
                 }
@@ -116,7 +127,11 @@ namespace LNUBookShareUI.ViewModels
                     FacultyId = SelectedFaculty.FacultyId,
                 };
 
+                _logger.LogInformation("Відправка запиту на реєстрацію для {Email}...", Email);
+
                 _ = await _mediator.Send(command);
+
+                _logger.LogInformation("Реєстрація успішна для {Email}. Показано повідомлення про підтвердження пошти.", Email);
 
                 _ = MessageBox.Show("Перевірте пошту для підтвердження реєстрації.", "Реєстрація успішна", MessageBoxButton.OK, MessageBoxImage.Information);
 
@@ -124,12 +139,14 @@ namespace LNUBookShareUI.ViewModels
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Критична помилка при реєстрації користувача {Email}.", Email);
                 ErrorMessage = ex.Message;
             }
         }
 
         private async Task LoadFacultiesAsync()
         {
+            _logger.LogInformation("Завантаження списку факультетів для форми реєстрації...");
             try
             {
                 var faculties = await _mediator.Send(new GetAllFacultiesQuery());
@@ -141,15 +158,18 @@ namespace LNUBookShareUI.ViewModels
                         Faculties.Add(f);
                     }
                 });
+                _logger.LogInformation("Список факультетів успішно завантажено ({Count} записів).", Faculties.Count);
             }
             catch (Exception ex)
             {
+                _logger.LogError(ex, "Не вдалося завантажити список факультетів.");
                 ErrorMessage = "Не вдалося завантажити список факультетів: " + ex.Message;
             }
         }
 
         private void GoToLogin(object parameter)
         {
+            _logger.LogInformation("Перехід на сторінку входу.");
             _navigationService.ShowLogin();
 
             Window? windowToClose = null;

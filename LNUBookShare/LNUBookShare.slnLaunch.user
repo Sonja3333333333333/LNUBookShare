@@ -7,7 +7,7 @@
         "Action": "Start"
       },
       {
-        "Path": "LNUBookShare.API\\LNUBookShare.API.csproj",
+        "Path": "LNUBookShareDAL\\LNUBookShareDAL.csproj",
         "Action": "Start"
       }
     ]

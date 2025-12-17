@@ -14,6 +14,23 @@
 
     <Window.Resources>
 
+        <Style x:Key="LinkButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock Text="{TemplateBinding Content}" TextDecorations="Underline" Cursor="Hand"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Foreground" Value="{StaticResource PrimaryColor}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="{StaticResource PrimaryDarkColor}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         <Style x:Key="RemoveButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
             <Setter Property="Background" Value="#DC3545"/>
             <Style.Triggers>
@@ -32,6 +49,49 @@
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="#FFF5F5"/>
                 </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="BorderBrush" Value="LightGray"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="10"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Height" Value="120"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="1.0" ScaleY="1.0"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation 
+                                Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                                To="1.05" Duration="0:0:0.2"/>
+                            <DoubleAnimation 
+                                Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                                To="1.05" Duration="0:0:0.2"/>
+                            
+                            </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation 
+                                Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)"
+                                To="1.0" Duration="0:0:0.2"/>
+                            <DoubleAnimation 
+                                Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleY)"
+                                To="1.0" Duration="0:0:0.2"/>
+                            
+                            </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
             </Style.Triggers>
         </Style>
     </Window.Resources>
@@ -173,7 +233,6 @@
                             </Border>
 
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">
-
                                 <Button Content="{Binding Title}" 
                                         Style="{StaticResource LinkButtonStyle}"
                                         FontSize="18" 
@@ -227,6 +286,18 @@
                 Style="{StaticResource ClearAllButtonStyle}"
                 HorizontalAlignment="Center" 
                 Margin="0,15,0,0" 
-                Width="250"/>
+                Width="250"
+                Padding="10,5"/>
+
+        <Grid Background="#80000000"
+              Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}"
+              Panel.ZIndex="100"
+              Grid.RowSpan="5">
+            <Path Style="{StaticResource LoadingSpinnerStyle}"
+                  Width="20"
+                  Height="20"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"/>
+        </Grid>
     </Grid>
 </Window>
